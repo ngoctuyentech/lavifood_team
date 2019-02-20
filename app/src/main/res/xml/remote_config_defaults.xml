@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<defaultsMap>
+    <entry>
+        <key>default_trial</key>
+        <value>30</value>
+    </entry>
+
+    <entry>
+        <key>default_saleman</key>
+        <value>Mr.Tuyên 0901 393 019</value>
+    </entry>
+
+    <entry>
+        <key>default_transfer_number</key>
+        <value>5</value>
+    </entry>
+
+    <entry>
+        <key>default_expiration_day</key>
+        <value>30</value>
+    </entry>
+
+</defaultsMap>

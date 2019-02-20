@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <fr.ganfra.materialspinner.MaterialSpinner
+        android:id="@+id/spiner_new_order_client_zone"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="32dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="-1dp"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintLeft_toRightOf="@+id/textView80"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/spiner_new_order_client_type">
+
+    </fr.ganfra.materialspinner.MaterialSpinner>
+
+    <fr.ganfra.materialspinner.MaterialSpinner
+        android:id="@+id/spiner_new_order_client_type"
+        android:layout_width="180dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginRight="8dp"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+    </fr.ganfra.materialspinner.MaterialSpinner>
+
+    <TextView
+        android:id="@+id/textView79"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Loại KH"
+        app:layout_constraintTop_toTopOf="@+id/spiner_new_order_client_type"
+        android:layout_marginTop="24dp"
+        android:layout_marginLeft="8dp"
+        app:layout_constraintLeft_toLeftOf="parent" />
+
+    <TextView
+        android:id="@+id/textView80"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="24dp"
+        android:text="Vùng"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/spiner_new_order_client_type" />
+
+    <Button
+        android:id="@+id/btn_dialog_new_order_ok"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="8dp"
+        android:elevation="4dp"
+        android:background="@color/colorPrimary"
+        android:textColor="@android:color/white"
+        android:text="OK"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/spiner_new_order_client_zone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <Button
+        android:id="@+id/btn_filter_client_new"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="24dp"
+        android:background="@color/colorPrimary"
+        android:text="Tạo mới"
+        android:textColor="@android:color/white"
+        app:layout_constraintBottom_toBottomOf="@+id/btn_dialog_new_order_ok"
+        app:layout_constraintEnd_toStartOf="@+id/btn_dialog_new_order_ok" />
+</android.support.constraint.ConstraintLayout>

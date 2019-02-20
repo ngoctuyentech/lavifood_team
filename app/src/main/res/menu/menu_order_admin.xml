@@ -1,0 +1,56 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".MainActivity">
+
+    <item
+        android:id="@+id/action_edit_client"
+        android:orderInCategory="100"
+        android:title="Cập nhật khách hàng"
+        android:visible="true"
+        app:showAsAction="never"
+        />
+
+    <item
+        android:id="@+id/action_view_order_time"
+        android:orderInCategory="100"
+        android:title="DS theo thời gian"
+        android:visible="true"
+        app:showAsAction="never"
+        />
+
+    <item
+        android:id="@+id/action_view_order_client"
+        android:orderInCategory="200"
+        android:title="DS theo KH"
+        android:visible="true"
+        app:showAsAction="never"
+        />
+
+    <item
+        android:id="@+id/action_view_order_product"
+        android:orderInCategory="300"
+        android:title="DS theo SP"
+        android:visible="true"
+        app:showAsAction="never"
+        />
+
+    <item
+        android:id="@+id/action_view_order_employee"
+        android:orderInCategory="300"
+        android:title="DS theo NV"
+        android:visible="true"
+        app:showAsAction="never"
+        />
+
+    <item
+        android:id="@+id/action_logout_orderman"
+        android:orderInCategory="500"
+        android:title="Thoát"
+        android:visible="true"
+        app:showAsAction="never"
+        />
+
+
+
+</menu>

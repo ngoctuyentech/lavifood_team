@@ -1,0 +1,48 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="vn.fcp.freshlife.order.ViewOrderActivity">
+
+    <item
+        android:id="@+id/action_approve_export"
+        android:orderInCategory="100"
+        android:title="Xuất kho"
+        app:showAsAction="always"
+        android:visible="false"/>
+
+    <item
+        android:id="@+id/action_approve_import"
+        android:orderInCategory="100"
+        android:title="Nhập hàng trả"
+        app:showAsAction="never"
+        android:visible="false"/>
+
+    <item
+        android:id="@+id/action_approve_delivery"
+        android:orderInCategory="100"
+        android:title="Giao hàng"
+        app:showAsAction="always"
+        android:visible="false"/>
+
+    <item
+        android:id="@+id/action_approve_denied"
+        android:orderInCategory="100"
+        android:title="Trả hàng"
+        app:showAsAction="never"
+        android:visible="false"/>
+
+    <item
+        android:id="@+id/action_approve_cash_return"
+        android:orderInCategory="100"
+        android:title="Đã thu"
+        app:showAsAction="always"
+        android:visible="false"/>
+
+    <item
+        android:id="@+id/action_approve_update_sys"
+        android:orderInCategory="100"
+        android:title="Cập nhật DS"
+        app:showAsAction="never"
+        android:visible="false"/>
+
+</menu>

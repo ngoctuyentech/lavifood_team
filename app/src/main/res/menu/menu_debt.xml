@@ -1,0 +1,38 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".MainActivity">
+
+    <item
+        android:id="@+id/action_update_debt"
+        android:orderInCategory="100"
+        android:title="Cập nhật công nợ"
+        android:visible="true"
+        app:showAsAction="never"
+        />
+    <item
+        android:id="@+id/action_view_debt_order"
+        android:orderInCategory="200"
+        android:title="Đơn hàng công nợ"
+        android:visible="true"
+        app:showAsAction="never"
+        />
+
+    <item
+        android:id="@+id/action_view_debt_history"
+        android:orderInCategory="200"
+        android:title="Lịch sử công nợ"
+        android:visible="false"
+        app:showAsAction="never"
+        />
+
+    <item
+        android:id="@+id/action_debt_logout"
+        android:orderInCategory="500"
+        android:title="Thoát"
+        android:visible="true"
+        app:showAsAction="never"
+        />
+
+
+</menu>

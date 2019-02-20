@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/storage_check_request"
+            android:icon="@drawable/ic_storage_black_24dp"
+            android:title="Yêu cầu xác nhận tồn kho" />
+
+        <item
+            android:id="@+id/storage_check_confirm"
+            android:title="Xác nhận tồn kho" />
+
+        <item
+            android:id="@+id/cash_check_request"
+            android:icon="@drawable/ic_attach_money_black_24dp"
+            android:title="Yêu cầu xác nhận doanh thu" />
+
+        <item
+            android:id="@+id/cash_check_confirm"
+            android:title="Xác nhận doanh thu" />
+
+        <item
+            android:id="@+id/cash_out_request"
+            android:icon="@drawable/ic_safe_512"
+            android:title="Yêu cầu xác nhận xuất quỹ" />
+
+
+
+        <item
+            android:id="@+id/pos_logout"
+            android:icon="@drawable/ic_exit_to_app_black_24dp"
+            android:title="Đăng xuất" />
+
+    </group>
+
+
+</menu>

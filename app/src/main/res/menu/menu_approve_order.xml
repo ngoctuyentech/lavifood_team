@@ -1,0 +1,21 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="vn.fcp.freshlife.order.ViewOrderActivity">
+    <item
+        android:id="@+id/action_approve_order_out"
+        android:orderInCategory="100"
+        android:title="Duyệt xuất kho"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_approve_order_in"
+        android:orderInCategory="100"
+        android:title="Duyệt nhập kho"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_approve_delete"
+        android:orderInCategory="100"
+        android:title="Không duyệt"
+        app:showAsAction="never" />
+</menu>

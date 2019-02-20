@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/textView169"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="Hình thức KM" />
+
+    <Spinner
+        android:id="@+id/spin_pos_promotion_type"
+        android:layout_width="140dp"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/textView169"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="16dp"
+        android:entries="@array/promotion_type_array"
+        />
+
+    <TextView
+        android:id="@+id/textView171"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/textView169"
+        android:layout_below="@+id/spin_pos_promotion_type"
+        android:layout_marginTop="16dp"
+        android:text="Mức chiết khấu" />
+
+    <TextView
+        android:id="@+id/textView173"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/textView171"
+        android:layout_alignEnd="@+id/spin_pos_promotion_type"
+        android:text="%" />
+
+    <Spinner
+        android:id="@+id/spin_pos_promotion_rate"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/textView173"
+        android:layout_marginEnd="14dp"
+        android:layout_toStartOf="@+id/textView173"
+        android:entries="@array/promotion_rate_array" />
+
+    <TextView
+        android:id="@+id/textView174"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/textView171"
+        android:layout_below="@+id/textView171"
+        android:layout_marginTop="16dp"
+        android:text="Giá trị KM" />
+
+    <TextView
+        android:id="@+id/tv_pos_promotion_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/textView174"
+        android:layout_alignEnd="@+id/textView173"
+        android:text="NA" />
+
+    <Button
+        android:id="@+id/btn_pos_add_promotion"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary"
+        android:textColor="@android:color/white"
+        android:layout_alignEnd="@+id/tv_pos_promotion_value"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="16dp"
+        android:text="OK" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycler_pos_promotion"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/btn_pos_add_promotion"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/textView174"
+        android:layout_marginTop="16dp" />
+
+</RelativeLayout>

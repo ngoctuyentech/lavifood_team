@@ -1,0 +1,449 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar_approve_warehouse_in"
+        android:layout_width="0dp"
+        android:layout_height="56dp"
+        android:background="@color/colorPrimary"
+        android:elevation="4dp"
+        android:theme="@style/AppTheme.AppBarOverlay"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_scrollFlags="scroll|exitUntilCollapsed"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="0dp"
+        android:layout_marginLeft="0dp"
+        android:layout_marginRight="0dp"
+        android:layout_marginTop="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar_approve_warehouse_in"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintVertical_bias="0.0">
+
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/tv_ttc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:layout_marginStart="8dp"
+                android:text="Thông tin chung"
+                android:textStyle="normal|bold"
+                app:layout_constraintLeft_toLeftOf="parent"
+                tools:layout_conversion_absoluteHeight="17dp"
+                tools:layout_conversion_absoluteWidth="105dp"
+                tools:layout_conversion_absoluteX="0dp"
+                tools:layout_conversion_absoluteY="38dp"
+                app:layout_constraintTop_toTopOf="parent"
+                android:layout_marginTop="8dp" />
+
+            <TextView
+                android:id="@+id/tv_tkh"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginStart="16dp"
+                android:text="Tên khách hàng"
+                android:textSize="12sp"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tv_ttc"
+                tools:layout_conversion_absoluteHeight="58dp"
+                tools:layout_conversion_absoluteWidth="28dp"
+                tools:layout_conversion_absoluteX="0dp"
+                tools:layout_conversion_absoluteY="298dp" />
+
+            <TextView
+                android:id="@+id/tv_lkh"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Loại khách hàng"
+                android:textSize="12sp"
+                app:layout_constraintLeft_toLeftOf="@+id/tv_tkh"
+                app:layout_constraintTop_toBottomOf="@+id/tv_tkh"
+                tools:layout_conversion_absoluteHeight="14dp"
+                tools:layout_conversion_absoluteWidth="86dp"
+                tools:layout_conversion_absoluteX="14dp"
+                tools:layout_conversion_absoluteY="386dp" />
+
+            <TextView
+                android:id="@+id/tv_tt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Hình thức thanh toán"
+                android:textSize="12sp"
+                app:layout_constraintLeft_toLeftOf="@+id/tv_tkh"
+                app:layout_constraintTop_toBottomOf="@+id/tv_lkh"
+                tools:layout_conversion_absoluteHeight="14dp"
+                tools:layout_conversion_absoluteWidth="114dp"
+                tools:layout_conversion_absoluteX="28dp"
+                tools:layout_conversion_absoluteY="122dp" />
+
+            <TextView
+                android:id="@+id/tv_gh"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ngày giao hàng"
+                android:textSize="12sp"
+                app:layout_constraintLeft_toLeftOf="@+id/tv_tkh"
+                app:layout_constraintTop_toBottomOf="@+id/tv_tt"
+                tools:layout_conversion_absoluteHeight="14dp"
+                tools:layout_conversion_absoluteWidth="82dp"
+                tools:layout_conversion_absoluteX="96dp"
+                tools:layout_conversion_absoluteY="424dp" />
+
+            <TextView
+                android:id="@+id/tv_ttsp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:text="Thông tin sản phẩm"
+                android:textSize="14sp"
+                android:textStyle="normal|bold"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tv_gh"
+                tools:layout_conversion_absoluteHeight="17dp"
+                tools:layout_conversion_absoluteWidth="126dp"
+                tools:layout_conversion_absoluteX="178dp"
+                tools:layout_conversion_absoluteY="438dp" />
+
+            <TextView
+                android:id="@+id/tv_ten"
+                android:layout_width="wrap_content"
+                android:layout_height="14dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginStart="16dp"
+                android:text="Tên (trượt dọc để xem tiếp)"
+                android:textSize="12sp"
+                android:textStyle="normal|italic"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tv_km"
+                tools:layout_conversion_absoluteHeight="14dp"
+                tools:layout_conversion_absoluteWidth="19dp"
+                tools:layout_conversion_absoluteX="28dp"
+                tools:layout_conversion_absoluteY="380dp" />
+
+            <TextView
+                android:id="@+id/tv_approve_sale_client_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
+                android:text="Nguyễn Văn A"
+                android:textSize="12sp"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/tv_tkh"
+                tools:layout_conversion_absoluteHeight="14dp"
+                tools:layout_conversion_absoluteWidth="75dp"
+                tools:layout_conversion_absoluteX="178dp"
+                tools:layout_conversion_absoluteY="438dp" />
+
+            <TextView
+                android:id="@+id/tv_approve_sale_client_type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
+                android:text="Nhà thuốc"
+                android:textSize="12sp"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/tv_lkh"
+                tools:layout_conversion_absoluteHeight="14dp"
+                tools:layout_conversion_absoluteWidth="56dp"
+                tools:layout_conversion_absoluteX="18dp"
+                tools:layout_conversion_absoluteY="252dp" />
+
+            <TextView
+                android:id="@+id/tv_approve_sale_payment_type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
+                android:text="Tiền mặt"
+                android:textSize="12sp"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tv_lkh"
+                tools:layout_conversion_absoluteHeight="58dp"
+                tools:layout_conversion_absoluteWidth="14dp"
+                tools:layout_conversion_absoluteX="305dp"
+                tools:layout_conversion_absoluteY="342dp" />
+
+            <TextView
+                android:id="@+id/tv_approve_sale_delivery_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
+                android:text="9/9"
+                android:textSize="12sp"
+                app:layout_constraintBottom_toBottomOf="@+id/tv_gh"
+                app:layout_constraintRight_toRightOf="parent"
+                tools:layout_conversion_absoluteHeight="14dp"
+                tools:layout_conversion_absoluteWidth="18dp"
+                tools:layout_conversion_absoluteX="0dp"
+                tools:layout_conversion_absoluteY="84dp" />
+
+            <TextView
+                android:id="@+id/tv_sl"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
+                android:text="SL"
+                android:textSize="12sp"
+                android:textStyle="normal|italic"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/tv_ten"
+                tools:layout_conversion_absoluteHeight="14dp"
+                tools:layout_conversion_absoluteWidth="12dp"
+                tools:layout_conversion_absoluteX="14dp"
+                tools:layout_conversion_absoluteY="56dp" />
+
+            <TextView
+                android:id="@+id/tv_tenkm"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginStart="16dp"
+
+                android:text="Tên (trượt dọc để xem tiếp)"
+                android:textSize="12sp"
+                android:textStyle="normal|italic"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tv_ttsp"
+                tools:layout_conversion_absoluteHeight="14dp"
+                tools:layout_conversion_absoluteWidth="19dp"
+                tools:layout_conversion_absoluteX="136dp"
+                tools:layout_conversion_absoluteY="84dp" />
+
+            <TextView
+                android:id="@+id/tv_dg"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="40dp"
+                android:layout_marginRight="40dp"
+                android:text="Đơn giá"
+                android:textSize="12sp"
+                android:textStyle="normal|italic"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/tv_tenkm" />
+
+            <TextView
+                android:id="@+id/tv_km"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="16dp"
+                android:text="Thông tin khuyến mãi"
+                android:textSize="14sp"
+                android:textStyle="normal|bold"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/recycler_order_detail_product" />
+
+            <TextView
+                android:id="@+id/tv_slkm"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
+                android:text="SL"
+                android:textSize="12sp"
+                android:textStyle="normal|italic"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/tv_tenkm"
+                tools:layout_conversion_absoluteHeight="14dp"
+                tools:layout_conversion_absoluteWidth="12dp"
+                tools:layout_conversion_absoluteX="166dp"
+                tools:layout_conversion_absoluteY="283dp" />
+
+            <TextView
+                android:id="@+id/tv_dgkm"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="40dp"
+                android:layout_marginRight="40dp"
+                android:text="Đơn giá"
+                android:textSize="12sp"
+                android:textStyle="normal|italic"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/tv_ten" />
+
+
+            <TextView
+                android:id="@+id/tv_ttvat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="16dp"
+
+                android:text="Thanh toán"
+                android:textSize="14sp"
+                android:textStyle="normal|bold"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/recyclerview_order_detail_promotion" />
+
+            <TextView
+                android:id="@+id/tv_notvat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:layout_marginStart="8dp"
+                android:text="Chưa VAT"
+                android:textSize="12sp"
+                app:layout_constraintLeft_toLeftOf="@+id/tv_ttvat"
+                app:layout_constraintTop_toBottomOf="@+id/tv_ttvat"
+                tools:layout_conversion_absoluteHeight="14dp"
+                tools:layout_conversion_absoluteWidth="55dp"
+                tools:layout_conversion_absoluteX="0dp"
+                tools:layout_conversion_absoluteY="327dp" />
+
+            <TextView
+                android:id="@+id/tv_vat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Có VAT"
+                android:textSize="12sp"
+                app:layout_constraintLeft_toLeftOf="@+id/tv_notvat"
+                app:layout_constraintTop_toBottomOf="@+id/tv_notvat"
+                app:layout_constraintVertical_bias="0.0" />
+
+            <TextView
+                android:id="@+id/tv_notvatdis"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Giá trị cuối cùng"
+                android:textSize="12sp"
+
+                app:layout_constraintLeft_toLeftOf="@+id/tv_notvat"
+                app:layout_constraintTop_toBottomOf="@+id/tv_vat" />
+
+            <TextView
+                android:id="@+id/tv_detail_notVAT_approve_order"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+
+                android:layout_marginRight="8dp"
+                android:text="Chưa xác định"
+                android:textSize="12sp"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/tv_notvat" />
+
+            <TextView
+                android:id="@+id/tv_detail_VAT_aprove_order"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
+                android:text="Chưa xác định"
+                android:textSize="12sp"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/tv_vat" />
+
+            <TextView
+                android:id="@+id/tv_detail_final_payment_approve_order"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
+                android:text="Chưa xác định"
+                android:textSize="12sp"
+                app:layout_constraintBottom_toBottomOf="@+id/tv_notvatdis"
+                app:layout_constraintRight_toRightOf="parent" />
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recycler_order_detail_product"
+                android:layout_width="0dp"
+                android:layout_height="60dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginStart="8dp"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintLeft_toLeftOf="@+id/tv_ttsp"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tv_tenkm"
+                tools:layout_conversion_absoluteHeight="60dp"
+                tools:layout_conversion_absoluteWidth="141dp"
+                tools:layout_conversion_absoluteX="178dp"
+                tools:layout_conversion_absoluteY="207dp" />
+
+            <TextView
+                android:id="@+id/textView77"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Công nợ KH"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                app:layout_constraintLeft_toLeftOf="@+id/tv_ttvat"
+                app:layout_constraintTop_toBottomOf="@+id/tv_notvatdis" />
+
+            <TextView
+                android:id="@+id/tv_approve_order_client_debt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
+                android:text="chưa xác định"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/textView77" />
+
+            <TextView
+                android:id="@+id/tv_approve_order_order_note"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginStart="8dp"
+                android:text="Ghi chú"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView77" />
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recyclerview_order_detail_promotion"
+                android:layout_width="0dp"
+                android:layout_height="60dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="0dp"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintLeft_toLeftOf="@+id/tv_km"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tv_ten"
+                tools:layout_conversion_absoluteHeight="0dp"
+                tools:layout_conversion_absoluteWidth="320dp"
+                tools:layout_conversion_absoluteX="0dp"
+                tools:layout_conversion_absoluteY="508dp" />
+
+        </android.support.constraint.ConstraintLayout>
+    </ScrollView>
+
+
+
+
+</android.support.constraint.ConstraintLayout>

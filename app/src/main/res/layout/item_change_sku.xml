@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="200dp"
+    android:background="@android:color/white"
+    android:id="@+id/item_change_sku"
+    android:layout_marginBottom="1dp"
+    android:elevation="4dp"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tv_item_change_sku_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:text="Ngày"
+        android:textStyle="italic"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_item_change_sku_soure_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:text="Sản phẩm nguồn"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintRight_toLeftOf="@+id/textView94"
+        app:layout_constraintLeft_toRightOf="@+id/tv_item_change_sku_source_quantity"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_item_change_sku_source_quantity"
+        android:layout_marginBottom="0dp" />
+
+    <TextView
+        android:id="@+id/textView94"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="được đổi sang"
+        android:textStyle="bold"
+        android:layout_marginLeft="8dp"
+        app:layout_constraintLeft_toLeftOf="@+id/tv_item_change_sku_date"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@+id/textView90" />
+
+    <TextView
+        android:id="@+id/tv_item_change_sku_des_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="8dp"
+        android:text="Sản phẩm đích"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintLeft_toLeftOf="@+id/tv_item_change_sku_date"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView94" />
+
+    <TextView
+        android:id="@+id/textView96"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:text="Tỉ lệ hoán đổi:"
+        app:layout_constraintLeft_toLeftOf="@+id/tv_item_change_sku_date"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@+id/textView95" />
+
+    <TextView
+        android:id="@+id/tv_item_change_sku_change_rate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="0dp"
+        android:layout_marginLeft="8dp"
+        android:text="10"
+        app:layout_constraintBottom_toBottomOf="@+id/textView96"
+        app:layout_constraintLeft_toRightOf="@+id/textView96" />
+
+    <TextView
+        android:id="@+id/tv_item_change_sku_source_quantity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="10"
+        app:layout_constraintTop_toBottomOf="@+id/tv_item_change_sku_date"
+        android:layout_marginLeft="8dp"
+        app:layout_constraintLeft_toLeftOf="@+id/tv_item_change_sku_date" />
+
+    <TextView
+        android:id="@+id/textView90"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="0dp"
+        android:text="Tồn đầu:"
+        app:layout_constraintLeft_toLeftOf="@+id/tv_item_change_sku_date"
+        app:layout_constraintTop_toBottomOf="@+id/tv_item_change_sku_source_quantity" />
+
+    <TextView
+        android:id="@+id/tv_item_change_sku_source_storage_in"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="0dp"
+        android:text="0"
+        app:layout_constraintLeft_toRightOf="@+id/textView90"
+        app:layout_constraintTop_toBottomOf="@+id/tv_item_change_sku_soure_name" />
+
+    <TextView
+        android:id="@+id/textView92"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="0dp"
+        android:text="Tồn sau đổi mã:"
+        app:layout_constraintTop_toBottomOf="@+id/tv_item_change_sku_soure_name"
+        app:layout_constraintLeft_toRightOf="@+id/tv_item_change_sku_source_storage_in"
+        android:layout_marginLeft="32dp" />
+
+    <TextView
+        android:id="@+id/tv_item_change_sku_source_storage_result"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="0dp"
+        android:text="0"
+        app:layout_constraintLeft_toRightOf="@+id/textView92"
+        app:layout_constraintTop_toBottomOf="@+id/tv_item_change_sku_soure_name" />
+
+    <TextView
+        android:id="@+id/textView95"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="0dp"
+        android:text="Tồn đầu:"
+        app:layout_constraintLeft_toLeftOf="@+id/tv_item_change_sku_date"
+        app:layout_constraintTop_toBottomOf="@+id/tv_item_change_sku_des_name" />
+
+    <TextView
+        android:id="@+id/tv_item_change_sku_des_storage_in"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="0dp"
+        android:text="0"
+        app:layout_constraintLeft_toRightOf="@+id/textView95"
+        app:layout_constraintTop_toBottomOf="@+id/tv_item_change_sku_des_name" />
+
+    <TextView
+        android:id="@+id/textView98"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="32dp"
+        android:layout_marginTop="0dp"
+        android:text="Tồn sau đổi mã:"
+        app:layout_constraintLeft_toRightOf="@+id/tv_item_change_sku_des_storage_in"
+        app:layout_constraintTop_toBottomOf="@+id/tv_item_change_sku_des_name" />
+
+    <TextView
+        android:id="@+id/tv_item_change_sku_des_storage_result"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="0dp"
+        android:text="0"
+        app:layout_constraintLeft_toRightOf="@+id/textView98"
+        app:layout_constraintTop_toBottomOf="@+id/tv_item_change_sku_des_name" />
+
+</android.support.constraint.ConstraintLayout>

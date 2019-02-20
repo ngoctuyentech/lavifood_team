@@ -1,0 +1,90 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".MainActivity">
+
+    <!--
+    <item
+        android:id="@+id/action_change_sku"
+        android:orderInCategory="200"
+        android:title="Đổi mã sản phẩm"
+        android:visible="true"
+        app:showAsAction="never"
+        />
+
+         <item
+        android:id="@+id/action_view_history_change_sku"
+        android:orderInCategory="400"
+        android:title="Lịch sử đổi mã SP"
+        android:visible="true"
+        app:showAsAction="never"
+        />
+
+        <item
+        android:id="@+id/action_warehouse_generate_QRCode"
+        android:orderInCategory="500"
+        android:title="Tạo mã QR Code"
+        android:visible="true"
+        app:showAsAction="never"
+        />
+
+         <item
+        android:id="@+id/action_warehouse_view_storage_transaction"
+        android:orderInCategory="300"
+        android:title="Xem xuất nhập tồn"
+        android:visible="true"
+        app:showAsAction="never"
+        />
+    -->
+
+
+    <item
+        android:id="@+id/action_warehouse_in"
+        android:orderInCategory="100"
+        android:title="Nhập kho hàng mới"
+        android:visible="true"
+        app:showAsAction="never"
+        />
+
+
+    
+    <item
+        android:id="@+id/action_warehouse_view_storage"
+        android:orderInCategory="300"
+        android:title="Xem hàng tồn kho"
+        android:visible="true"
+        app:showAsAction="never"
+        />
+
+
+
+
+    <item
+        android:id="@+id/action_warehouse_view_in_history"
+        android:orderInCategory="300"
+        android:title="Xem lịch sử nhập kho"
+        android:visible="true"
+        app:showAsAction="never"
+        />
+
+    <item
+        android:id="@+id/action_warehouse_view_out_history"
+        android:orderInCategory="300"
+        android:title="Xem lịch sử xuất kho"
+        android:visible="true"
+        app:showAsAction="never"
+        />
+
+
+
+
+    <item
+        android:id="@+id/action_logout_warehouse"
+        android:orderInCategory="600"
+        android:title="Thoát"
+        android:visible="true"
+        app:showAsAction="never"
+        />
+
+
+</menu>

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="a1a4w.onhandsme">
+
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme"
+        tools:ignore="GoogleAppIndexingWarning">
+        <activity android:name=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+        </activity>
+        <activity android:name=".LoginActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".bytask.OrderManActivity" />
+        <activity android:name=".bytask.warehouse.WarehouseManActivity" />
+        <activity android:name=".bytask.distribution.DistributionManActivity" />
+        <activity android:name=".bytask.debt.DebtManActivity" />
+        <activity android:name=".bytask.DeliveryManActivity" />
+        <activity android:name=".list.ClientListActivity" />
+        <activity
+            android:name=".order.UpdateOrderActivity"
+            android:label="Đơn hàng mới" />
+        <activity android:name=".list.AddClientActivity" />
+        <activity
+            android:name=".order.ViewOrderDetailActivity"
+            android:label="Chi tiết đơn hàng" />
+        <activity
+            android:name=".order.PreviewOrderActivivity"
+            android:label="Xem trước và chỉnh sửa" />
+        <activity android:name=".bytask.distribution.FilterTimeActivity" />
+        <activity android:name=".list.UpdateClientActivity" />
+        <activity android:name=".bytask.debt.ApproveSaleActivity" />
+        <activity android:name=".bytask.distribution.FilterProductActivity" />
+        <activity android:name=".bytask.distribution.FilterClientActivity" />
+        <activity android:name=".order.CashOrderActivity" />
+        <activity android:name=".order.DebtOrderActivity" />
+        <activity android:name=".order.MoneyOrderActivity" />
+        <activity android:name=".order.PrintPreviewActivity" />
+        <activity android:name=".bytask.debt.CheckCashTransferActivity" />
+        <activity android:name=".bytask.distribution.ApproveOrderActivity" />
+        <activity android:name=".bytask.warehouse.ApproveWarehouseInActivity" />
+        <activity android:name=".list.AddSupplierActivity" />
+        <activity android:name=".list.EmployeeListActivity" />
+        <activity android:name=".bytask.distribution.FilterEmployeeActivity" />
+        <activity android:name=".bytask.warehouse.ViewChangeSkuActivity" />
+        <activity
+            android:name=".bytask.warehouse.ViewStorageActivity"
+            android:label="Tồn kho hàng hóa" />
+        <activity android:name=".bytask.debt.ViewDebtOrderActivity" />
+        <activity android:name=".bytask.warehouse.ViewStorageTransaction" />
+        <activity android:name=".bytask.warehouse.ViewInOutHistory" />
+        <activity android:name=".bytask.debt.DebtHistoryActivity" />
+        <activity
+            android:name=".pos.PosActivity"
+            android:label="@string/title_activity_pos"
+            android:theme="@style/AppTheme" />
+        <activity android:name=".pos.BillPrintActivity" />
+        <activity android:name=".pos.ViewBillDetailActivity" />
+        <activity android:name=".pos.ShopChainActivity" />
+        <activity android:name=".pos.StoreShopActivity" />
+        <activity android:name=".pos.StoreEmployeeActivity" />
+        <activity android:name=".pos.StoreSaleActivity" />
+        <activity android:name=".pos.AddEmployeeActivity" />
+        <activity android:name=".pos.AddShopActivity" />
+
+        <service
+            android:name=".utils.BluetoothService"
+            android:enabled="true"
+            android:exported="true" />
+
+        <activity android:name=".utils.DeviceListActivity" />
+        <activity android:name=".pos.ShopManagerActivity" />
+        <activity android:name=".pos.GeneralManagerActivity" />
+        <activity android:name=".ScanCodeActivity" />
+
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="ada9f176623e9716ef8a4200857b0232b2c302d1"
+            tools:replace="android:value" />
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyBj6LOWkIk_OjXEVTf9P9hJfWlfBgiEYwM" />
+
+        <activity android:name=".bytask.distribution.MeetClientReportActivity"></activity>
+    </application>
+
+</manifest>
