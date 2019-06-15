@@ -14,9 +14,21 @@ public class Employee {
     String shopCode;
     String employeeShift;
     String dateOfWork;
-
+    String menuOrderName;
+    String menuOrderUrl;
+    String visitTime;
+    String visitClientCode;
+    String visitClientName;
+    String employeeMonthSale;
+    String nearestSellDay;
 
     public Employee() {
+    }
+
+    public Employee(String visitTime, String visitClientCode, String visitClientName) {
+        this.visitTime = visitTime;
+        this.visitClientCode = visitClientCode;
+        this.visitClientName = visitClientName;
     }
 
     public Employee(String employeeCode, String employeeName, String employeePhone, String employeeUrl, String employeeEmail, String employeeRole, String shopCode) {
@@ -60,4 +72,37 @@ public class Employee {
     public String getEmployeeUrl() {
         return employeeUrl;
     }
+
+    public String getMenuOrderName() {
+        return menuOrderName;
+    }
+
+    public String getMenuOrderUrl() {
+        return menuOrderUrl;
+    }
+
+    public String getVisitClientCode() {
+        return visitClientCode;
+    }
+
+    public String getVisitTime() {
+        return visitTime;
+    }
+
+    public String getVisitClientName() {
+        return visitClientName;
+    }
+
+    public String getEmployeeEmail() {
+        return employeeEmail;
+    }
+
+    public String getEmployeeMonthSale() {
+        return employeeMonthSale;
+    }
+
+    public String getNearestSellDay() {
+        return nearestSellDay;
+    }
 }
+

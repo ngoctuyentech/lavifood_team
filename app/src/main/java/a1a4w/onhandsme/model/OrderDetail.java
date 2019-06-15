@@ -31,53 +31,15 @@ public class OrderDetail {
         this.timeStamp = timeStamp;
     }
 
-    public OrderDetail(String orderName, String saleName) {
-        this.orderName = orderName;
-        this.saleName = saleName;
-    }
 
-    public OrderDetail(String clientCode, String orderName, String saleName, String clientType, String paymentType, String dateDelivery) {
+    public OrderDetail(String clientCode, String orderName, String saleName, String paymentType, String dateDelivery, String employeeCode,String orderNote) {
         this.clientCode = clientCode;
         this.orderName = orderName;
         this.saleName = saleName;
-        this.clientType = clientType;
         this.paymentType = paymentType;
         this.dateDelivery = dateDelivery;
-
-    }
-
-    public OrderDetail(String clientCode, String orderName, String saleName, String clientType, String paymentType, String dateDelivery, String orderNote, String employeeCode, String orderType) {
-        this.clientCode = clientCode;
-        this.orderName = orderName;
-        this.saleName = saleName;
-        this.clientType = clientType;
-        this.paymentType = paymentType;
-        this.dateDelivery = dateDelivery;
-        this.orderNote = orderNote;
         this.employeeCode = employeeCode;
-        this.orderType = orderType;
-    }
-
-    public OrderDetail(String clientCode, String orderName, String saleName, String clientType, String paymentType, String dateDelivery, String orderNote) {
-        this.clientCode = clientCode;
-        this.orderName = orderName;
-        this.saleName = saleName;
-        this.clientType = clientType;
-        this.paymentType = paymentType;
-        this.dateDelivery = dateDelivery;
         this.orderNote = orderNote;
-    }
-
-
-    public OrderDetail(String clientCode, String orderName, String saleName, String clientType, String paymentType, String dateDelivery, String orderNote, String employeeCode) {
-        this.clientCode = clientCode;
-        this.orderName = orderName;
-        this.saleName = saleName;
-        this.clientType = clientType;
-        this.paymentType = paymentType;
-        this.dateDelivery = dateDelivery;
-        this.orderNote = orderNote;
-        this.employeeCode = employeeCode;
     }
 
     public String getOrderName() {

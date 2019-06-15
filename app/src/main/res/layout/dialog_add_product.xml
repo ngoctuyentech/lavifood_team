@@ -124,46 +124,19 @@
         tools:layout_constraintBottom_creator="1"
         tools:layout_constraintRight_creator="1" />
 
-    <fr.ganfra.materialspinner.MaterialSpinner
-        android:id="@+id/spinner_dialog_add_product_VAT"
-        android:layout_width="80dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginTop="8dp"
-        android:spinnerMode="dropdown"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/edt_dialog_add_product_product_discount"
-        tools:layout_constraintRight_creator="1"
-        tools:layout_constraintTop_creator="1"></fr.ganfra.materialspinner.MaterialSpinner>
-
-    <TextView
-        android:id="@+id/textView4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="24dp"
-        android:text="VAT"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/spinner_dialog_add_product_VAT"
-        tools:layout_constraintLeft_creator="1"
-        tools:layout_constraintTop_creator="1" />
-
     <Button
         android:id="@+id/btn_add_product"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginTop="24dp"
         android:layout_marginRight="8dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginBottom="8dp"
         android:background="@color/colorPrimary"
         android:text="Thêm"
         android:textColor="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/spinner_dialog_add_product_VAT" />
+        app:layout_constraintTop_toBottomOf="@+id/tv_add_product_storage" />
 
     <TextView
         android:id="@+id/textView22"

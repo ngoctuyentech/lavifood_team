@@ -24,21 +24,19 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.MutableData;
-import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
+
+import java.util.Calendar;
+
 import a1a4w.onhandsme.R;
 import a1a4w.onhandsme.model.OrderDetail;
 import a1a4w.onhandsme.model.Product;
-import a1a4w.onhandsme.model.StorageTransaction;
 import a1a4w.onhandsme.model.VatModel;
 import a1a4w.onhandsme.model.WarehouseIn;
 import a1a4w.onhandsme.utils.Constants;
 import a1a4w.onhandsme.utils.Utils;
 
-import java.text.NumberFormat;
-import java.util.Calendar;
-import java.util.Locale;
+import static a1a4w.onhandsme.utils.Constants.refOrderList;
 
 public class ApproveWarehouseInActivity extends AppCompatActivity {
 
@@ -52,7 +50,7 @@ public class ApproveWarehouseInActivity extends AppCompatActivity {
     private Bundle b = new Bundle();
     private String thisYearString, thisMonthString, thisDateString;
     private ProgressDialog mProgressDialog;
-
+    private float VAT,notVAT;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,7 +73,7 @@ public class ApproveWarehouseInActivity extends AppCompatActivity {
         tvClientName = (TextView)findViewById(R.id.tv_approve_sale_client_name);
         tvClientType = (TextView)findViewById(R.id.tv_approve_sale_client_type);
         tvPayment = (TextView)findViewById(R.id.tv_approve_sale_payment_type);
-        tvDelivery = (TextView)findViewById(R.id.tv_approve_sale_delivery_date);
+        tvDelivery = (TextView)findViewById(R.id.tv_preview_delivery_date);
         tvNotVAT = (TextView)findViewById(R.id.tv_detail_notVAT_warehouse_in);
         tvVAT = (TextView)findViewById(R.id.tv_detail_VAT_warehouse_in);
         tvFinalPayment = (TextView)findViewById(R.id.tv_detail_final_paymenttv_detail_VAT_warehouse_in);
@@ -211,54 +209,27 @@ public class ApproveWarehouseInActivity extends AppCompatActivity {
     }
 
     private void viewVAT() {
-        Constants.refDatabase.child(emailLogin+"/OrderList").addValueEventListener(new ValueEventListener() {
+        refOrderList.child(orderPushKey).child("VAT").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if(dataSnapshot.hasChild(orderPushKey)){
-                    Constants.refDatabase.child(emailLogin+"/OrderList").child(orderPushKey).addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            if(dataSnapshot.hasChild("VAT")){
-                                Constants.refDatabase.child(emailLogin+"/OrderList").child(orderPushKey).child("VAT").addValueEventListener(new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(DataSnapshot dataSnapshot) {
-                                        VatModel currentVat = dataSnapshot.getValue(VatModel.class);
-                                        if(currentVat!=null){
-                                            NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.US);
+                VatModel currentVat = dataSnapshot.getValue(VatModel.class);
+                if(currentVat!=null){
+                    notVAT = currentVat.getNotVat();
+                    VAT = currentVat.getIncludedVat();
+                    //b.putString("NotVAT",currentVat.getNotVat());
+                    //b.putString("IncludedVAT",currentVat.getIncludedVat());
 
-                                            String notVATValue = currentVat.getNotVat();
-                                            float notVATValueInt = Float.parseFloat(notVATValue);
-                                            String notVATConverted = numberFormat.format(notVATValueInt);
-                                            tvNotVAT.setText(notVATConverted);
+                    //String notVATValue = currentVat.getNotVat();
+                    tvNotVAT.setText(Utils.convertNumber(notVAT+""));
 
-                                            String vatValue = currentVat.getIncludedVat();
-                                            float VATValueInt = Float.parseFloat(vatValue);
-                                            String VATConverted = numberFormat.format(VATValueInt);
-                                            tvVAT.setText(VATConverted);
+                    //String vatValue = currentVat.getIncludedVat();
+                    tvVAT.setText(Utils.convertNumber(VAT+""));
 
-                                            String finalPayment = currentVat.getFinalPayment();
-                                            float finalPaymentFloat = Float.parseFloat(finalPayment);
-                                            String VATDiscountConverted = numberFormat.format(finalPaymentFloat);
-                                            tvFinalPayment.setText(VATDiscountConverted);
-                                        }
+                    float finalPayment = currentVat.getFinalPayment();
+                    tvFinalPayment.setText(Utils.convertNumber(finalPayment+""));
 
-                                    }
-
-                                    @Override
-                                    public void onCancelled(DatabaseError databaseError) {
-
-                                    }
-                                });
-
-                            }
-                        }
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-
-                        }
-                    });
                 }
+
             }
 
             @Override

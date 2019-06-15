@@ -5,43 +5,29 @@ package a1a4w.onhandsme.model;
  */
 
 public class VatModel {
-    String notVat;
-    String includedVat;
-    String notVatDiscount;
-    String includedVatDiscount;
-    String finalPayment;
+    float notVat;
+    float includedVat;
+
+    float finalPayment;
 
     public VatModel() {
     }
 
-
-
-    public VatModel(String notVat, String includedVat, String notVatDiscount, String includedVatDiscount, String finalPayment) {
+    public VatModel(float notVat, float includedVat, float finalPayment) {
         this.notVat = notVat;
         this.includedVat = includedVat;
-        this.notVatDiscount = notVatDiscount;
-        this.includedVatDiscount = includedVatDiscount;
         this.finalPayment = finalPayment;
     }
 
-    public String getNotVat() {
+    public float getNotVat() {
         return notVat;
     }
 
-    public String getIncludedVat() {
+    public float getIncludedVat() {
         return includedVat;
     }
 
-    public String getNotVatDiscount() {
-        return notVatDiscount;
-    }
-
-    public String getIncludedVatDiscount() {
-        return includedVatDiscount;
-    }
-
-
-    public String getFinalPayment() {
+    public float getFinalPayment() {
         return finalPayment;
     }
 }

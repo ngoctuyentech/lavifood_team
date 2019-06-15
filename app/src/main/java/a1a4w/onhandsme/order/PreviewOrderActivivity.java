@@ -2,7 +2,6 @@ package a1a4w.onhandsme.order;
 
 import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -10,7 +9,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -27,14 +25,10 @@ import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.MutableData;
-import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.Arrays;
@@ -47,6 +41,7 @@ import a1a4w.onhandsme.bytask.OrderManActivity;
 import a1a4w.onhandsme.model.Client;
 import a1a4w.onhandsme.model.OrderDetail;
 import a1a4w.onhandsme.model.Product;
+import a1a4w.onhandsme.model.Promotion;
 import a1a4w.onhandsme.model.VatModel;
 import a1a4w.onhandsme.utils.Constants;
 import a1a4w.onhandsme.utils.MySpinerAdapter;
@@ -60,17 +55,19 @@ public class PreviewOrderActivivity extends AppCompatActivity {
 
     private RecyclerView recyclerViewProduct, recyclerViewPromotion;
     private LinearLayoutManager linearLayoutManager;
-    private FirebaseRecyclerAdapter<Product,ProductViewHolder> adapterFirebaseProduct,adapterFirebasePromotion,adapterFirebaseAddProduct;
+    private FirebaseRecyclerAdapter<Product,ProductViewHolder> adapterFirebaseProduct,adapterFirebaseAddProduct;
     private FirebaseRecyclerAdapter<Product,EditProductViewHolder> adapterFirebaseEditProduct;
-    private FirebaseRecyclerAdapter<Product,EditPromotionViewHolder> adapterFirebaseEditPromotion;
+    private FirebaseRecyclerAdapter<Promotion,PromotionViewHolder> adapterFirebasePromotion;
 
     private DatabaseReference refProduct, refPromotion,refOrderList,refStorage;
     private ImageButton ibInfo, ibProduct, ibPromotion;
-    private boolean discountVAT;
+    private boolean discountVAT,outRoute,viewOnly,saleMan;
 
     private TextView tvClientName, tvClientType, tvPayment, tvDelivery, tvNotVAT,tvPromotionStorage,tvProductStorage,
-            tvVAT,tvNotVATDiscount, tvVATDiscount,tvClientAddress, tvDeliveryName,tvNote,tvPromotionChoosen,tvProductChoosen;
-    private String orderPushKey,orderName,employeeName,clientType,clientCode,paymentType,deliveryDate,productName,emailLogin,productPrice,unitName,orderDiscount;
+            tvVAT,tvNotVATDiscount, tvFinalPayment,tvClientAddress, tvDeliveryName,tvNote,tvPromotionChoosen,tvProductChoosen;
+    private String orderPushKey,orderName,employeeName,clientType,clientCode,paymentType,deliveryDate,choosenVAT,emailLogin,discount;
+
+    private float VAT,notVAT;
 
     private Bundle b = new Bundle();
 
@@ -83,29 +80,32 @@ public class PreviewOrderActivivity extends AppCompatActivity {
     private String promotionStorageDialog;
     private Dialog dialogAddPromotion;
     private String promotionNameDialog;
+    private Button btnSendApproved;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_preview_order);
+        setContentView(R.layout.activity_preview);
 
         Intent intent = this.getIntent();
-        discountVAT = intent.getBooleanExtra("DiscountTax",false);
+        //discountVAT = intent.getBooleanExtra("DiscountTax",false);
         orderPushKey = intent.getStringExtra("OrderPushKey");
         orderName = intent.getStringExtra("OrderName");
+        outRoute = intent.getBooleanExtra("OutRoute",false);
+        saleMan = intent.getBooleanExtra("SaleMan",false);
 
-        orderDiscount = intent.getStringExtra("OrderDiscount");
-       // choosenVAT = intent.getStringExtra("ChoosenVAT");
+        discount = intent.getStringExtra("OrderDiscount");
+        choosenVAT = intent.getStringExtra("VAT");
         clientCode = intent.getStringExtra("ClientCode");
         emailLogin = intent.getStringExtra("EmailLogin");
-
-        Toolbar toolbar = (Toolbar)findViewById(R.id.toolbar_preview_order);
-        setSupportActionBar(toolbar);
+        viewOnly = intent.getBooleanExtra("ViewOnly",false);
 
         refOrderList = refDatabase.child(emailLogin).child("OrderList");
         refStorage = refDatabase.child(emailLogin).child("Storage");
 
         initializeScreen();
+
+        //Toast.makeText(getApplicationContext(), discount, Toast.LENGTH_LONG).show();
 
     }
 
@@ -116,35 +116,64 @@ public class PreviewOrderActivivity extends AppCompatActivity {
         tvClientName = (TextView)findViewById(R.id.tv_approve_sale_client_name);
         tvClientType = (TextView)findViewById(R.id.tv_approve_sale_client_type);
         tvPayment = (TextView)findViewById(R.id.tv_approve_sale_payment_type);
-        tvDelivery = (TextView)findViewById(R.id.tv_approve_sale_delivery_date);
         tvNotVAT = (TextView)findViewById(R.id.tv_detail_notVAT_preview);
         tvVAT = (TextView)findViewById(R.id.tv_detail_VAT_preview);
-        tvNotVATDiscount = (TextView)findViewById(R.id.tv_detail_notVAT_discount_preview);
-        tvVATDiscount = (TextView)findViewById(R.id.tv_detail_VAT_discount_preview);
+        tvFinalPayment = (TextView)findViewById(R.id.tv_preview_final_payment);
         tvClientAddress = (TextView)findViewById(R.id.tv_preview_order_address);
-        tvDeliveryName = (TextView)findViewById(R.id.tv_preview_order_delivery_name);
-        tvNote = (TextView)findViewById(R.id.tv_preview_order_note);
+        tvDelivery = findViewById(R.id.tv_preview_delivery_date);
+        tvNote = findViewById(R.id.tv_preview_order_note);
 
-        ibInfo = (ImageButton)findViewById(R.id.ib_preview_edit_information);
-        ibProduct = (ImageButton)findViewById(R.id.ib_preview_edit_product);
-        ibPromotion = (ImageButton)findViewById(R.id.ib_preview_edit_promotion);
+        btnSendApproved = findViewById(R.id.btn_preview_send_approved);
 
-        if(discountVAT){
-            tvNotVATDiscount.setVisibility(View.INVISIBLE);
-            tvVATDiscount.setVisibility(View.VISIBLE);
-        }else{
-            tvNotVATDiscount.setVisibility(View.VISIBLE);
-            tvVATDiscount.setVisibility(View.INVISIBLE);
-
-        }
-
-        ibInfo.setOnClickListener(new View.OnClickListener() {
+        btnSendApproved.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                v.startAnimation(Constants.buttonClick);
-                editInfoDialog();
+                v.startAnimation(buttonClick);
+
+                showProgressDialog();
+
+                String thisYear = Calendar.getInstance().get(Calendar.YEAR)+"";
+                String thisMonth = (Calendar.getInstance().get(Calendar.MONTH)+1)+"";
+                String thisDate = Calendar.getInstance().get(Calendar.DATE)+"";
+
+                if(outRoute){
+                    refDatabase.child(emailLogin+"/Order").child("OutRoute").child(orderPushKey).child("orderName").setValue(orderName).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+
+                            Intent intent = new Intent(getApplicationContext(), OrderManActivity.class);
+                            intent.putExtra("OrderName",orderName);
+                            intent.putExtra("EmailLogin",emailLogin);
+                            startActivity(intent);
+                            hideProgressDialog();
+
+                        }
+                    });
+                }else{
+                    refDatabase.child(emailLogin).child("OrderListByTime").child(thisYear+"-"+thisMonth+"-"+thisDate).child(orderPushKey).setValue(orderName);
+
+                    refDatabase.child(emailLogin+"/Order").child("UnApproved").child(orderPushKey).child("orderName").setValue(orderName).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+
+                            Intent intent = new Intent(getApplicationContext(), OrderManActivity.class);
+                            intent.putExtra("OrderName",orderName);
+                            intent.putExtra("EmailLogin",emailLogin);
+                            intent.putExtra("SaleMan",saleMan);
+                            startActivity(intent);
+                            hideProgressDialog();
+
+                        }
+                    });
+
+                }
+
+
             }
         });
+
+        ibProduct = (ImageButton)findViewById(R.id.ib_preview_edit_product);
+
 
         ibProduct.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -155,13 +184,13 @@ public class PreviewOrderActivivity extends AppCompatActivity {
             }
         });
 
-        ibPromotion.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                v.startAnimation(Constants.buttonClick);
-                editPromotionDialog();
-            }
-        });
+        if(viewOnly){
+            btnSendApproved.setVisibility(View.GONE);
+            ibProduct.setVisibility(View.GONE);
+        }
+
+
+
 
         initializeRecyclerViewProduct();
 
@@ -177,45 +206,25 @@ public class PreviewOrderActivivity extends AppCompatActivity {
         super.onResume();
     }
 
-    private void getVAT() {
-        refDatabase.child(emailLogin+"/OrderList").child(orderPushKey).child("VAT").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                VatModel vatModel = dataSnapshot.getValue(VatModel.class);
-                if(vatModel!=null){
-                    b.putString("NotVAT",vatModel.getNotVat());
-                    b.putString("IncludedVAT",vatModel.getIncludedVat());
-                }
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-
-    }
     private void viewVAT() {
         refOrderList.child(orderPushKey).child("VAT").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 VatModel currentVat = dataSnapshot.getValue(VatModel.class);
                 if(currentVat!=null){
-                    b.putString("NotVAT",currentVat.getNotVat());
-                    b.putString("IncludedVAT",currentVat.getIncludedVat());
+                    notVAT = currentVat.getNotVat();
+                    VAT = currentVat.getIncludedVat();
+                    //b.putString("NotVAT",currentVat.getNotVat());
+                    //b.putString("IncludedVAT",currentVat.getIncludedVat());
 
-                    String notVATValue = currentVat.getNotVat();
-                    tvNotVAT.setText(Utils.convertNumber(notVATValue));
+                    //String notVATValue = currentVat.getNotVat();
+                    tvNotVAT.setText(Utils.convertNumber(notVAT+""));
 
-                    String vatValue = currentVat.getIncludedVat();
-                    tvVAT.setText(Utils.convertNumber(vatValue));
+                    //String vatValue = currentVat.getIncludedVat();
+                    tvVAT.setText(Utils.convertNumber(VAT+""));
 
-                    String notVatDis = currentVat.getNotVatDiscount();
-                    tvNotVATDiscount.setText(Utils.convertNumber(notVatDis));
-
-                    String vatDis = currentVat.getIncludedVatDiscount();
-                    tvVATDiscount.setText(Utils.convertNumber(vatDis));
+                    float finalPayment = currentVat.getFinalPayment();
+                    tvFinalPayment.setText(Utils.convertNumber(finalPayment+""));
 
                 }
 
@@ -230,60 +239,34 @@ public class PreviewOrderActivivity extends AppCompatActivity {
     }
 
     private void viewOtherInformation() {
-        refDatabase.child(emailLogin+"/OrderList").addValueEventListener(new ValueEventListener() {
+
+        refDatabase.child(emailLogin+"/OrderList").child(orderPushKey).child("OtherInformation").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if(dataSnapshot.hasChild(orderPushKey)){
-                    refDatabase.child(emailLogin+"/OrderList").child(orderPushKey).addValueEventListener(new ValueEventListener() {
+                OrderDetail orderDetail = dataSnapshot.getValue(OrderDetail.class);
+                if(orderDetail != null){
+                    String clientName = orderDetail.getOrderName();
+                    String payment = orderDetail.getPaymentType();
+                    String deliveryDate = orderDetail.getDateDelivery();
+                    String orderNote = orderDetail.getOrderNote();
+
+                    tvClientName.setText(clientName);
+                    //tvClientType.setText(clientType);
+                    tvPayment.setText(payment);
+                    tvDelivery.setText(deliveryDate);
+                    tvNote.setText(orderNote);
+
+                    refDatabase.child(emailLogin+"/Client").child(clientCode).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
-                            if(dataSnapshot.hasChild("OtherInformation")){
-                                refDatabase.child(emailLogin+"/OrderList").child(orderPushKey).child("OtherInformation").addValueEventListener(new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(DataSnapshot dataSnapshot) {
-                                        OrderDetail orderDetail = dataSnapshot.getValue(OrderDetail.class);
-                                        if(orderDetail != null){
-                                            String clientName = orderDetail.getOrderName();
-                                            String clientType = orderDetail.getClientType();
-                                            String payment = orderDetail.getPaymentType();
-                                            String deliveryDate = orderDetail.getDateDelivery();
-                                            String orderNote = orderDetail.getOrderNote();
-
-                                            tvClientName.setText(clientName);
-                                            tvClientType.setText(clientType);
-                                            tvPayment.setText(payment);
-                                            tvDelivery.setText(deliveryDate);
-                                            tvNote.setText(orderNote);
-
-                                            refDatabase.child(emailLogin+"/Client").child(clientCode).addListenerForSingleValueEvent(new ValueEventListener() {
-                                                @Override
-                                                public void onDataChange(DataSnapshot dataSnapshot) {
-                                                    Client client = dataSnapshot.getValue(Client.class);
-                                                    String clientAddress = client.getClientStreet();
-                                                    String clientDistrict = client.getClientDistrict();
-                                                    String clientCity = client.getClientCity();
-                                                    String clientDeliveryName = client.getClientDeliveryName();
-                                                    tvClientAddress.setText(clientAddress+", "+clientDistrict+", "+clientCity);
-                                                    tvDeliveryName.setText(clientDeliveryName);
-                                                }
-
-                                                @Override
-                                                public void onCancelled(DatabaseError databaseError) {
-
-                                                }
-                                            });
-
-                                        }
-
-                                    }
-
-                                    @Override
-                                    public void onCancelled(DatabaseError databaseError) {
-
-                                    }
-                                });
-
-                            }
+                            Client client = dataSnapshot.getValue(Client.class);
+                            String clientAddress = client.getClientStreet();
+                            String clientDistrict = client.getClientDistrict();
+                            String clientCity = client.getClientCity();
+                            //String clientDeliveryName = client.getClientDeliveryName();
+                            clientType = client.getClientType();
+                            tvClientAddress.setText(clientAddress+", "+clientDistrict+", "+clientCity);
+                            tvClientType.setText(clientType);
                         }
 
                         @Override
@@ -291,7 +274,9 @@ public class PreviewOrderActivivity extends AppCompatActivity {
 
                         }
                     });
+
                 }
+
             }
 
             @Override
@@ -299,6 +284,7 @@ public class PreviewOrderActivivity extends AppCompatActivity {
 
             }
         });
+
     }
 
     private void initializeRecyclerViewPromotion() {
@@ -308,23 +294,22 @@ public class PreviewOrderActivivity extends AppCompatActivity {
 
         refPromotion = refDatabase.child(emailLogin+"/OrderList").child(orderPushKey).child("Promotion");
 
-        adapterFirebasePromotion = new FirebaseRecyclerAdapter<Product, ProductViewHolder>(
-                Product.class,
-                R.id.item_product,
-                ProductViewHolder.class,
+        adapterFirebasePromotion = new FirebaseRecyclerAdapter<Promotion, PromotionViewHolder>(
+                Promotion.class,
+                R.layout.item_promotion,
+                PromotionViewHolder.class,
                 refPromotion
         ) {
             @Override
-            public ProductViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-                View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_product,parent,false);
-                return new ProductViewHolder(v);
+            public PromotionViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+                View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_promotion,parent,false);
+                return new PromotionViewHolder(v);
             }
 
 
             @Override
-            protected void populateViewHolder(ProductViewHolder viewHolder, Product model, int position) {
-                viewHolder.productName.setText(model.getProductName());
-                viewHolder.productQuantity.setText(model.getUnitQuantity());
+            protected void populateViewHolder(PromotionViewHolder viewHolder, Promotion model, int position) {
+                viewHolder.mPromotionName.setText(model.getPromotionName());
             }
         };
 
@@ -407,6 +392,15 @@ public class PreviewOrderActivivity extends AppCompatActivity {
 
         }
     }
+    public class PromotionViewHolder extends RecyclerView.ViewHolder {
+        TextView mPromotionName;
+
+
+        public PromotionViewHolder(View itemView) {
+            super(itemView);
+            mPromotionName = (TextView) itemView.findViewById(R.id.tv_item_promotion_name);
+        }
+    }
 
     private void editInfoDialog() {
 
@@ -460,61 +454,6 @@ public class PreviewOrderActivivity extends AppCompatActivity {
                 dialog.dismiss();
             }
         });
-
-    }
-    private void editPromotionDialog() {
-
-        final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = this.getLayoutInflater();
-        final View dialogView = inflater.inflate(R.layout.dialog_edit_promotion, null);
-
-        final RecyclerView editPromotionRecycler = (RecyclerView)dialogView.findViewById(R.id.edit_promotion_recycler);
-        final Button btnAddPromotion = (Button)dialogView.findViewById(R.id.btn_edit_promotion_add);
-
-        btnAddPromotion.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                addPromotionDialog();
-            }
-        });
-
-        dialogBuilder.setView(dialogView);
-        dialogBuilder.setTitle("Thay đổi thông tin khuyến mãi");
-
-        final AlertDialog dialog = dialogBuilder.create();
-        dialog.show();
-
-        editPromotionRecycler.setHasFixedSize(true);
-        linearLayoutManager = new LinearLayoutManager(getApplicationContext());
-        editPromotionRecycler.setLayoutManager(linearLayoutManager);
-
-
-        refPromotion = refDatabase.child(emailLogin+"/OrderList").child(orderPushKey).child("Promotion");
-
-        adapterFirebaseEditPromotion = new FirebaseRecyclerAdapter<Product, EditPromotionViewHolder>(
-                Product.class,
-                R.id.item_promotion_edit,
-                EditPromotionViewHolder.class,
-                refPromotion
-        ) {
-            @Override
-            public EditPromotionViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-                View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_promotion_edit,parent,false);
-                return new EditPromotionViewHolder(v);
-            }
-
-
-            @Override
-            protected void populateViewHolder(EditPromotionViewHolder viewHolder, Product model, int position) {
-                viewHolder.productName.setText(model.getProductName());
-                viewHolder.productPrice.setText(model.getUnitPrice());
-                viewHolder.productQuantity.setText(model.getUnitQuantity());
-            }
-        };
-
-        editPromotionRecycler.setAdapter(adapterFirebaseEditPromotion);
-        adapterFirebaseEditPromotion.notifyDataSetChanged();
-
 
     }
     private void editProductDialog() {
@@ -574,7 +513,7 @@ public class PreviewOrderActivivity extends AppCompatActivity {
         adapterFirebaseEditProduct.notifyDataSetChanged();
     }
     private void addProductDialog() {
-        getVAT();
+
         final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
         LayoutInflater inflater = this.getLayoutInflater();
         final View dialogView = inflater.inflate(R.layout.dialog_add_product, null);
@@ -583,9 +522,7 @@ public class PreviewOrderActivivity extends AppCompatActivity {
         final AlertDialog dialog = dialogBuilder.create();
         dialog.show();
 
-        Spinner spinProductVAT = (Spinner)dialogView.findViewById(R.id.spinner_dialog_add_product_VAT);
-        tvProductStorage = (TextView)dialogView.findViewById(R.id.tv_add_product_storage);
-        tvProductChoosen = (TextView)dialogView.findViewById(R.id.tv_add_product_choose);
+
 
         final EditText edtDialogProductPrice = (EditText)dialogView.findViewById(R.id.edt_add_product_price);
         //edtDialogProductPrice.addTextChangedListener(new Utils.NumberTextWatcherForThousand(edtDialogProductPrice));
@@ -593,27 +530,8 @@ public class PreviewOrderActivivity extends AppCompatActivity {
         final EditText edtDialogProductQuantity = (EditText)dialogView.findViewById(R.id.edt_add_product_quantity);
         Button btnDialogAddProduct = (Button)dialogView.findViewById(R.id.btn_add_product);
         Button btnDialogCancel = (Button)dialogView.findViewById(R.id.btn_dialog_cancel);
-
-        String[] arrayProductVAT = this.getResources().getStringArray(R.array.VAT_array);
-        List<String> arrayListProductVAT = Arrays.asList(arrayProductVAT);
-        MySpinerAdapter spinerAdapterProductVAT = new MySpinerAdapter();
-        spinerAdapterProductVAT.addItems(arrayListProductVAT);
-        MaterialSpinner spinnerProductVAT = (MaterialSpinner)dialogView.findViewById(R.id.spinner_dialog_add_product_VAT);
-        spinnerProductVAT.setAdapter(spinerAdapterProductVAT);
-        spinnerProductVAT.setSelection(0);
-
-        spinProductVAT.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                choosenVATDialog = (String) parent.getItemAtPosition(position);
-
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
+        tvProductChoosen = dialogView.findViewById(R.id.tv_add_product_choose);
+        tvProductStorage = dialogView.findViewById(R.id.tv_add_product_storage);
 
         tvProductChoosen.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -639,22 +557,19 @@ public class PreviewOrderActivivity extends AppCompatActivity {
                 float productQuantityInt = Float.parseFloat(productQuantity);
 
                 String productPrice = edtDialogProductPrice.getText().toString();
-                String notVAT = b.getString("NotVAT");
-                String VAT = b.getString("IncludedVAT");
 
-                float choosenVATInt = Float.parseFloat(choosenVATDialog);
-                float discount = Float.parseFloat(orderDiscount)/100;
+
+                float choosenVATInt = Float.parseFloat(choosenVAT);
+                float discountProduct = Float.parseFloat(discount)/100;
 
                 float newNotVAT = Float.parseFloat(productPrice)*Float.parseFloat(productQuantity);
                 float newVAT = Float.parseFloat(productPrice)*Float.parseFloat(productQuantity)*(1+choosenVATInt);
-                float newNotVATDiscount = newNotVAT*(1-discount);
-                float newVATDiscount = newVAT*(1-discount);;
+                float newVATDiscount = newVAT*(1-discountProduct);;
 
-                float  currentNotVAT = newNotVAT + Float.parseFloat(notVAT);
-                float  currentVAT = newVAT + Float.parseFloat(VAT);
+                float  currentNotVAT = newNotVAT + notVAT;
+                float  currentVAT = newVAT + VAT;
 
-                float currentNotVATDiscount = currentNotVAT*(1-discount);
-                float currentVATDiscount = currentVAT*(1-discount);
+                float currentVATDiscount = currentVAT*(1-discountProduct);
 
                 if(productQuantityInt > Float.parseFloat(productStorageDialog)){
                     Toast.makeText(getApplicationContext(),"Không đủ hàng tồn kho", Toast.LENGTH_LONG).show();
@@ -667,6 +582,22 @@ public class PreviewOrderActivivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(),"Vui lòng nhập số lượng", Toast.LENGTH_LONG).show();
 
                 }else {
+
+                     VatModel vat = new VatModel(currentNotVAT,currentVAT,currentVATDiscount);
+                     Product productAdded = new Product(productNameDialog,productPrice,productQuantity,choosenVATDialog,newVATDiscount+"");
+                     refDatabase.child(emailLogin+"/OrderList").child(orderPushKey).child("ProductList").push().setValue(productAdded).addOnCompleteListener(new OnCompleteListener<Void>() {
+                         @Override
+                         public void onComplete(@NonNull Task<Void> task) {
+                         }
+                     });
+                     refDatabase.child(emailLogin+"/OrderList").child(orderPushKey).child("VAT").setValue(vat).addOnCompleteListener(new OnCompleteListener<Void>() {
+                         @Override
+                         public void onComplete(@NonNull Task<Void> task) {
+                             dialog.dismiss();
+                         }
+                     });
+
+                     /*
 
                     if(discountVAT){
                         VatModel vat = new VatModel(currentNotVAT+"",currentVAT+"",currentNotVATDiscount+"",currentVATDiscount+"",currentVATDiscount+"");
@@ -699,17 +630,6 @@ public class PreviewOrderActivivity extends AppCompatActivity {
                         });
                     }
 
-
-
-
-                    /*
-                     Constants.refOrderDetail.child(thisYear+"").child(thisMonth+"").child(thisDate+"").child(orderName)
-                            .child("ProductList").push().setValue(productAdded).addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            addMoreDialog();
-                        }
-                    });
 
                      */
 
@@ -954,7 +874,11 @@ public class PreviewOrderActivivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        startActivity(new Intent(this,MainActivity.class));
+        if(!viewOnly){
+            refDatabase.child(emailLogin+"/OrderList").child(orderPushKey).setValue(null);
+            startActivity(new Intent(this,MainActivity.class));
+        }
+
     }
 
     public void showProgressDialog() {

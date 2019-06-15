@@ -14,6 +14,7 @@
         android:layout_marginTop="100dp"
         android:background="@drawable/border_white"
         android:ems="10"
+        android:hint="Nhập email"
         android:inputType="textEmailAddress"
         android:paddingTop="5dp"
         android:paddingBottom="5dp"
@@ -35,6 +36,7 @@
         android:ems="10"
         android:inputType="textPassword"
         android:textSize="20sp"
+        android:hint="Nhập mật mã"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/edt_login_email" />

@@ -29,7 +29,6 @@ import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -37,80 +36,114 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
-import java.text.NumberFormat;
-import java.util.Locale;
-import java.util.Objects;
+import org.joda.time.DateTime;
 
 import a1a4w.onhandsme.R;
+import a1a4w.onhandsme.model.Client;
 import a1a4w.onhandsme.model.Employee;
 import a1a4w.onhandsme.model.OrderDetail;
 import a1a4w.onhandsme.model.Product;
+import a1a4w.onhandsme.model.Promotion;
 import a1a4w.onhandsme.model.VatModel;
 import a1a4w.onhandsme.utils.Constants;
+import a1a4w.onhandsme.utils.Utils;
 
-import static a1a4w.onhandsme.utils.Constants.buttonClick;
 import static a1a4w.onhandsme.utils.Constants.refDatabase;
+import static a1a4w.onhandsme.utils.Constants.refOrderList;
 
 public class UpdateOrderActivity extends AppCompatActivity {
 
     private Spinner spinSales, spinPayment,spinProduct, spinUnitName,spinAddPromotion,spinVAT;
     private ImageButton addPromotion;
     private Bundle b = new Bundle();
-    private EditText edtproductPrice, edtproductQuantity, edtdeliveryDate,edtDialogProductPrice, edtDialogProductQuantity, edtOrderDiscount, edtOrderNote;
-    private TextView currentStorage,dialogCurrentStorage, orderTitle, clientDebt,tvEmployeeName,tvProductName,tvChoosenPromotionProduct,tvChoosenPromotionProductStorage;
-    private String orderName, orderPushKeyString, clientCode,paymentType,promotionName,promotionQuantity,
-            clientType, employeeName,choosenPayment,choosenVAT,emailLogin,choosenPromotionProduct,saleManEmail;
-    private Switch switchPromotion,switchDiscount;
-    private Button btnDialogAddPromotion,btnDialogeCancel;
+    private EditText edtproductPrice, edtproductQuantity, edtdeliveryDate,edtSpecialDiscount, edtDialogProductQuantity, edtOrderDiscount, edtOrderNote;
+    private TextView currentStorage,tvClientName, tvClientSale, clientDebt,tvEmployeeName,tvProductName,tvEmployeeMonthSale,tvPromotionName;
+    private String orderDiscount, orderPushKeyString, clientCode,paymentType,promotionName,productStock,
+            clientType, employeeName,productName,choosenVAT,emailLogin,clientName,saleManEmail;
+    private Switch switchPayment;
+    private Button btnChooseEmployee,btnChooseProduct,btnChoosePromotion,btnPreview;
     private DatabaseReference orderPushKey;
     private FirebaseRecyclerAdapter<Employee,EmployeeViewHolder> adapterFirebase;
     private FirebaseRecyclerAdapter<Product,ProductViewHolder> adapterFirebaseProduct;
+    private FirebaseRecyclerAdapter<Promotion,PromotionViewHolder> adapterFirebasePromotion;
 
     private LinearLayoutManager linearLayoutManager;
-    private RecyclerView employeeList;
+    private RecyclerView employeeList,programList;
     private AlertDialog.Builder dialogBuilder;
     private View dialogView;
     private LayoutInflater inflater;
     private ProgressDialog mProgressDialog;
     private Menu myMenu;
-    private boolean dialogPromotion=false,discountVAT,saleMan;
-    private Dialog dialogProductList;
-    private Dialog dialogEmployeeList;
+    private boolean dialogPromotion=false,isDebt,saleMan,outRoute;
+    private Dialog dialogProductList,dialogProgramList,dialogEmployeeList;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_update_order);
+        setContentView(R.layout.activity_order);
 
-        orderPushKeyString = Constants.refOrderList.push().getKey();
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_order);
+        setSupportActionBar(toolbar);
+
+        orderPushKeyString = refOrderList.push().getKey();
        // b.putString("OrderPushKey",orderPushKeyString);
-        saleManEmail = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail().replace(".",",");
-
-
+        saleManEmail =FirebaseAuth.getInstance().getCurrentUser().getEmail().replace(".",",");
 
         Intent intent = this.getIntent();
-        orderName = intent.getStringExtra("ClientName");
         clientCode = intent.getStringExtra("ClientCode");
-        clientType = intent.getStringExtra("ClientType");
         emailLogin = intent.getStringExtra("EmailLogin");
         saleMan = intent.getBooleanExtra("SaleMan",false);
+        outRoute = intent.getBooleanExtra("OutRoute",false);
        // employeeName = intent.getStringExtra("EmployeeName");
         getClientDebt();
         initilizeScreen();
+        chooseAction();
+
+    }
+
+    private void chooseAction() {
+
+        btnChooseEmployee.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                v.startAnimation(Constants.buttonClick);
+                employeeListDialog();
+
+            }
+        });
+
+        btnChooseProduct.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                v.startAnimation(Constants.buttonClick);
+                productListDialog();
+
+            }
+        });
+
+        btnChoosePromotion.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                v.startAnimation(Constants.buttonClick);
+                programListDialog();
+            }
+        });
 
     }
 
     private void getClientDebt() {
         //Get Client debt
-        refDatabase.child(emailLogin+"/Client").child(clientCode).child("clientDebt").addValueEventListener(new ValueEventListener() {
+        refDatabase.child(emailLogin+"/Client").child(clientCode).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                String clientDebtData = dataSnapshot.getValue().toString();
-                NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.US);
-                float clientDebtFloat = Float.parseFloat(clientDebtData);
-                String clientDebtFloatConverted = numberFormat.format(clientDebtFloat);
-                clientDebt.setText(clientDebtFloatConverted);
+                Client client = dataSnapshot.getValue(Client.class);
+                String clientDebtData = client.getClientDebt();
+                String clientSale = client.getClientSale();
+                clientName = client.getClientName();
+                tvClientName.setText(clientName);
+                tvClientSale.setText(Utils.convertNumber(clientSale));
+                clientDebt.setText(Utils.convertNumber(clientDebtData));
             }
 
             @Override
@@ -120,117 +153,57 @@ public class UpdateOrderActivity extends AppCompatActivity {
         });
     }
 
-    public void addPromotionDialog() {
-        final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = this.getLayoutInflater();
-        final View dialogView = inflater.inflate(R.layout.dialog_add_promotion, null);
-
-        //spinAddPromotion = (Spinner)dialogView.findViewById(R.id.spinner_dialog_warehouse_in_product);
-        //dialogCurrentStorage = (TextView)dialogView.findViewById(R.id.tv_add_promotion_storage);
-        edtDialogProductPrice = (EditText)dialogView.findViewById(R.id.edt_add_product_price);
-        edtDialogProductQuantity = (EditText)dialogView.findViewById(R.id.edt_add_product_quantity);
-        btnDialogAddPromotion = (Button)dialogView.findViewById(R.id.btn_add_product);
-        btnDialogeCancel = (Button)dialogView.findViewById(R.id.btn_dialog_cancel);
-        tvChoosenPromotionProduct = (TextView)dialogView.findViewById(R.id.tv_dialog_add_promotion_choosen_product);
-        tvChoosenPromotionProductStorage = (TextView)dialogView.findViewById(R.id.tv_add_promotion_storage);
-
-        tvChoosenPromotionProduct.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                v.startAnimation(Constants.buttonClick);
-                dialogPromotion = true;
-                productListDialog();
-
-                //choosenPromotionProduct = tvChoosenPromotionProduct.getText().toString();
-            }
-        });
-
-
-        dialogBuilder.setView(dialogView);
-
-        dialogBuilder.setTitle("Thêm hàng khuyến mãi");
-
-        final AlertDialog dialog = dialogBuilder.create();
-        dialog.show();
-        btnDialogeCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                v.startAnimation(Constants.buttonClick);
-                dialog.dismiss();
-            }
-        });
-
-        btnDialogAddPromotion.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                v.startAnimation(Constants.buttonClick);
-                final String promotionName = b.getString("PromotionName");
-                String promotionStorage = b.getString("PromotionStorage");
-                final float promotionStorageFloat = Float.parseFloat(promotionStorage);
-                //String orderPushKey = b.getString("OrderPushKey");
-                String promotionPrice = edtDialogProductPrice.getText().toString();
-                promotionQuantity = edtDialogProductQuantity.getText().toString();
-                float promotionQuantityFloat = Float.parseFloat(promotionQuantity);
-                String unitName = b.getString("ChoosenUnit");
-                Product promotion = new Product(promotionName,promotionQuantity);
-
-                if(TextUtils.isEmpty(promotionPrice)){
-                    Toast.makeText(getApplicationContext(),"Vui lòng nhập đơn giá", Toast.LENGTH_LONG).show();
-
-                }else if (TextUtils.isEmpty(promotionQuantity)){
-                    Toast.makeText(getApplicationContext(),"Vui lòng nhập số lượng", Toast.LENGTH_LONG).show();
-
-                }else if (promotionQuantityFloat>promotionStorageFloat){
-                    Toast.makeText(getApplicationContext(),"Không đủ hàng tồn kho.", Toast.LENGTH_LONG).show();
-
-                }
-                else {
-                    btnDialogAddPromotion.setEnabled(false);
-
-                    refDatabase.child(emailLogin+"/OrderList").child(orderPushKeyString).child("Promotion").push().setValue(promotion).addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            dialog.dismiss();
-                        }
-                    });
-
-                }
-            }
-        });
-    }
-
     @SuppressLint("CutPasteId")
     private void initilizeScreen() {
 
-        Toolbar toolbar = (Toolbar)findViewById(R.id.toolbar_update_order);
-        setSupportActionBar(toolbar);
+        DateTime dt = new DateTime();
+        String month = dt.getMonthOfYear()+"";
+        String year = dt.getYear()+"";
 
-        spinPayment = (Spinner)findViewById(R.id.spinner_update_order_payment);
-        //spinProduct = (Spinner)findViewById(R.id.spinner_product_name);
-        spinVAT = (Spinner)findViewById(R.id.spinner_VAT);
-        edtproductPrice = (EditText) findViewById(R.id.edt_update_order_product_price);
-        edtproductQuantity = (EditText) findViewById(R.id.edt_product_quantity);
-        edtdeliveryDate = (EditText) findViewById(R.id.edt_update_order_date);
-        edtOrderDiscount = (EditText) findViewById(R.id.edt_update_order_discount);
-        edtOrderNote = (EditText) findViewById(R.id.edt_update_order_note);
+        //Toast.makeText(getApplicationContext(), year+"-"+month, Toast.LENGTH_LONG).show();
 
-        tvEmployeeName = (TextView)findViewById(R.id.tv_update_order_employee);
-        tvProductName = (TextView)findViewById(R.id.tv_update_order_productName);
-        currentStorage = (TextView) findViewById(R.id.tv_update_order_current_storage);
-        orderTitle = (TextView)findViewById(R.id.tv_update_order_name);
-        clientDebt = (TextView)findViewById(R.id.tv_update_order_debt);
+        spinVAT = (Spinner)findViewById(R.id.spin_order_vat);
+        edtproductPrice = (EditText) findViewById(R.id.edt_order_product_price);
+        edtproductQuantity = (EditText) findViewById(R.id.edt_order_product_quantity);
+        edtdeliveryDate = (EditText) findViewById(R.id.edt_order_date_delivery);
+        edtSpecialDiscount = (EditText) findViewById(R.id.edt_order_special_discount);
+        edtOrderNote = findViewById(R.id.edt_order_note);
+
+        tvEmployeeName = (TextView)findViewById(R.id.tv_order_employee_name);
+        tvEmployeeMonthSale = findViewById(R.id.tv_order_employee_month_sale);
+        tvProductName = (TextView)findViewById(R.id.tv_order_product_name);
+        tvPromotionName = findViewById(R.id.tv_order_promotion_name);
+        tvClientName = findViewById(R.id.tv_order_client_name);
+        tvClientSale = findViewById(R.id.tv_order_client_sale);
+        currentStorage = (TextView) findViewById(R.id.tv_order_product_stock);
+        clientDebt = (TextView)findViewById(R.id.tv_order_client_debt);
         //switchPromotion = (Switch) findViewById(R.id.switch_update_order);
-        switchDiscount = (Switch) findViewById(R.id.sw_discount_type);
+        switchPayment = (Switch) findViewById(R.id.sw_order_payment);
 
-        orderTitle.setText(orderName);
+        btnChooseEmployee = findViewById(R.id.btn_order_choose_employee);
+        btnChooseProduct = findViewById(R.id.btn_order_choose_product);
+        btnChoosePromotion = findViewById(R.id.btn_order_choose_promotion);
 
         if(saleMan){
+            btnChooseEmployee.setVisibility(View.GONE);
             refDatabase.child(emailLogin).child("Employee").child(saleManEmail).child("employeeName").addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
-                    String name = dataSnapshot.getValue().toString();
-                    Toast.makeText(getApplicationContext(),name,Toast.LENGTH_LONG).show();
-                    tvEmployeeName.setText(name);
+                    employeeName  = dataSnapshot.getValue().toString();
+                    //Toast.makeText(getApplicationContext(),name,Toast.LENGTH_LONG).show();
+                    tvEmployeeName.setText(employeeName);
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+
+            refDatabase.child(emailLogin).child("RevenueBySale").child(saleManEmail).child(year+"-"+month).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    tvEmployeeMonthSale.setText(Utils.convertNumber(dataSnapshot.getValue().toString()));
                 }
 
                 @Override
@@ -240,7 +213,7 @@ public class UpdateOrderActivity extends AppCompatActivity {
             });
 
         }else{
-            tvEmployeeName.setOnClickListener(new View.OnClickListener() {
+            btnChooseEmployee.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     v.startAnimation(Constants.buttonClick);
@@ -260,27 +233,27 @@ public class UpdateOrderActivity extends AppCompatActivity {
             }
         });
 
-        switchDiscount.setChecked(true);
-        discountVAT = true;
+        switchPayment.setChecked(false);
 
-        switchDiscount.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+        switchPayment.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if(isChecked){
-                    switchDiscount.setText("Chiết khấu sau VAT");
-                    discountVAT = true;
+                    switchPayment.setText("Công nợ");
+                    isDebt = true;
+
+
                 }else {
-                    switchDiscount.setText("Chiết khấu trước VAT");
-                    discountVAT = false;
+                    switchPayment.setText("Tiền mặt");
+                    isDebt = false;
 
                 }
             }
         });
 
 
-        Spinner spinnerVAT = (Spinner) findViewById(R.id.spinner_VAT);
-
-        spinnerVAT.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        spinVAT.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 choosenVAT = (String) parent.getItemAtPosition(position);
@@ -293,18 +266,6 @@ public class UpdateOrderActivity extends AppCompatActivity {
             }
         });
 
-        spinPayment.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                paymentType = (String) parent.getItemAtPosition(position);
-                //b.putString("PaymentType",choosenPayment);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
 
     }
 
@@ -317,16 +278,6 @@ public class UpdateOrderActivity extends AppCompatActivity {
 
         dialogProductList = builder.create();
 
-        Button btnNew = dialogView.findViewById(R.id.btn_product_list_new);
-        btnNew.setVisibility(View.GONE);
-
-        btnNew.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                view.startAnimation(buttonClick);
-                addNewProductDialog();
-            }
-        });
 
         final RecyclerView productList = (RecyclerView)dialogView.findViewById(R.id.recycler_dialog_product_list);
         productList.setHasFixedSize(true);
@@ -348,7 +299,7 @@ public class UpdateOrderActivity extends AppCompatActivity {
 
             @Override
             protected void populateViewHolder(ProductViewHolder viewHolder, Product model, int position) {
-                viewHolder.productName.setText(model.getProductName());
+                viewHolder.name.setText(model.getProductName());
 
             }
         };
@@ -359,47 +310,6 @@ public class UpdateOrderActivity extends AppCompatActivity {
         dialogProductList.show();
     }
 
-    private void addNewProductDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = this.getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.dialog_new_product,null);
-        builder.setView(dialogView);
-        builder.setMessage("Thêm sản phẩm mới");
-
-        final Dialog dialogProduct = builder.create();
-        dialogProduct.show();
-
-        final EditText edtAddProduct = (EditText)dialogView.findViewById(R.id.edt_dialog_add_product_name);
-        final EditText edtStorage = (EditText)dialogView.findViewById(R.id.edt_new_product_storage);
-
-        Button btnAdd = (Button) dialogView.findViewById(R.id.btn_dialog_add_product_ok);
-
-        btnAdd.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                v.startAnimation(Constants.buttonClick);
-                final String productName = edtAddProduct.getText().toString().replace("."," ");
-                final String productStorage = edtStorage.getText().toString();
-
-                if(TextUtils.isEmpty(productName)){
-                    Toast.makeText(getApplicationContext(),"Vui lòng nhập tên Sản phẩm", Toast.LENGTH_LONG).show();
-
-                }else if(TextUtils.isEmpty(productName)){
-                    Toast.makeText(getApplicationContext(),"Vui lòng nhập lượng tồn kho ban đầu", Toast.LENGTH_LONG).show();
-
-                }else{
-                    Product product = new Product(productName,productStorage);
-                    Product newProduct = new Product(productName);
-                    refDatabase.child(emailLogin+"/Product").child(productName).setValue(newProduct);
-                    refDatabase.child(emailLogin).child("WarehouseMan/StorageMan").child(productName).setValue(product);
-                    dialogProduct.dismiss();
-                }
-
-
-            }
-        });
-
-    }
 
     private void employeeListDialog() {
 
@@ -411,16 +321,6 @@ public class UpdateOrderActivity extends AppCompatActivity {
         dialogEmployeeList = dialogBuilder.create();
         dialogEmployeeList.show();
 
-        Button btnCreate = dialogView.findViewById(R.id.btn_employee_list_new);
-        btnCreate.setVisibility(View.GONE);
-        btnCreate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                view.startAnimation(buttonClick);
-                addEmployeeDialog();
-
-            }
-        });
 
         employeeList = (RecyclerView)dialogView.findViewById(R.id.recycler_dialog_employee_list);
         employeeList.setHasFixedSize(true);
@@ -442,7 +342,7 @@ public class UpdateOrderActivity extends AppCompatActivity {
 
             @Override
             protected void populateViewHolder(EmployeeViewHolder viewHolder, Employee model, int position) {
-                viewHolder.employeeName.setText(model.getEmployeeName());
+                viewHolder.mEmployeeName.setText(model.getEmployeeName());
 
             }
         };
@@ -451,41 +351,46 @@ public class UpdateOrderActivity extends AppCompatActivity {
         adapterFirebase.notifyDataSetChanged();
 
     }
-    private void addEmployeeDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = this.getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.dialog_add_employee,null);
-        builder.setView(dialogView);
-        builder.setMessage("Thêm nhân viên mới");
 
-        final Dialog dialog = builder.create();
-        dialog.show();
+    private void programListDialog() {
 
-        final EditText edtAddEmployee = (EditText)dialogView.findViewById(R.id.edt_dialog_add_employee_name);
-        Button btnAdd = (Button) dialogView.findViewById(R.id.btn_dialog_add_employee_ok);
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_program_list,null);
+        dialogBuilder.setView(dialogView);
+        dialogBuilder.setMessage("Chọn chương  (trượt dọc để xem tiếp)");
 
-        btnAdd.setOnClickListener(new View.OnClickListener() {
+        dialogProgramList = dialogBuilder.create();
+        dialogProgramList.show();
+
+        programList = (RecyclerView)dialogView.findViewById(R.id.rv_program_list);
+        programList.setHasFixedSize(true);
+        linearLayoutManager = new LinearLayoutManager(getApplicationContext());
+        programList.setLayoutManager(linearLayoutManager);
+
+        adapterFirebasePromotion = new FirebaseRecyclerAdapter<Promotion, PromotionViewHolder>(
+                Promotion.class,
+                R.layout.item_promotion,
+                PromotionViewHolder.class,
+                refDatabase.child(emailLogin).child("PromotionMan")
+        ) {
             @Override
-            public void onClick(View v) {
-                v.startAnimation(Constants.buttonClick);
-                final String employeeName = edtAddEmployee.getText().toString();
+            public PromotionViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+                View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_promotion,parent,false);
+                return new PromotionViewHolder(v);
+            }
 
-                if(TextUtils.isEmpty(employeeName)){
-                    Toast.makeText(getApplicationContext(),"Vui lòng nhập tên Nhân viên", Toast.LENGTH_LONG).show();
 
-                }else{
-                    Employee employee = new Employee(employeeName.replace("."," "));
-                    refDatabase.child(emailLogin+"/Employee").push().setValue(employee);
-
-                    dialog.dismiss();
-                }
-
+            @Override
+            protected void populateViewHolder(PromotionViewHolder viewHolder, Promotion model, int position) {
+                viewHolder.promotionName.setText(model.getPromotionName());
 
             }
-        });
+        };
+
+        programList.setAdapter(adapterFirebasePromotion);
+        adapterFirebasePromotion.notifyDataSetChanged();
 
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -505,28 +410,15 @@ public class UpdateOrderActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void sendForPreview() {
-        showProgressDialog();
-
-        //myMenu.findItem(R.id.action_preview).setVisible(false);
+    private void testPreview(){
 
         final String productQuantity = edtproductQuantity.getText().toString();
         final String productPrice = edtproductPrice.getText().toString();
         final String deliveryDate = edtdeliveryDate.getText().toString();
-        final String orderDiscount = edtOrderDiscount.getText().toString();
-        final String employeeName = tvEmployeeName.getText().toString();
-        //paymentType = b.getString("PaymentType");
-        final String unitName = b.getString("UnitName");
-        final String productName = tvProductName.getText().toString();;
-        //final String choosenVAT = b.getString("ChoosenVAT");
-        final String productStorage = b.getString("ProductStorage");
-        String employeeCode = b.getString("EmployeeCode");
+        final String specialDiscount = edtSpecialDiscount.getText().toString();
         final String orderNote = edtOrderNote.getText().toString();
 
-        if(TextUtils.isEmpty(employeeName)){
-            Toast.makeText(getApplicationContext(),"Vui lòng nhập tên nhân viên",Toast.LENGTH_LONG).show();
-
-        } else if(TextUtils.isEmpty(productPrice)){
+        if(TextUtils.isEmpty(productPrice)){
             Toast.makeText(getApplicationContext(),"Vui lòng nhập giá sản phẩm",Toast.LENGTH_LONG).show();
 
         }else if(TextUtils.isEmpty(productQuantity)){
@@ -535,38 +427,120 @@ public class UpdateOrderActivity extends AppCompatActivity {
         }else if(TextUtils.isEmpty(deliveryDate)){
             Toast.makeText(getApplicationContext(),"Vui lòng nhập ngày giao hàng",Toast.LENGTH_LONG).show();
 
-        }else if(TextUtils.isEmpty(orderDiscount)){
-            Toast.makeText(getApplicationContext(),"Vui lòng nhập chiết khấu cho đơn hàng",Toast.LENGTH_LONG).show();
-
-        }else if(clientType == null || paymentType==null||productName==null || choosenVAT==null ){
-            Toast.makeText(getApplicationContext(),"Đang xử lý...",Toast.LENGTH_LONG).show();
-
-        }else if(productStorage == null){
-            Toast.makeText(getApplicationContext(),"Chưa có dữ liệu tồn kho sản phẩm",Toast.LENGTH_LONG).show();
-
         }
-        else if(employeeCode == null){
+        else if(employeeName == null){
             Toast.makeText(getApplicationContext(),"Vui lòng chọn nhân viên",Toast.LENGTH_LONG).show();
 
+        }else if(productName == null){
+            Toast.makeText(getApplicationContext(),"Vui lòng chọn sản phẩm",Toast.LENGTH_LONG).show();
+
         }
-        else if(Float.parseFloat(productQuantity)>Float.parseFloat(productStorage)){
+        else if(Float.parseFloat(productQuantity)>Float.parseFloat(productStock)){
             Toast.makeText(getApplicationContext(),"Không đủ hàng tồn kho", Toast.LENGTH_LONG).show();
             edtproductQuantity.setText("");
-            hideProgressDialog();
+
         }
         else {
 
+
             float notVAT = Float.parseFloat(productPrice)*Float.parseFloat(productQuantity);
             float choosenVATLong = Float.parseFloat(choosenVAT)/100;
-            float discount = Float.parseFloat(orderDiscount)/100;
+            final float discount = (orderDiscount != null)? Float.parseFloat(orderDiscount)/100 : 0;
+            final float special = (!TextUtils.isEmpty(specialDiscount))? Float.parseFloat(specialDiscount)/100 : 0;
+            final float totalDis = discount + special;
 
-            float VAT =  notVAT*(1+choosenVATLong);
-            float notVATDiscount = notVAT - notVAT*discount;
-            float VATDiscount = VAT*(1-discount);
+            Toast.makeText(getApplicationContext(), totalDis+"", Toast.LENGTH_LONG).show();
 
-            OrderDetail orderDetail = new OrderDetail(clientCode,orderName,employeeName,clientType,paymentType,deliveryDate,orderNote,employeeCode);
+
+        }
+    }
+
+    private void sendForPreview() {
+
+        //myMenu.findItem(R.id.action_preview).setVisible(false);
+
+        final String productQuantity = edtproductQuantity.getText().toString();
+        final String productPrice = edtproductPrice.getText().toString();
+        final String deliveryDate = edtdeliveryDate.getText().toString();
+        final String specialDiscount = edtSpecialDiscount.getText().toString();
+        final String orderNote = edtOrderNote.getText().toString();
+
+        if(TextUtils.isEmpty(productPrice)){
+            Toast.makeText(getApplicationContext(),"Vui lòng nhập giá sản phẩm",Toast.LENGTH_LONG).show();
+
+        }else if(TextUtils.isEmpty(productQuantity)){
+            Toast.makeText(getApplicationContext(),"Vui lòng nhập số lượng sản phẩm",Toast.LENGTH_LONG).show();
+
+        }else if(TextUtils.isEmpty(deliveryDate)){
+            Toast.makeText(getApplicationContext(),"Vui lòng nhập ngày giao hàng",Toast.LENGTH_LONG).show();
+
+        }
+        else if(employeeName == null){
+            Toast.makeText(getApplicationContext(),"Vui lòng chọn nhân viên",Toast.LENGTH_LONG).show();
+
+        }else if(productName == null){
+            Toast.makeText(getApplicationContext(),"Vui lòng chọn sản phẩm",Toast.LENGTH_LONG).show();
+
+        }
+        else if(Float.parseFloat(productQuantity)>Float.parseFloat(productStock)){
+            Toast.makeText(getApplicationContext(),"Không đủ hàng tồn kho", Toast.LENGTH_LONG).show();
+            edtproductQuantity.setText("");
+
+        }
+        else {
+
+            showProgressDialog();
+
+            float notVAT = Float.parseFloat(productPrice)*Float.parseFloat(productQuantity);
+            float choosenVATLong = Float.parseFloat(choosenVAT)/100;
+
+            final float discount = (orderDiscount != null)? Float.parseFloat(orderDiscount)/100 : 0;
+            final float special = (!TextUtils.isEmpty(specialDiscount))? Float.parseFloat(specialDiscount)/100 : 0;
+            final float totalDis = discount + special;
+
+            //Toast.makeText(getApplicationContext(), totalDis+"", Toast.LENGTH_LONG).show();
+
+            //float VAT =  notVAT*(1+choosenVATLong);
+            float VAT = (float) (Math.round(notVAT*(1+choosenVATLong)*10d)/10d);
+
+            OrderDetail orderDetail = new OrderDetail(clientCode,clientName,employeeName,switchPayment.getText().toString(),deliveryDate,saleManEmail,orderNote);
 
             refDatabase.child(emailLogin+"/OrderList").child(orderPushKeyString).child("OtherInformation").setValue(orderDetail);
+            final Product currentProduct = new Product(productName,productPrice,productQuantity,choosenVAT,totalDis+"");
+
+            refDatabase.child(emailLogin+"/OrderList").child(orderPushKeyString).child("ProductList").push().setValue(currentProduct);
+
+            float finalPayment = VAT * (1-totalDis);
+
+            VatModel vat = new VatModel(notVAT,VAT,finalPayment);
+
+            refDatabase.child(emailLogin+"/OrderList").child(orderPushKeyString).child("VAT").setValue(vat).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+
+                    hideProgressDialog();
+                    edtproductQuantity.setText("");
+                    edtproductPrice.setText("");
+                    edtdeliveryDate.setText("");
+
+                    Intent intent = new Intent(UpdateOrderActivity.this, PreviewOrderActivivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+                    intent.putExtra("EmailLogin", emailLogin);
+                    intent.putExtra("OrderPushKey", orderPushKeyString);
+                    intent.putExtra("OrderName", clientName);
+                    intent.putExtra("OrderDiscount",totalDis+"");
+                    intent.putExtra("VAT",choosenVAT);
+                    intent.putExtra("ClientCode",clientCode);
+                    intent.putExtra("OutRoute",outRoute);
+                    intent.putExtra("SaleMan", saleMan);
+                    startActivity(intent);
+
+                }
+
+            });
+
+            /*
 
             if(discountVAT){
 
@@ -632,16 +606,18 @@ public class UpdateOrderActivity extends AppCompatActivity {
                 });
             }
 
+            */
+
         }
 
     }
 
     public class EmployeeViewHolder extends RecyclerView.ViewHolder {
-        TextView employeeName;
+        TextView mEmployeeName;
 
         public EmployeeViewHolder(View itemView) {
             super(itemView);
-            employeeName = (TextView) itemView.findViewById(R.id.tv_item_client_name);
+            mEmployeeName = (TextView) itemView.findViewById(R.id.tv_item_client_name);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -652,9 +628,9 @@ public class UpdateOrderActivity extends AppCompatActivity {
                     int position = getLayoutPosition();
                     DatabaseReference keyRef = adapterFirebase.getRef(position);
                     Employee employee = adapterFirebase.getItem(position);
-                    String keyString = keyRef.getKey();
-                    b.putString("EmployeeCode",keyString);
-                    tvEmployeeName.setText(employee.getEmployeeName());
+                    employeeName = keyRef.getKey();
+
+                    tvEmployeeName.setText(employeeName);
 
                 }
             });
@@ -662,16 +638,17 @@ public class UpdateOrderActivity extends AppCompatActivity {
         }
     }
     public class ProductViewHolder extends RecyclerView.ViewHolder {
-        TextView productName;
+        TextView name;
 
-        public ProductViewHolder(View itemView) {
+    public ProductViewHolder(View itemView) {
             super(itemView);
-            productName = (TextView) itemView.findViewById(R.id.tv_item_product_name);
+            name = (TextView) itemView.findViewById(R.id.tv_item_product_name);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     v.startAnimation(Constants.buttonClick);
+                    btnChooseProduct.setVisibility(View.GONE);
                     if(dialogProductList!=null) dialogProductList.dismiss();
                     int position = getLayoutPosition();
                     DatabaseReference keyRef = adapterFirebaseProduct.getRef(position);
@@ -680,15 +657,17 @@ public class UpdateOrderActivity extends AppCompatActivity {
 
                     final Product p = adapterFirebaseProduct.getItem(position);
 
-                    tvProductName.setText(p.getProductName());
+                    productName = p.getProductName();
+                    edtproductPrice.setText(p.getUnitPrice());
+
+                    tvProductName.setText(productName);
 
                     refDatabase.child(emailLogin+"/WarehouseMan/StorageMan").child(p.getProductName()).child("unitQuantity").addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
-                            String storage = dataSnapshot.getValue().toString();
-                            currentStorage.setText(storage);
-                            b.putString("ProductName",p.getProductName());
-                            b.putString("ProductStorage",storage);
+                            productStock = dataSnapshot.getValue().toString();
+                            currentStorage.setText(productStock);
+
                         }
 
                         @Override
@@ -701,6 +680,37 @@ public class UpdateOrderActivity extends AppCompatActivity {
 
         }
     }
+    public class PromotionViewHolder extends RecyclerView.ViewHolder {
+        TextView promotionName;
+
+        public PromotionViewHolder(View itemView) {
+            super(itemView);
+            promotionName = (TextView) itemView.findViewById(R.id.tv_item_promotion_name);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    v.startAnimation(Constants.buttonClick);
+                    btnChoosePromotion.setVisibility(View.GONE);
+                    if(dialogProgramList!=null) dialogProgramList.dismiss();
+                    int position = getLayoutPosition();
+                    DatabaseReference keyRef = adapterFirebasePromotion.getRef(position);
+
+                    Promotion p = adapterFirebasePromotion.getItem(position);
+
+                    tvPromotionName.setText(p.getPromotionName());
+
+                    orderDiscount = p.getPromotionDiscount();
+
+                    refDatabase.child(emailLogin+"/OrderList").child(orderPushKeyString).child("Promotion").push().child("promotionName").setValue(p.getPromotionName());
+
+
+                }
+            });
+
+        }
+    }
+
 
     public void showProgressDialog() {
         if (mProgressDialog == null) {
@@ -718,5 +728,9 @@ public class UpdateOrderActivity extends AppCompatActivity {
         }
     }
 
-
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        refDatabase.child(emailLogin+"/OrderList").child(orderPushKeyString).setValue(null);
+    }
 }

@@ -43,8 +43,8 @@
                 >
 
                 <ImageView
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
                     android:src="@drawable/approved_doc"
                     android:gravity="center_vertical"
                     android:layout_gravity="center_vertical"
@@ -72,10 +72,12 @@
                 android:id="@+id/order_man_boxUnApproved"
                 >
                 <ImageView
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
                     android:src="@drawable/un_approved_doc"
                     android:layout_marginLeft="8dp"
+                    android:layout_gravity="center_vertical"
+
                     />
                 <TextView
                     android:id="@+id/tv_order_unapproved"
@@ -96,14 +98,14 @@
                 android:layout_height="50dp"
                 android:orientation="horizontal"
                 android:id="@+id/order_man_boxCanceled"
-                android:visibility="gone"
                 >
 
                 <ImageView
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:src="@drawable/cancel_doc"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:src="@drawable/icon_route"
                     android:layout_marginLeft="8dp"
+                    android:layout_gravity="center_vertical"
 
                     />
 
@@ -113,9 +115,9 @@
                     android:layout_height="50dp"
                     android:layout_gravity="center_vertical"
                     android:gravity="center_vertical"
-                    android:text="Hủy"
+                    android:text="Ngoại tuyến"
                     android:textAlignment="center"
-                    android:textColor="@color/colorAccent"
+                    android:textColor="@android:color/white"
                     android:textSize="14sp"
                     android:textStyle="bold" />
 

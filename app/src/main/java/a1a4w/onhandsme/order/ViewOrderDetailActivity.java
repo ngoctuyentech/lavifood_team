@@ -26,10 +26,16 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.NumberFormat;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+
 import a1a4w.onhandsme.MainActivity;
 import a1a4w.onhandsme.R;
 import a1a4w.onhandsme.bytask.debt.ApproveSaleActivity;
-import a1a4w.onhandsme.bytask.debt.DebtManActivity;
 import a1a4w.onhandsme.model.Client;
 import a1a4w.onhandsme.model.DebtHistory;
 import a1a4w.onhandsme.model.OrderDetail;
@@ -39,14 +45,8 @@ import a1a4w.onhandsme.model.WarehouseIn;
 import a1a4w.onhandsme.utils.Constants;
 import a1a4w.onhandsme.utils.Utils;
 
-import java.text.NumberFormat;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-
 import static a1a4w.onhandsme.utils.Constants.refDatabase;
+import static a1a4w.onhandsme.utils.Constants.refOrderList;
 
 public class ViewOrderDetailActivity extends AppCompatActivity {
     private RecyclerView recyclerViewProduct, recyclerViewPromotion;
@@ -62,6 +62,7 @@ public class ViewOrderDetailActivity extends AppCompatActivity {
     private String clientName;
     private String clientCode;
     private HashMap<String,Float> productStock = new HashMap<>();
+    private float VAT,notVAT;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,7 +92,7 @@ public class ViewOrderDetailActivity extends AppCompatActivity {
         tvClientName = (TextView)findViewById(R.id.tv_approve_sale_client_name);
         tvClientType = (TextView)findViewById(R.id.tv_approve_sale_client_type);
         tvPayment = (TextView)findViewById(R.id.tv_approve_sale_payment_type);
-        tvDelivery = (TextView)findViewById(R.id.tv_approve_sale_delivery_date);
+        tvDelivery = (TextView)findViewById(R.id.tv_preview_delivery_date);
         tvNotVAT = (TextView)findViewById(R.id.tv_detail_notVAT__detail);
         tvVAT = (TextView)findViewById(R.id.tv_detail_VAT__detail);
         tvClientDebt = (TextView)findViewById(R.id.tv_detail_client_debt);
@@ -166,43 +167,27 @@ public class ViewOrderDetailActivity extends AppCompatActivity {
     }
 
     private void viewVAT() {
-
-        Constants.refDatabase.child(emailLogin+"/OrderList").child(orderPushKey).addValueEventListener(new ValueEventListener() {
+        refOrderList.child(orderPushKey).child("VAT").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if(dataSnapshot.hasChild("VAT")){
-                    Constants.refDatabase.child(emailLogin+"/OrderList").child(orderPushKey).child("VAT").addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            VatModel currentVat = dataSnapshot.getValue(VatModel.class);
-                            if(currentVat!=null){
-                                NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.US);
+                VatModel currentVat = dataSnapshot.getValue(VatModel.class);
+                if(currentVat!=null){
+                    notVAT = currentVat.getNotVat();
+                    VAT = currentVat.getIncludedVat();
+                    //b.putString("NotVAT",currentVat.getNotVat());
+                    //b.putString("IncludedVAT",currentVat.getIncludedVat());
 
-                                String notVATValue = currentVat.getNotVat();
-                                float notVATValueInt = Float.parseFloat(notVATValue);
-                                String notVATConverted = numberFormat.format(notVATValueInt);
-                                tvNotVAT.setText(notVATConverted);
+                    //String notVATValue = currentVat.getNotVat();
+                    tvNotVAT.setText(Utils.convertNumber(notVAT+""));
 
-                                String vatValue = currentVat.getIncludedVat();
-                                float VATValueInt = Float.parseFloat(vatValue);
-                                String VATConverted = numberFormat.format(VATValueInt);
-                                tvVAT.setText(VATConverted);
+                    //String vatValue = currentVat.getIncludedVat();
+                    tvVAT.setText(Utils.convertNumber(VAT+""));
 
-                                String finalPayment = currentVat.getFinalPayment();
-                                float finalPaymentFloat = Float.parseFloat(finalPayment);
-                                String VATDiscountConverted = numberFormat.format(finalPaymentFloat);
-                                tvFinalPayment.setText(VATDiscountConverted);
-                            }
-
-                        }
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-
-                        }
-                    });
+                    float finalPayment = currentVat.getFinalPayment();
+                    tvFinalPayment.setText(Utils.convertNumber(finalPayment+""));
 
                 }
+
             }
 
             @Override
@@ -896,12 +881,12 @@ public class ViewOrderDetailActivity extends AppCompatActivity {
                                             public void onDataChange(DataSnapshot dataSnapshot) {
                                                 VatModel vat = dataSnapshot.getValue(VatModel.class);
                                                 assert vat != null;
-                                                String finalPayment = vat.getFinalPayment();
+                                                float finalPayment = vat.getFinalPayment();
 
-                                                float updateClientDebt = Float.parseFloat(clientDebt)+Float.parseFloat(finalPayment);
+                                                float updateClientDebt = Float.parseFloat(clientDebt) + finalPayment;
                                                 //float updateClientDebt = Float.parseFloat(clientDebt) + Float.parseFloat(finalPayment);
                                                 String timeStamp = (Calendar.getInstance().getTime().getTime())+"";
-                                                DebtHistory debtHistory = new DebtHistory(clientName,clientDebt,finalPayment,"0",updateClientDebt+"");
+                                                DebtHistory debtHistory = new DebtHistory(clientName,clientDebt,finalPayment+"","0",updateClientDebt+"");
 
                                                 refDatabase.child(emailLogin).child("Accounting/DebtHistory").child(timeStamp).setValue(debtHistory);
                                                 refDatabase.child(emailLogin).child("Accounting/DebtByClient").child(clientName).child(timeStamp).setValue(debtHistory);

@@ -7,6 +7,8 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
     <uses-permission android:name="android.permission.CALL_PHONE" />
 
     <application
@@ -17,6 +19,15 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
+        <activity android:name=".list.AddSale"></activity>
+        <activity android:name=".list.SaleListBySup" />
+        <activity
+            android:name=".bytask.PromotionList"
+            android:label="Chương trình" />
+        <activity android:name=".bytask.TeamMan" />
+        <activity android:name=".bytask.SaleRoute" />
+        <activity android:name=".list.ClientListBySaleTeam" />
+        <activity android:name=".bytask.ActionList" />
         <activity android:name=".MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -44,7 +55,7 @@
             android:label="Chi tiết đơn hàng" />
         <activity
             android:name=".order.PreviewOrderActivivity"
-            android:label="Xem trước và chỉnh sửa" />
+            android:label="Xem trước" />
         <activity android:name=".bytask.distribution.FilterTimeActivity" />
         <activity android:name=".list.UpdateClientActivity" />
         <activity android:name=".bytask.debt.ApproveSaleActivity" />
@@ -82,13 +93,16 @@
         <activity android:name=".pos.AddShopActivity" />
 
         <service
+            android:name=".utils.EmployeeTracker"
+            android:enabled="true"
+            android:exported="true" />
+        <service
             android:name=".utils.BluetoothService"
             android:enabled="true"
             android:exported="true" />
 
         <activity android:name=".utils.DeviceListActivity" />
         <activity android:name=".pos.ShopManagerActivity" />
-        <activity android:name=".pos.GeneralManagerActivity" />
         <activity android:name=".ScanCodeActivity" />
 
         <meta-data
@@ -96,10 +110,13 @@
             android:value="ada9f176623e9716ef8a4200857b0232b2c302d1"
             tools:replace="android:value" />
         <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+        <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyBj6LOWkIk_OjXEVTf9P9hJfWlfBgiEYwM" />
 
-        <activity android:name=".bytask.distribution.MeetClientReportActivity"></activity>
+        <activity android:name=".bytask.distribution.MeetClientReportActivity" />
     </application>
 
 </manifest>

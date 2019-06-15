@@ -7,9 +7,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.media.MediaScannerConnection;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CancellationSignal;
@@ -58,7 +56,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.NumberFormat;
 import java.util.Locale;
-import java.util.concurrent.ExecutionException;
 
 import a1a4w.onhandsme.R;
 import a1a4w.onhandsme.model.Client;
@@ -70,6 +67,7 @@ import a1a4w.onhandsme.utils.Constants;
 import a1a4w.onhandsme.utils.Utils;
 
 import static a1a4w.onhandsme.utils.Constants.refDatabase;
+import static a1a4w.onhandsme.utils.Constants.refOrderList;
 
 public class PrintPreviewActivity extends AppCompatActivity {
     private String orderName;
@@ -84,8 +82,9 @@ public class PrintPreviewActivity extends AppCompatActivity {
     private PrintManager mgr=null;
     private int pageCount;
     private ImageView ivLogo;
-    private static int MY_REQUEST_CODE = 1;
+    public static int MY_REQUEST_CODE = 1;
     private Bitmap logo;
+    private float VAT,notVAT;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -1184,31 +1183,24 @@ public class PrintPreviewActivity extends AppCompatActivity {
         });
     }
     private void viewVAT() {
-
-        refDatabase.child(emailLogin+"/OrderList").child(orderPushKey).child("VAT").addValueEventListener(new ValueEventListener() {
+        refOrderList.child(orderPushKey).child("VAT").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 VatModel currentVat = dataSnapshot.getValue(VatModel.class);
                 if(currentVat!=null){
-                    NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.US);
+                    notVAT = currentVat.getNotVat();
+                    VAT = currentVat.getIncludedVat();
+                    //b.putString("NotVAT",currentVat.getNotVat());
+                    //b.putString("IncludedVAT",currentVat.getIncludedVat());
 
-                    String notVATValue = currentVat.getNotVat();
-                    float notVATValueInt = Float.parseFloat(notVATValue);
-                    String notVATConverted = numberFormat.format(notVATValueInt);
-                    tvNotVAT.setText(notVATConverted);
-                    b.putString("NotVat",notVATValue);
+                    //String notVATValue = currentVat.getNotVat();
+                    tvNotVAT.setText(Utils.convertNumber(notVAT+""));
 
-                    String vatValue = currentVat.getIncludedVat();
-                    float VATValueInt = Float.parseFloat(vatValue);
-                    String VATConverted = numberFormat.format(VATValueInt);
-                    tvVAT.setText(VATConverted);
-                    b.putString("Vat",vatValue);
+                    //String vatValue = currentVat.getIncludedVat();
+                    tvVAT.setText(Utils.convertNumber(VAT+""));
 
-                    String finalPayment = currentVat.getFinalPayment();
-                    float finalPaymentFloat = Float.parseFloat(finalPayment);
-                    String VATDiscountConverted = numberFormat.format(finalPaymentFloat);
-                    tvFinalPayment.setText(VATDiscountConverted);
-                    b.putString("FinalPayment",finalPayment);
+                    float finalPayment = currentVat.getFinalPayment();
+                    tvFinalPayment.setText(Utils.convertNumber(finalPayment+""));
 
                 }
 
@@ -1221,6 +1213,7 @@ public class PrintPreviewActivity extends AppCompatActivity {
         });
 
     }
+
     private void initializeRecyclerViewPromotion() {
         recyclerViewPromotion.setHasFixedSize(true);
         linearLayoutManager = new LinearLayoutManager(getApplicationContext());

@@ -2,21 +2,16 @@ package a1a4w.onhandsme.bytask.distribution;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
 import org.joda.time.DateTime;
@@ -30,15 +25,7 @@ import java.util.List;
 import java.util.Objects;
 
 import a1a4w.onhandsme.R;
-import a1a4w.onhandsme.bytask.OrderManActivity;
-import a1a4w.onhandsme.bytask.warehouse.ViewStorageActivity;
 import a1a4w.onhandsme.model.Client;
-import a1a4w.onhandsme.model.Product;
-import a1a4w.onhandsme.model.WarehouseIn;
-import a1a4w.onhandsme.utils.AdapterMeetClient;
-import a1a4w.onhandsme.utils.AdapterStorage;
-import a1a4w.onhandsme.utils.Constants;
-import a1a4w.onhandsme.utils.Utils;
 
 import static a1a4w.onhandsme.utils.Constants.refDatabase;
 
@@ -104,10 +91,11 @@ public class MeetClientReportActivity extends AppCompatActivity {
                     }
 
                 }
-
+/*
                 AdapterMeetClient adapterMeet = new AdapterMeetClient(getApplicationContext(),clientList);
                 recyclerView.setAdapter(adapterMeet);
                 adapterMeet.notifyDataSetChanged();
+                */
             }
 
             @Override

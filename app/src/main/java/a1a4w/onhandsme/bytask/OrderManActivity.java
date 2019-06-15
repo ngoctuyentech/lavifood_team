@@ -1,18 +1,14 @@
 package a1a4w.onhandsme.bytask;
 
-import android.Manifest;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.location.Geocoder;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -24,8 +20,6 @@ import android.text.InputType;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
@@ -41,39 +35,32 @@ import android.widget.Toast;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 
-import a1a4w.onhandsme.LoginActivity;
 import a1a4w.onhandsme.MainActivity;
 import a1a4w.onhandsme.R;
 import a1a4w.onhandsme.bytask.distribution.FilterClientActivity;
 import a1a4w.onhandsme.bytask.distribution.FilterEmployeeActivity;
 import a1a4w.onhandsme.bytask.distribution.FilterProductActivity;
 import a1a4w.onhandsme.bytask.distribution.FilterTimeActivity;
-import a1a4w.onhandsme.list.AddClientActivity;
 import a1a4w.onhandsme.list.ClientListActivity;
-import a1a4w.onhandsme.list.UpdateClientActivity;
 import a1a4w.onhandsme.model.Client;
 import a1a4w.onhandsme.model.Employee;
 import a1a4w.onhandsme.model.Group;
 import a1a4w.onhandsme.model.MapModel;
-import a1a4w.onhandsme.model.Order;
 import a1a4w.onhandsme.model.OrderDetail;
 import a1a4w.onhandsme.model.Product;
+import a1a4w.onhandsme.order.PreviewOrderActivivity;
 import a1a4w.onhandsme.order.PrintPreviewActivity;
 import a1a4w.onhandsme.order.ViewOrderDetailActivity;
 import a1a4w.onhandsme.utils.Constants;
@@ -127,6 +114,7 @@ public class OrderManActivity extends AppCompatActivity {
         tvUnapproved = (TextView) findViewById(R.id.tv_order_unapproved);
         tvApproved = (TextView) findViewById(R.id.tv_order_approved);
         tvDenied = (TextView) findViewById(R.id.tv_order_denied);
+
         layoutApproved = (LinearLayout) findViewById(R.id.layout_approved);
         layoutUnapproved = (LinearLayout) findViewById(R.id.layout_unapproved);
         layoutDenied = (LinearLayout) findViewById(R.id.layout_denied);
@@ -140,6 +128,11 @@ public class OrderManActivity extends AppCompatActivity {
 
         ImageButton ibNewOrder = (ImageButton) findViewById(R.id.ib_order_man_newOrder);
 
+
+        if(saleMan){
+            ibNewOrder.setVisibility(View.GONE);
+        }
+
         ibNewOrder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -151,31 +144,6 @@ public class OrderManActivity extends AppCompatActivity {
             }
         });
 
-        refDatabase.child(emailLogin).child("ClientManBySale").child(employeeEmail).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (!dataSnapshot.hasChild("Group")) {
-
-                    Group group1 = new Group("Tất cả");
-                    final Group group2 = new Group("Tạo/Đổi tên nhóm bằng chạm và giữ");
-
-                    refDatabase.child(emailLogin).child("ClientManBySale").child(employeeEmail).child("Group").push().setValue(group1).addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            refDatabase.child(emailLogin).child("ClientManBySale").child(employeeEmail).child("Group").push().setValue(group2);
-
-                        }
-                    });
-
-
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
 
         initializeUnapproved();
         initializeApproved();
@@ -194,6 +162,8 @@ public class OrderManActivity extends AppCompatActivity {
 
                 tvApproved.setTextColor(getResources().getColor(R.color.colorAccent));
                 tvUnapproved.setTextColor(getResources().getColor(android.R.color.white));
+                tvDenied.setTextColor(getResources().getColor(android.R.color.white));
+
 
             }
         });
@@ -211,6 +181,8 @@ public class OrderManActivity extends AppCompatActivity {
 
                 tvUnapproved.setTextColor(getResources().getColor(R.color.colorAccent));
                 tvApproved.setTextColor(getResources().getColor(android.R.color.white));
+                tvDenied.setTextColor(getResources().getColor(android.R.color.white));
+
             }
         });
 
@@ -224,6 +196,10 @@ public class OrderManActivity extends AppCompatActivity {
                 layoutApproved.setVisibility(View.INVISIBLE);
                 layoutUnapproved.setVisibility(View.INVISIBLE);
                 layoutDenied.setVisibility(View.VISIBLE);
+
+                tvDenied.setTextColor(getResources().getColor(R.color.colorAccent));
+                tvApproved.setTextColor(getResources().getColor(android.R.color.white));
+                tvUnapproved.setTextColor(getResources().getColor(android.R.color.white));
             }
         });
 
@@ -349,7 +325,7 @@ public class OrderManActivity extends AppCompatActivity {
     }
 
     private void getDeniedOrder() {
-        refDenied = Constants.refDatabase.child(emailLogin + "/Order").child("Denied");
+        refDenied = Constants.refDatabase.child(emailLogin + "/Order").child("OutRoute");
 
         adapterFirebaseDenied = new FirebaseRecyclerAdapter<OrderDetail, OrderViewHolderDenied>(
                 OrderDetail.class,
@@ -885,13 +861,31 @@ public class OrderManActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     v.startAnimation(buttonClick);
-                    int position = getLayoutPosition();
+                    final int position = getLayoutPosition();
                     DatabaseReference itemKey = adapterFirebaseUnapproved.getRef(position);
-                    String itemKeyString = itemKey.getKey();
-                    Intent intent1 = new Intent(getApplicationContext(), ViewOrderDetailActivity.class);
-                    intent1.putExtra("OrderPushKey", itemKeyString);
-                    intent1.putExtra("EmailLogin", emailLogin);
-                    startActivity(intent1);
+                    final String itemKeyString = itemKey.getKey();
+
+                    refDatabase.child(emailLogin).child("OrderList").child(itemKeyString).child("OtherInformation").addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            OrderDetail orderDetail = dataSnapshot.getValue(OrderDetail.class);
+                            assert orderDetail != null;
+                            String clientCode = orderDetail.getClientCode();
+                            Intent intent1 = new Intent(getApplicationContext(), PreviewOrderActivivity.class);
+                            intent1.putExtra("OrderPushKey", itemKeyString);
+                            intent1.putExtra("EmailLogin", emailLogin);
+                            intent1.putExtra("ClientCode",clientCode);
+                            intent1.putExtra("ViewOnly",true);
+                            startActivity(intent1);
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+
+
                 }
             });
 
@@ -968,11 +962,28 @@ public class OrderManActivity extends AppCompatActivity {
                     v.startAnimation(buttonClick);
                     int position = getLayoutPosition();
                     DatabaseReference itemKey = adapterFirebaseDenied.getRef(position);
-                    String itemKeyString = itemKey.getKey();
-                    Intent intent1 = new Intent(getApplicationContext(), ViewOrderDetailActivity.class);
-                    intent1.putExtra("OrderPushKey", itemKeyString);
-                    intent1.putExtra("EmailLogin", emailLogin);
-                    startActivity(intent1);
+                    final String itemKeyString = itemKey.getKey();
+
+                    refDatabase.child(emailLogin).child("OrderList").child(itemKeyString).child("OtherInformation").addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            OrderDetail orderDetail = dataSnapshot.getValue(OrderDetail.class);
+                            assert orderDetail != null;
+                            String clientCode = orderDetail.getClientCode();
+                            Intent intent1 = new Intent(getApplicationContext(), PreviewOrderActivivity.class);
+                            intent1.putExtra("OrderPushKey", itemKeyString);
+                            intent1.putExtra("EmailLogin", emailLogin);
+                            intent1.putExtra("ClientCode",clientCode);
+                            intent1.putExtra("ViewOnly",true);
+                            startActivity(intent1);
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+
                 }
             });
 
@@ -1026,82 +1037,6 @@ public class OrderManActivity extends AppCompatActivity {
         }
     }
 
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        if (!saleMan)
-            getMenuInflater().inflate(R.menu.menu_order, menu);
-        else
-            getMenuInflater().inflate(R.menu.sale_man, menu);
-
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.action_logout_orderman) {
-            FirebaseAuth.getInstance().signOut();
-            startActivity(new Intent(OrderManActivity.this, LoginActivity.class));
-        }
-
-        if (id == R.id.action_logout_saleman) {
-            FirebaseAuth.getInstance().signOut();
-            startActivity(new Intent(OrderManActivity.this, LoginActivity.class));
-        }
-
-
-        if (id == R.id.action_view_order_time) {
-            orderFilterDialog();
-        }
-
-        if (id == R.id.action_view_order_client) {
-            //orderClientFilterDialog();
-        }
-
-        if (id == R.id.action_view_order_product) {
-            orderProductFilterDialog();
-        }
-
-        if (id == R.id.action_view_order_employee) {
-            orderEmployeeFilterDialog();
-        }
-
-        if (id == R.id.action_edit_client) {
-            Intent it = new Intent(this, ClientListActivity.class);
-            it.putExtra("UpdateClient", true);
-            startActivity(it);
-        }
-
-        if (id == R.id.action_view_client) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            LayoutInflater inflater = this.getLayoutInflater();
-            View dialogView = inflater.inflate(R.layout.dialog_client_sale_list, null);
-            builder.setView(dialogView);
-            builder.setTitle("Danh sách khách hàng");
-
-            Dialog dialog = builder.create();
-            dialog.show();
-
-            rvClientList = dialogView.findViewById(R.id.rv_client_sale_list);
-            rvClientList.setHasFixedSize(true);
-            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-            rvClientList.setLayoutManager(linearLayoutManager);
-
-            DatabaseReference ref = refDatabase.child(emailLogin).child("ClientBySale").child(employeeEmail);
-
-            dialogClientList(ref);
-            dialogGroupList(dialogView);
-
-        }
-
-        if (id == R.id.action_view_target){
-
-        }
-
-
-        return super.onOptionsItemSelected(item);
-    }
 
     private void dialogGroupList(View dialogView) {
         final RecyclerView rvClientGroup = dialogView.findViewById(R.id.rv_client_sale_group);

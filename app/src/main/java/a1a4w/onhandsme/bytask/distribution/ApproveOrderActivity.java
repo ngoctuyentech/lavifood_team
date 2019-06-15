@@ -29,16 +29,14 @@ import com.google.firebase.database.MutableData;
 import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 
-import java.text.NumberFormat;
-import java.util.Locale;
-
 import a1a4w.onhandsme.R;
-import a1a4w.onhandsme.list.ClientListActivity;
 import a1a4w.onhandsme.model.OrderDetail;
 import a1a4w.onhandsme.model.Product;
 import a1a4w.onhandsme.model.VatModel;
 import a1a4w.onhandsme.utils.Constants;
 import a1a4w.onhandsme.utils.Utils;
+
+import static a1a4w.onhandsme.utils.Constants.refOrderList;
 
 public class ApproveOrderActivity extends AppCompatActivity {
 
@@ -53,6 +51,7 @@ public class ApproveOrderActivity extends AppCompatActivity {
     private ProgressDialog mProgressDialog;
     private String email;
     private boolean normal;
+    private float VAT,notVAT;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,7 +71,7 @@ public class ApproveOrderActivity extends AppCompatActivity {
         tvClientName = (TextView)findViewById(R.id.tv_approve_sale_client_name);
         tvClientType = (TextView)findViewById(R.id.tv_approve_sale_client_type);
         tvPayment = (TextView)findViewById(R.id.tv_approve_sale_payment_type);
-        tvDelivery = (TextView)findViewById(R.id.tv_approve_sale_delivery_date);
+        tvDelivery = (TextView)findViewById(R.id.tv_preview_delivery_date);
         tvNotVAT = (TextView)findViewById(R.id.tv_detail_notVAT_approve_order);
         tvVAT = (TextView)findViewById(R.id.tv_detail_VAT_aprove_order);
         tvFinalPayment = (TextView)findViewById(R.id.tv_detail_final_payment_approve_order);
@@ -142,30 +141,27 @@ public class ApproveOrderActivity extends AppCompatActivity {
     }
 
     private void viewVAT() {
-        Constants.refDatabase.child(emailLogin+"/OrderList").child(orderPushKey).addValueEventListener(new ValueEventListener() {
+        refOrderList.child(orderPushKey).child("VAT").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if(dataSnapshot.hasChild("VAT")){
-                    Constants.refDatabase.child(emailLogin+"/OrderList").child(orderPushKey).child("VAT").addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            VatModel currentVat = dataSnapshot.getValue(VatModel.class);
-                            if(currentVat!=null){
-                                tvNotVAT.setText(Utils.convertNumber(currentVat.getNotVat()));
-                                tvVAT.setText(Utils.convertNumber(currentVat.getIncludedVat()));
-                                tvFinalPayment.setText(Utils.convertNumber(currentVat.getFinalPayment()));
-                                hideProgressDialog();
-                            }
+                VatModel currentVat = dataSnapshot.getValue(VatModel.class);
+                if(currentVat!=null){
+                    notVAT = currentVat.getNotVat();
+                    VAT = currentVat.getIncludedVat();
+                    //b.putString("NotVAT",currentVat.getNotVat());
+                    //b.putString("IncludedVAT",currentVat.getIncludedVat());
 
-                        }
+                    //String notVATValue = currentVat.getNotVat();
+                    tvNotVAT.setText(Utils.convertNumber(notVAT+""));
 
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
+                    //String vatValue = currentVat.getIncludedVat();
+                    tvVAT.setText(Utils.convertNumber(VAT+""));
 
-                        }
-                    });
+                    float finalPayment = currentVat.getFinalPayment();
+                    tvFinalPayment.setText(Utils.convertNumber(finalPayment+""));
 
                 }
+
             }
 
             @Override

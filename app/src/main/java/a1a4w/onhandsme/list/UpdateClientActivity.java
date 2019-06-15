@@ -2,50 +2,35 @@ package a1a4w.onhandsme.list;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Spinner;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.Arrays;
 import java.util.Calendar;
-import java.util.List;
 import java.util.Objects;
 
-import a1a4w.onhandsme.MainActivity;
 import a1a4w.onhandsme.R;
 import a1a4w.onhandsme.model.Client;
-import a1a4w.onhandsme.model.DebtHistory;
 import a1a4w.onhandsme.model.MapModel;
-import a1a4w.onhandsme.utils.Constants;
-import a1a4w.onhandsme.utils.MySpinerAdapter;
-import fr.ganfra.materialspinner.MaterialSpinner;
 
 import static a1a4w.onhandsme.utils.Constants.refDatabase;
-import static a1a4w.onhandsme.utils.Constants.refEmployee;
 
 public class UpdateClientActivity extends AppCompatActivity {
     String clientCode;
     EditText clientName,clientStreet, clientDist,clientCity, clientProvince, clientPhone, clientDeliveryService,clientInform, clientDebt;
     Button addClient;
     private Bundle b = new Bundle();
-    private String thisYear,thisMonth,emailLogin,employeeEmail;
+    private String thisYear,thisMonth,emailLogin,employeeEmail,createBy;
     private String clientInformString;
     private String clientDeliveryServiceString;
     private String clientType;
@@ -96,6 +81,7 @@ public class UpdateClientActivity extends AppCompatActivity {
                 clientDeliveryServiceString = client.getClientDeliveryName();
                 clientType = client.getClientType();
                 clientProvinceString = client.getClientProvince();
+                createBy = client.getCreateBy();
                 map = client.getMap();
             }
 
@@ -145,9 +131,11 @@ public class UpdateClientActivity extends AppCompatActivity {
             }
 
             else {
+
+/*
                 Client client = new Client(clientCode,clientNameString,clientType, clientStreetString,
                         clientDistString,clientCityString,clientProvinceString,
-                        clientPhoneString,clientDeliveryServiceString, clientInformString,clientDebtString,"0",map);
+                        clientPhoneString, clientInformString,clientDebtString,"0",map,createBy);
 
                 DatabaseReference clientPush = refDatabase.child(emailLogin+"/Client").child(clientCode);
 
@@ -163,6 +151,8 @@ public class UpdateClientActivity extends AppCompatActivity {
                         startActivity(it);
                     }
                 });
+
+                */
             }
 
         }

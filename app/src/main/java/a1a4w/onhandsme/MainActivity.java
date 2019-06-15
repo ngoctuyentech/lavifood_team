@@ -15,12 +15,13 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
+import a1a4w.onhandsme.bytask.ActionList;
 import a1a4w.onhandsme.bytask.DeliveryManActivity;
-import a1a4w.onhandsme.bytask.OrderManActivity;
 import a1a4w.onhandsme.bytask.debt.DebtManActivity;
 import a1a4w.onhandsme.bytask.distribution.DistributionManActivity;
 import a1a4w.onhandsme.bytask.warehouse.WarehouseManActivity;
@@ -64,11 +65,151 @@ public class MainActivity extends AppCompatActivity {
 
         DateFormat df = new SimpleDateFormat("dd/MM/yy");
         final String date = df.format(Calendar.getInstance().getTime());
+/*
+        if(isOnline()){
+            user = FirebaseAuth.getInstance().getCurrentUser();
 
+            userEmail = user.getEmail().replace(".",",");
+            // Toast.makeText(getApplicationContext(),userEmail,Toast.LENGTH_LONG).show();
+
+            Constants.refLogin.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    if(dataSnapshot.hasChild(userEmail)){
+                        Constants.refLogin.child(userEmail).addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                final String emailLogin = dataSnapshot.getValue().toString();
+                                // b.putString("EmailLogin",emailLogin);
+                                // Toast.makeText(getApplicationContext(),emailLogin,Toast.LENGTH_LONG).show();
+
+                                Constants.refRole.addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        if(dataSnapshot.hasChild(emailLogin+"/"+userEmail)){
+                                            Constants.refRole.child(emailLogin+"/"+userEmail).addListenerForSingleValueEvent(new ValueEventListener() {
+                                                @Override
+                                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                                    final String userRole = dataSnapshot.getValue().toString();
+                                                    switch (userRole) {
+                                                        case "DebtMan":
+                                                            Intent intent = new Intent(MainActivity.this, DebtManActivity.class);
+                                                            intent.putExtra("EmailLogin",emailLogin);
+                                                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                                            startActivity(intent);                                                        break;
+
+                                                        case "DeliveryMan":
+                                                            intent = new Intent(MainActivity.this, DeliveryManActivity.class);
+                                                            intent.putExtra("EmailLogin",emailLogin);
+                                                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                                            startActivity(intent);
+                                                            break;
+
+                                                        case "SaleMan":
+                                                            intent = new Intent(MainActivity.this, ActionList.class);
+                                                            intent.putExtra("EmailLogin",emailLogin);
+                                                            intent.putExtra("SaleMan",true);
+                                                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                                            startActivity(intent);
+                                                            break;
+
+                                                        case "Supervisor":
+                                                            intent = new Intent(MainActivity.this, ActionList.class);
+                                                            intent.putExtra("EmailLogin",emailLogin);
+                                                            intent.putExtra("Supervisor",true);
+                                                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                                            startActivity(intent);
+                                                            break;
+
+                                                        case "OrderMan":
+                                                            intent = new Intent(MainActivity.this, ActionList.class);
+                                                            intent.putExtra("EmailLogin",emailLogin);
+                                                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                                            startActivity(intent);
+                                                            break;
+
+                                                        case "Seller":
+                                                            intent = new Intent(MainActivity.this, PosActivity.class);
+                                                            intent.putExtra("EmailLogin",emailLogin);
+                                                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                                            startActivity(intent);
+                                                            break;
+
+                                                        case "ShopMan":
+                                                            intent = new Intent(MainActivity.this, ShopManagerActivity.class);
+                                                            intent.putExtra("EmailLogin",emailLogin);
+                                                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                                            startActivity(intent);
+                                                            break;
+
+                                                        case "ChainMan":
+                                                            intent = new Intent(MainActivity.this, ShopChainActivity.class);
+                                                            intent.putExtra("EmailLogin",emailLogin);
+                                                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                                            startActivity(intent);
+                                                            break;
+
+                                                        case "GeneralMan":
+                                                            intent = new Intent(MainActivity.this, DistributionManActivity.class);
+                                                            intent.putExtra("EmailLogin",emailLogin);
+                                                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                                            startActivity(intent);
+                                                            break;
+
+                                                        case "DistributionMan":
+                                                            intent = new Intent(MainActivity.this, DistributionManActivity.class);
+                                                            intent.putExtra("EmailLogin",emailLogin);
+                                                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                                            startActivity(intent);
+                                                            break;
+
+                                                        default: {
+                                                            intent = new Intent(MainActivity.this, WarehouseManActivity.class);
+                                                            intent.putExtra("EmailLogin",emailLogin);
+                                                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                                            startActivity(intent);
+                                                            break;
+                                                        }
+                                                    }
+
+                                                }
+
+                                                @Override
+                                                public void onCancelled(DatabaseError databaseError) {
+
+                                                }
+                                            });
+
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+
+                                    }
+                                });
+                            }
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+                            }
+                        });
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+        }else{
+            Toast.makeText(getApplicationContext(),"Không có kết nối Internet!", Toast.LENGTH_LONG).show();
+        }
+
+*/
         user = FirebaseAuth.getInstance().getCurrentUser();
 
         userEmail = user.getEmail().replace(".",",");
-       // Toast.makeText(getApplicationContext(),userEmail,Toast.LENGTH_LONG).show();
+        // Toast.makeText(getApplicationContext(),userEmail,Toast.LENGTH_LONG).show();
 
         Constants.refLogin.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -78,8 +219,8 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             final String emailLogin = dataSnapshot.getValue().toString();
-                           // b.putString("EmailLogin",emailLogin);
-                           // Toast.makeText(getApplicationContext(),emailLogin,Toast.LENGTH_LONG).show();
+                            // b.putString("EmailLogin",emailLogin);
+                            // Toast.makeText(getApplicationContext(),emailLogin,Toast.LENGTH_LONG).show();
 
                             Constants.refRole.addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
@@ -104,15 +245,23 @@ public class MainActivity extends AppCompatActivity {
                                                         break;
 
                                                     case "SaleMan":
-                                                        intent = new Intent(MainActivity.this, OrderManActivity.class);
+                                                        intent = new Intent(MainActivity.this, ActionList.class);
                                                         intent.putExtra("EmailLogin",emailLogin);
                                                         intent.putExtra("SaleMan",true);
                                                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                                         startActivity(intent);
                                                         break;
 
+                                                    case "Supervisor":
+                                                        intent = new Intent(MainActivity.this, ActionList.class);
+                                                        intent.putExtra("EmailLogin",emailLogin);
+                                                        intent.putExtra("Supervisor",true);
+                                                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                                        startActivity(intent);
+                                                        break;
+
                                                     case "OrderMan":
-                                                        intent = new Intent(MainActivity.this, OrderManActivity.class);
+                                                        intent = new Intent(MainActivity.this, ActionList.class);
                                                         intent.putExtra("EmailLogin",emailLogin);
                                                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                                         startActivity(intent);
@@ -191,7 +340,6 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-
     }
 
     private void fetchValue() {
@@ -220,4 +368,16 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public boolean isOnline() {
+        Runtime runtime = Runtime.getRuntime();
+        try {
+            Process ipProcess = runtime.exec("/system/bin/ping -c 1 8.8.8.8");
+            int     exitValue = ipProcess.waitFor();
+            return (exitValue == 0);
+        }
+        catch (IOException e)          { e.printStackTrace(); }
+        catch (InterruptedException e) { e.printStackTrace(); }
+
+        return false;
+    }
 }

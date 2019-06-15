@@ -140,7 +140,7 @@ public class Other {
             layout = new StaticLayout(txt, 0, txt.length(), paint, width, Layout.Alignment.ALIGN_NORMAL, 1.1F, 0.0F, true, TextUtils.TruncateAt.END, width);
             canvas.translate(0.0F, 5.0F);
             layout.draw(canvas);
-            canvas.save(31);
+            canvas.save();
             canvas.restore();
             return canvasBitmap;
         } else {
@@ -158,7 +158,7 @@ public class Other {
             layout = new StaticLayout(txt, 0, txt.length(), paint, width, Layout.Alignment.ALIGN_NORMAL, 1.1F, 0.0F, true, TextUtils.TruncateAt.END, width);
             canvas.translate(0.0F, 5.0F);
             layout.draw(canvas);
-            canvas.save(31);
+            canvas.save();
             canvas.restore();
             return canvasBitmap;
         }

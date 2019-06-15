@@ -18,17 +18,22 @@ public class Client {
     String clientDebt;
     String clientSale;
     String clientAddress;
-    String groupMan;
     MapModel map;
     String timeStamp;
+    String clientUrl;
+    boolean isMet;
+    String monthSale;
+    String nearestBuyDay;
+    String createBy;
+    String contactName;
 
     public Client() {
     }
 
     public Client(String clientCode, String clientName, String clientType,
                   String clientStreet, String clientDistrict, String clientCity,
-                  String clientProvince, String clientPhone, String clientDeliveryName,
-                  String clientOrderInform, String clientDebt, String clientSale,MapModel map) {
+                  String clientProvince, String clientPhone,
+                  String clientOrderInform, String clientDebt, String clientSale,MapModel map,String createBy,String contactName) {
 
         this.clientCode = clientCode;
         this.clientName = clientName;
@@ -38,11 +43,13 @@ public class Client {
         this.clientCity = clientCity;
         this.clientProvince = clientProvince;
         this.clientPhone = clientPhone;
-        this.clientDeliveryName = clientDeliveryName;
+
         this.clientOrderInform = clientOrderInform;
         this.clientDebt = clientDebt;
         this.clientSale = clientSale;
         this.map = map;
+        this.createBy = createBy;
+        this.contactName = contactName;
 
     }
 
@@ -52,11 +59,11 @@ public class Client {
         this.clientType = clientType;
     }
 
-    public Client(String clientCode, String clientName, String clientType, String clientAddress) {
+    public Client(String clientCode, String clientName, MapModel map, String clientStreet) {
         this.clientCode = clientCode;
         this.clientName = clientName;
-        this.clientType = clientType;
-        this.clientAddress = clientAddress;
+        this.map = map;
+        this.clientStreet = clientStreet;
     }
 
     public Client(String clientCode, String clientName, String clientType, String clientAddress, String timeStamp) {
@@ -121,5 +128,29 @@ public class Client {
 
     public String getTimeStamp() {
         return timeStamp;
+    }
+
+    public String getClientUrl() {
+        return clientUrl;
+    }
+
+    public boolean isMet() {
+        return isMet;
+    }
+
+    public String getMonthSale() {
+        return monthSale;
+    }
+
+    public String getNearestBuyDay() {
+        return nearestBuyDay;
+    }
+
+    public String getClientSale() {
+        return clientSale;
+    }
+
+    public String getCreateBy() {
+        return createBy;
     }
 }

@@ -3,5 +3,10 @@
     <color name="colorPrimary">#448AFF</color>
     <color name="colorPrimaryDark">#2962FF</color>
     <color name="colorPrimaryLight">#8e9cfa</color>
-    <color name="colorAccent">#fc699b</color>
+    <color name="colorOrder">#E9573F</color>
+    <color name="colorClient">#76EF55</color>
+    <color name="colorPromotion">#E9C83F</color>
+    <color name="colorAnnouncement">#DB99E0</color>
+    <color name="colorGroup">#FF0000</color>
+
 </resources>

@@ -24,9 +24,7 @@ import com.google.firebase.database.MutableData;
 import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 
-import java.text.NumberFormat;
 import java.util.Calendar;
-import java.util.Locale;
 
 import a1a4w.onhandsme.R;
 import a1a4w.onhandsme.model.OrderDetail;
@@ -34,6 +32,8 @@ import a1a4w.onhandsme.model.Product;
 import a1a4w.onhandsme.model.VatModel;
 import a1a4w.onhandsme.utils.Constants;
 import a1a4w.onhandsme.utils.Utils;
+
+import static a1a4w.onhandsme.utils.Constants.refOrderList;
 
 public class ApproveSaleActivity extends AppCompatActivity {
 
@@ -56,6 +56,7 @@ public class ApproveSaleActivity extends AppCompatActivity {
 
     private String totalByEmployeeYear,totalByEmployeeMonth,totalByEmployeeQuarter;
     private String totalByTimeYear,totalByTimeQuarter,totalByTimeMonth,totalByTimeDate;
+    private float VAT,notVAT;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -807,17 +808,25 @@ public class ApproveSaleActivity extends AppCompatActivity {
         });
     }
     private void viewVAT() {
-        Constants.refDatabase.child(emailLogin+"/OrderList").child(orderPushKey).child("VAT").addValueEventListener(new ValueEventListener() {
+        refOrderList.child(orderPushKey).child("VAT").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 VatModel currentVat = dataSnapshot.getValue(VatModel.class);
-                assert currentVat != null;
-                clientPayment = currentVat.getFinalPayment();
                 if(currentVat!=null){
+                    notVAT = currentVat.getNotVat();
+                    VAT = currentVat.getIncludedVat();
+                    //b.putString("NotVAT",currentVat.getNotVat());
+                    //b.putString("IncludedVAT",currentVat.getIncludedVat());
 
-                    tvNotVAT.setText(Utils.convertNumber(currentVat.getNotVat()));
-                    tvVAT.setText(Utils.convertNumber(currentVat.getIncludedVat()));
-                    tvFinalPayment.setText(Utils.convertNumber(currentVat.getFinalPayment()));
+                    //String notVATValue = currentVat.getNotVat();
+                    tvNotVAT.setText(Utils.convertNumber(notVAT+""));
+
+                    //String vatValue = currentVat.getIncludedVat();
+                    tvVAT.setText(Utils.convertNumber(VAT+""));
+
+                    float finalPayment = currentVat.getFinalPayment();
+                    tvFinalPayment.setText(Utils.convertNumber(finalPayment+""));
+
                 }
 
             }
@@ -854,7 +863,7 @@ public class ApproveSaleActivity extends AppCompatActivity {
         tvClientName = (TextView)findViewById(R.id.tv_approve_sale_client_name);
         tvClientType = (TextView)findViewById(R.id.tv_approve_sale_client_type);
         tvPayment = (TextView)findViewById(R.id.tv_approve_sale_payment_type);
-        tvDelivery = (TextView)findViewById(R.id.tv_approve_sale_delivery_date);
+        tvDelivery = (TextView)findViewById(R.id.tv_preview_delivery_date);
         tvNotVAT = (TextView)findViewById(R.id.tv_approve_sale_notVAT);
         tvVAT = (TextView)findViewById(R.id.tv_approve_sale_VAT);
         tvFinalPayment = (TextView)findViewById(R.id.tv_approve_sale_final_payment);
