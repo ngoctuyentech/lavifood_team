@@ -31,7 +31,6 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 
 import a1a4w.onhandsme.MainActivity;
 import a1a4w.onhandsme.R;
@@ -56,7 +55,7 @@ public class ViewOrderDetailActivity extends AppCompatActivity {
     private TextView tvClientName, tvClientType, tvPayment, tvDelivery, tvNotVAT,
             tvVAT,tvFinalPayment,tvClientDebt,tvNote,tvClientAddress,tvDeliveryName,tvEmployeeName;
     private String orderPushKey,userRole,emailLogin;
-    private boolean warehouse,delivery,denied,cashReturn,updateSale;
+    private boolean warehouse,delivery,denied,cashReturn,updateSale,supervisor;
     private ProgressDialog mProgressDialog;
     private OrderDetail orderDetail;
     private String clientName;
@@ -85,7 +84,7 @@ public class ViewOrderDetailActivity extends AppCompatActivity {
 
         Toolbar toolbar = (Toolbar)findViewById(R.id.toolbar_view_order_detail);
         setSupportActionBar(toolbar);
-        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        //Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
         recyclerViewProduct = (RecyclerView)findViewById(R.id.recycler_order_detail_product);
         recyclerViewPromotion = (RecyclerView)findViewById(R.id.recyclerview_order_detail_promotion);
@@ -299,6 +298,10 @@ public class ViewOrderDetailActivity extends AppCompatActivity {
 
         if(cashReturn){
             cashReturnItem.setVisible(true);
+
+        }
+
+        if(supervisor){
 
         }
 

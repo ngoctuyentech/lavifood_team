@@ -59,7 +59,7 @@ public class UpdateOrderActivity extends AppCompatActivity {
     private EditText edtproductPrice, edtproductQuantity, edtdeliveryDate,edtSpecialDiscount, edtDialogProductQuantity, edtOrderDiscount, edtOrderNote;
     private TextView currentStorage,tvClientName, tvClientSale, clientDebt,tvEmployeeName,tvProductName,tvEmployeeMonthSale,tvPromotionName;
     private String orderDiscount, orderPushKeyString, clientCode,paymentType,promotionName,productStock,
-            clientType, employeeName,productName,choosenVAT,emailLogin,clientName,saleManEmail;
+            clientType, employeeName,productName,choosenVAT,emailLogin,clientName,saleManEmail,productCode;
     private Switch switchPayment;
     private Button btnChooseEmployee,btnChooseProduct,btnChoosePromotion,btnPreview;
     private DatabaseReference orderPushKey;
@@ -76,7 +76,6 @@ public class UpdateOrderActivity extends AppCompatActivity {
     private Menu myMenu;
     private boolean dialogPromotion=false,isDebt,saleMan,outRoute;
     private Dialog dialogProductList,dialogProgramList,dialogEmployeeList;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -157,8 +156,8 @@ public class UpdateOrderActivity extends AppCompatActivity {
     private void initilizeScreen() {
 
         DateTime dt = new DateTime();
-        String month = dt.getMonthOfYear()+"";
-        String year = dt.getYear()+"";
+        final String month = dt.getMonthOfYear()+"";
+        final String year = dt.getYear()+"";
 
         //Toast.makeText(getApplicationContext(), year+"-"+month, Toast.LENGTH_LONG).show();
 
@@ -184,7 +183,8 @@ public class UpdateOrderActivity extends AppCompatActivity {
         btnChooseProduct = findViewById(R.id.btn_order_choose_product);
         btnChoosePromotion = findViewById(R.id.btn_order_choose_promotion);
 
-        if(saleMan){
+        edtproductPrice.setEnabled(false);
+    if(saleMan){
             btnChooseEmployee.setVisibility(View.GONE);
             refDatabase.child(emailLogin).child("Employee").child(saleManEmail).child("employeeName").addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
@@ -200,10 +200,25 @@ public class UpdateOrderActivity extends AppCompatActivity {
                 }
             });
 
-            refDatabase.child(emailLogin).child("RevenueBySale").child(saleManEmail).child(year+"-"+month).addListenerForSingleValueEvent(new ValueEventListener() {
+            refDatabase.child(emailLogin).child("TotalBySale").child(saleManEmail).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
-                    tvEmployeeMonthSale.setText(Utils.convertNumber(dataSnapshot.getValue().toString()));
+                    if(dataSnapshot.hasChild(year+"-"+month)){
+                        refDatabase.child(emailLogin).child("TotalBySale").child(saleManEmail).child(year+"-"+month).addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                tvEmployeeMonthSale.setText(Utils.convertNumber(dataSnapshot.getValue().toString()));
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+
+                    }else{
+                        tvEmployeeMonthSale.setText("0");
+                    }
                 }
 
                 @Override
@@ -211,6 +226,34 @@ public class UpdateOrderActivity extends AppCompatActivity {
 
                 }
             });
+
+            refDatabase.child(emailLogin).child("TotalBySale").child(saleManEmail).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    if(dataSnapshot.hasChild(year+"-"+month)){
+                        refDatabase.child(emailLogin).child("TotalBySale").child(saleManEmail).child(year+"-"+month).addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                tvEmployeeMonthSale.setText(Utils.convertNumber(dataSnapshot.getValue().toString()));
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+
+                    }else{
+                        tvEmployeeMonthSale.setText("0");
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+
 
         }else{
             btnChooseEmployee.setOnClickListener(new View.OnClickListener() {
@@ -503,10 +546,12 @@ public class UpdateOrderActivity extends AppCompatActivity {
             //float VAT =  notVAT*(1+choosenVATLong);
             float VAT = (float) (Math.round(notVAT*(1+choosenVATLong)*10d)/10d);
 
+            float finalProductPayment = Float.parseFloat(productPrice)*Float.parseFloat(productQuantity)*(1+choosenVATLong);
+
             OrderDetail orderDetail = new OrderDetail(clientCode,clientName,employeeName,switchPayment.getText().toString(),deliveryDate,saleManEmail,orderNote);
 
             refDatabase.child(emailLogin+"/OrderList").child(orderPushKeyString).child("OtherInformation").setValue(orderDetail);
-            final Product currentProduct = new Product(productName,productPrice,productQuantity,choosenVAT,totalDis+"");
+            final Product currentProduct = new Product(productName,productPrice,productQuantity,productCode,finalProductPayment+"");
 
             refDatabase.child(emailLogin+"/OrderList").child(orderPushKeyString).child("ProductList").push().setValue(currentProduct);
 
@@ -658,11 +703,12 @@ public class UpdateOrderActivity extends AppCompatActivity {
                     final Product p = adapterFirebaseProduct.getItem(position);
 
                     productName = p.getProductName();
+                    productCode = p.getProductCode();
                     edtproductPrice.setText(p.getUnitPrice());
 
                     tvProductName.setText(productName);
 
-                    refDatabase.child(emailLogin+"/WarehouseMan/StorageMan").child(p.getProductName()).child("unitQuantity").addListenerForSingleValueEvent(new ValueEventListener() {
+                    refDatabase.child(emailLogin+"/WarehouseMan/StorageMan").child(p.getProductCode()).child("unitQuantity").addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             productStock = dataSnapshot.getValue().toString();

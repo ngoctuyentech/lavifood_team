@@ -23,6 +23,10 @@ public class OrderDetail {
     public OrderDetail() {
     }
 
+    public OrderDetail(String orderName) {
+        this.orderName = orderName;
+    }
+
     public OrderDetail(String employeeCode, String shopCode, String clientPayment, String billCode, String timeStamp) {
         this.employeeCode = employeeCode;
         this.shopCode = shopCode;

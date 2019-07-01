@@ -30,7 +30,7 @@
         android:layout_marginRight="16dp"
         android:ems="10"
         android:hint="Tên khách hàng"
-        android:inputType="textPersonName"
+        android:inputType="textPersonName|textCapWords"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -49,7 +49,7 @@
         android:layout_marginEnd="16dp"
         android:ems="10"
         android:hint="Quận"
-        android:inputType="textPersonName"
+        android:inputType="textPersonName|textCapWords"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/edt_update_client_street"
@@ -65,7 +65,7 @@
         android:layout_marginEnd="16dp"
         android:ems="10"
         android:hint="Thành phố"
-        android:inputType="textPersonName"
+        android:inputType="textPersonName|textCapWords"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/edt_update_client_dist"
@@ -125,29 +125,11 @@
         android:layout_marginRight="16dp"
         android:ems="10"
         android:hint="Số nhà và tên đường"
-        android:inputType="textPersonName"
+        android:inputType="textPersonName|textCapWords"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/edt_add_client_contact_name" />
-
-    <EditText
-        android:id="@+id/edt_client_debt"
-        android:layout_width="0dp"
-        android:layout_height="42dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginRight="16dp"
-        android:ems="10"
-        android:hint="Công nợ hiện tại"
-        android:inputType="number"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/edt_update_client_phone"
-        tools:layout_constraintLeft_creator="1"
-        tools:layout_constraintRight_creator="1"
-        tools:layout_constraintTop_creator="1" />
 
     <fr.ganfra.materialspinner.MaterialSpinner
         android:id="@+id/spinner_add_client_client_zone"
@@ -181,7 +163,7 @@
         android:layout_marginTop="16dp"
         android:text="Vị trí khách hàng"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/edt_client_debt" />
+        app:layout_constraintTop_toBottomOf="@+id/edt_update_client_phone" />
 
     <Switch
         android:id="@+id/sw_add_client_location"
@@ -204,7 +186,7 @@
         android:layout_marginEnd="16dp"
         android:ems="10"
         android:hint="Người liên hệ"
-        android:inputType="textPersonName"
+        android:inputType="textPersonName|textCapWords"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/edt_update_client_name" />

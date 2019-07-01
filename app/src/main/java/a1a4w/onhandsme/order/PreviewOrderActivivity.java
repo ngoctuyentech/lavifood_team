@@ -2,6 +2,7 @@ package a1a4w.onhandsme.order;
 
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -9,6 +10,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -19,6 +21,7 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,6 +29,7 @@ import android.widget.Toast;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -39,6 +43,7 @@ import a1a4w.onhandsme.MainActivity;
 import a1a4w.onhandsme.R;
 import a1a4w.onhandsme.bytask.OrderManActivity;
 import a1a4w.onhandsme.model.Client;
+import a1a4w.onhandsme.model.Employee;
 import a1a4w.onhandsme.model.OrderDetail;
 import a1a4w.onhandsme.model.Product;
 import a1a4w.onhandsme.model.Promotion;
@@ -59,7 +64,7 @@ public class PreviewOrderActivivity extends AppCompatActivity {
     private FirebaseRecyclerAdapter<Product,EditProductViewHolder> adapterFirebaseEditProduct;
     private FirebaseRecyclerAdapter<Promotion,PromotionViewHolder> adapterFirebasePromotion;
 
-    private DatabaseReference refProduct, refPromotion,refOrderList,refStorage;
+    private DatabaseReference refProduct, refPromotion,refOrderList,refStorage,refCompany;
     private ImageButton ibInfo, ibProduct, ibPromotion;
     private boolean discountVAT,outRoute,viewOnly,saleMan;
 
@@ -81,6 +86,9 @@ public class PreviewOrderActivivity extends AppCompatActivity {
     private Dialog dialogAddPromotion;
     private String promotionNameDialog;
     private Button btnSendApproved;
+    private EditText edtDialogProductPrice;
+    private String productCode;
+    private String managerEmail;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,6 +110,22 @@ public class PreviewOrderActivivity extends AppCompatActivity {
 
         refOrderList = refDatabase.child(emailLogin).child("OrderList");
         refStorage = refDatabase.child(emailLogin).child("Storage");
+        refCompany = refDatabase.child(emailLogin);
+
+        String userEmail = FirebaseAuth.getInstance().getCurrentUser().getEmail().replace(".", ",");
+
+        refCompany.child("Employee").child(userEmail).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Employee employee = dataSnapshot.getValue(Employee.class);
+                managerEmail = employee.getManagedBy();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
 
         initializeScreen();
 
@@ -137,29 +161,29 @@ public class PreviewOrderActivivity extends AppCompatActivity {
                 String thisDate = Calendar.getInstance().get(Calendar.DATE)+"";
 
                 if(outRoute){
+                    if(managerEmail != null)
+                        refDatabase.child(emailLogin+"/Order/OrderBySale").child(managerEmail).child("OutRoute").child(orderPushKey).child("orderName").setValue(orderName);
                     refDatabase.child(emailLogin+"/Order").child("OutRoute").child(orderPushKey).child("orderName").setValue(orderName).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
 
-                            Intent intent = new Intent(getApplicationContext(), OrderManActivity.class);
-                            intent.putExtra("OrderName",orderName);
-                            intent.putExtra("EmailLogin",emailLogin);
+                            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                             startActivity(intent);
                             hideProgressDialog();
 
                         }
                     });
                 }else{
+                    if(managerEmail != null)
+                        refDatabase.child(emailLogin+"/Order/OrderBySale").child(managerEmail).child("UnApproved").child(orderPushKey).child("orderName").setValue(orderName);
+
                     refDatabase.child(emailLogin).child("OrderListByTime").child(thisYear+"-"+thisMonth+"-"+thisDate).child(orderPushKey).setValue(orderName);
 
                     refDatabase.child(emailLogin+"/Order").child("UnApproved").child(orderPushKey).child("orderName").setValue(orderName).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
 
-                            Intent intent = new Intent(getApplicationContext(), OrderManActivity.class);
-                            intent.putExtra("OrderName",orderName);
-                            intent.putExtra("EmailLogin",emailLogin);
-                            intent.putExtra("SaleMan",saleMan);
+                            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                             startActivity(intent);
                             hideProgressDialog();
 
@@ -360,7 +384,50 @@ public class PreviewOrderActivivity extends AppCompatActivity {
             productPrice = (TextView)itemView.findViewById(R.id.tv_item_product_price);
             productQuantity = (TextView) itemView.findViewById(R.id.tv_item_product_quantity);
 
+            productQuantity.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    v.startAnimation(buttonClick);
 
+                    int pos = getAdapterPosition();
+                    final Product choosenP = adapterFirebaseEditProduct.getItem(pos);
+                    final DatabaseReference refProduct = adapterFirebaseEditProduct.getRef(pos);
+                    final String productKey = adapterFirebaseEditProduct.getRef(pos).getKey();
+
+                    AlertDialog.Builder builder = new AlertDialog.Builder(PreviewOrderActivivity.this);
+                    builder.setMessage("Thay đổi số lượng sản phẩm?");
+
+                    final EditText input = new EditText(PreviewOrderActivivity.this);
+                    LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.MATCH_PARENT);
+                    input.setLayoutParams(lp);
+                    input.setInputType(InputType.TYPE_NUMBER_FLAG_SIGNED);
+                    input.setHint("Nhập số lượng");
+                    builder.setView(input);
+
+                    builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            String number = input.getText().toString();
+                            if(TextUtils.isEmpty(number)){
+                                Toast.makeText(getApplicationContext(), "Vui lòng nhập số lượng!", Toast.LENGTH_LONG).show();
+                            }else{
+                                Product updateP = new Product(choosenP.getProductName(),choosenP.getUnitPrice(),number, choosenP.getProductCode(), choosenP.getFinalPayment());
+                                refProduct.setValue(updateP);
+                                adapterFirebaseEditProduct.notifyDataSetChanged();
+
+                                
+                            }
+                        }
+                    }).setNegativeButton("Không", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                        }
+                    }).show();
+                }
+            });
 
         }
     }
@@ -463,6 +530,7 @@ public class PreviewOrderActivivity extends AppCompatActivity {
         dialogBuilder.setView(dialogView);
 
         dialogBuilder.setTitle("Thay đổi thông tin sản phẩm");
+        dialogBuilder.setMessage("Nhập vào phần số lượng sản phẩm để thay đổi (nếu cần)");
 
         final AlertDialog dialog = dialogBuilder.create();
         dialog.show();
@@ -524,7 +592,8 @@ public class PreviewOrderActivivity extends AppCompatActivity {
 
 
 
-        final EditText edtDialogProductPrice = (EditText)dialogView.findViewById(R.id.edt_add_product_price);
+        edtDialogProductPrice = (EditText)dialogView.findViewById(R.id.edt_add_product_price);
+        edtDialogProductPrice.setEnabled(false);
         //edtDialogProductPrice.addTextChangedListener(new Utils.NumberTextWatcherForThousand(edtDialogProductPrice));
 
         final EditText edtDialogProductQuantity = (EditText)dialogView.findViewById(R.id.edt_add_product_quantity);
@@ -584,7 +653,7 @@ public class PreviewOrderActivivity extends AppCompatActivity {
                 }else {
 
                      VatModel vat = new VatModel(currentNotVAT,currentVAT,currentVATDiscount);
-                     Product productAdded = new Product(productNameDialog,productPrice,productQuantity,choosenVATDialog,newVATDiscount+"");
+                     Product productAdded = new Product(productNameDialog,productPrice,productQuantity,productCode,newVATDiscount+"");
                      refDatabase.child(emailLogin+"/OrderList").child(orderPushKey).child("ProductList").push().setValue(productAdded).addOnCompleteListener(new OnCompleteListener<Void>() {
                          @Override
                          public void onComplete(@NonNull Task<Void> task) {
@@ -745,10 +814,22 @@ public class PreviewOrderActivivity extends AppCompatActivity {
                             int position = viewHolder.getLayoutPosition();
                             final Product p = adapterFirebaseAddProduct.getItem(position);
                             productNameDialog = p.getProductName();
-
+                            productCode = p.getProductCode();
                             tvProductChoosen.setText(p.getProductName());
 
-                            refDatabase.child(emailLogin+"/WarehouseMan/StorageMan").child(p.getProductName()).child("unitQuantity").addListenerForSingleValueEvent(new ValueEventListener() {
+                            refDatabase.child(emailLogin).child("Product").child(p.getProductCode()).child("unitPrice").addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    edtDialogProductPrice.setText(dataSnapshot.getValue().toString());
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+
+                                }
+                            });
+
+                        refDatabase.child(emailLogin+"/WarehouseMan/StorageMan").child(p.getProductCode()).child("unitQuantity").addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     productStorageDialog = dataSnapshot.getValue().toString();
@@ -772,7 +853,7 @@ public class PreviewOrderActivivity extends AppCompatActivity {
 
                             tvPromotionChoosen.setText(p.getProductName());
 
-                            refDatabase.child(emailLogin+"/WarehouseMan/StorageMan").child(promotionNameDialog).child("unitQuantity").addListenerForSingleValueEvent(new ValueEventListener() {
+                            refDatabase.child(emailLogin+"/WarehouseMan/StorageMan").child(p.getProductCode()).child("unitQuantity").addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     promotionStorageDialog = dataSnapshot.getValue().toString();

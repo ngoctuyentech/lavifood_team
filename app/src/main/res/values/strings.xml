@@ -40,6 +40,15 @@
         <item>Đại lý NVF - Cà Mau</item>
     </string-array>
 
+    <string-array name="account_array">
+        <item>Cấp bậc</item>
+        <item>Bán hàng</item>
+        <item>Giám sát</item>
+        <item>ASM</item>
+        <item>RSM</item>
+
+    </string-array>
+
     <string-array name="time_array">
         <item>Năm</item>
         <item>Tháng</item>

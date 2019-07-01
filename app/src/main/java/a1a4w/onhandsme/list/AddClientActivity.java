@@ -45,12 +45,15 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
 import a1a4w.onhandsme.R;
+import a1a4w.onhandsme.bytask.ActionList;
 import a1a4w.onhandsme.model.Client;
+import a1a4w.onhandsme.model.Group;
 import a1a4w.onhandsme.model.MapModel;
 import a1a4w.onhandsme.utils.MySpinerAdapter;
 import fr.ganfra.materialspinner.MaterialSpinner;
@@ -63,7 +66,7 @@ public class AddClientActivity extends AppCompatActivity {
     Button addClient;
     private Bundle b = new Bundle();
     private ProgressDialog mProgressDialog;
-    private String emailLogin,clientType,clientZone,clientAddress;
+    private String emailLogin,clientType,clientZone,clientAddress, userEmail;
     public static int MY_REQUEST_LOCATION = 999;
     private double latitude,longitude;
     private MapModel map;
@@ -92,9 +95,11 @@ public class AddClientActivity extends AppCompatActivity {
         clientInform = (EditText)findViewById(R.id.edt_update_client_inform);
         contactName = findViewById(R.id.edt_add_client_contact_name);
         //clientDeliveryService = (EditText)findViewById(R.id.edt_update_client_delivery_service);
-        clientDebt = (EditText)findViewById(R.id.edt_client_debt);
+        //clientDebt = (EditText)findViewById(R.id.edt_client_debt);
         //addClient = (Button)findViewById(R.id.btn_add_client);
         swLocation = findViewById(R.id.sw_add_client_location);
+
+        userEmail = FirebaseAuth.getInstance().getCurrentUser().getEmail().replace(".", ",");
 
         locationPreparation();
 
@@ -254,16 +259,16 @@ public class AddClientActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if(id == R.id.action_add_client){
-            showProgressDialog();
+
             final String clientNameString = clientName.getText().toString();
             final String clientStreetString = clientStreet.getText().toString();
             final String clientDistString = clientDist.getText().toString();
             final String clientProvinceString = clientProvince.getText().toString();
             final String clientPhoneString = clientPhone.getText().toString();
-            final String clientInformString = clientInform.getText().toString();
+           // final String clientInformString = clientInform.getText().toString();
            // final String clientDeliveryServiceString = clientDeliveryService.getText().toString();
             final String contact = contactName.getText().toString();
-            final String clientDebtString = clientDebt.getText().toString();
+            //final String clientDebtString = clientDebt.getText().toString();
             final String clientOrder = b.getString("ClientOrder");
 
             if (TextUtils.isEmpty(clientNameString)){
@@ -281,18 +286,11 @@ public class AddClientActivity extends AppCompatActivity {
             } else if (TextUtils.isEmpty(clientPhoneString)) {
                 Toast.makeText(getApplicationContext(),"Vui lòng nhập số điện thoại", Toast.LENGTH_LONG).show();
 
-            } else if (TextUtils.isEmpty(clientInformString)) {
-                Toast.makeText(getApplicationContext(),"Vui lòng nhập thông tin xuất hóa đơn", Toast.LENGTH_LONG).show();
-
-            }  else if(TextUtils.isEmpty(clientDebtString)){
-                Toast.makeText(getApplicationContext(),"Vui lòng nhập công nợ hiện tại của khách hàng(Nhập 0 nếu không có nợ)", Toast.LENGTH_LONG).show();
-
             } else if(clientZone == null || clientType == null ){
                 Toast.makeText(getApplicationContext(),"Đang xử lý...", Toast.LENGTH_LONG).show();
             }
 
             else {
-
                 AlertDialog.Builder builder = new AlertDialog.Builder(AddClientActivity.this);
                 builder.setMessage("Xác nhận địa chỉ khách hàng");
 
@@ -309,24 +307,26 @@ public class AddClientActivity extends AppCompatActivity {
                 builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
+
+
                         String address = edtAddress.getText().toString();
                         if(TextUtils.isEmpty(address)){
+
                             Toast.makeText(getApplicationContext(),"Vui lòng nhập địa chỉ",Toast.LENGTH_LONG).show();
                         }else{
+                            showProgressDialog();
 
                             final String saleEmail = FirebaseAuth.getInstance().getCurrentUser().getEmail().replace(".",",");
 
                             final DatabaseReference clientPush = refDatabase.child(emailLogin+"/Client").push();
                             final String pushKey = clientPush.getKey();
-                            Client client = new Client(pushKey,clientNameString,clientType, clientStreetString,
+                            final Client client = new Client(pushKey,clientNameString,clientType, clientStreetString,
                                     clientDistString,clientZone,clientProvinceString,
-                                    clientPhoneString, clientInformString,clientDebtString,"0",map,saleEmail,contact);
+                                    clientPhoneString, "","0","0",map,saleEmail,contact);
 
                             clientAddress = address;
 
                             final Client clientMan = new Client(pushKey,clientNameString,map,clientStreetString);
-
-
 
                             if(supervisor){
 
@@ -338,8 +338,9 @@ public class AddClientActivity extends AppCompatActivity {
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {
                                         Toast.makeText(getApplicationContext(),"Đã thêm khách hàng mới", Toast.LENGTH_LONG).show();
-                                        Intent it = new Intent(getApplicationContext(), ClientListActivity.class);
+                                        Intent it = new Intent(getApplicationContext(), ActionList.class);
                                         it.putExtra("EmailLogin",emailLogin);
+                                        it.putExtra("Supervisor",true);
                                         startActivity(it);
                                     }
                                 });
@@ -347,19 +348,58 @@ public class AddClientActivity extends AppCompatActivity {
 
                             if(saleMan){
 
-                                refDatabase.child("SaleManBySup").addListenerForSingleValueEvent(new ValueEventListener() {
+                                refDatabase.child(emailLogin).child("SaleManBySup").addListenerForSingleValueEvent(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(DataSnapshot dataSnapshot) {
                                         Iterable<DataSnapshot> snapSup = dataSnapshot.getChildren();
                                         for(DataSnapshot itemSup:snapSup){
                                             DatabaseReference refSup = itemSup.getRef();
-                                            String supEmail = itemSup.getKey();
+                                            final String supEmail = itemSup.getKey();
+                                            //Toast.makeText(getApplicationContext(),supEmail, Toast.LENGTH_LONG).show();
 
+                                            final List<String> groups = new ArrayList<>();
                                             refSup.child("Tất cả").addListenerForSingleValueEvent(new ValueEventListener() {
                                                 @Override
                                                 public void onDataChange(DataSnapshot dataSnapshot) {
+
                                                     if(dataSnapshot.hasChild(saleEmail)){
-                                                        refDatabase.child(emailLogin).child("ClientManBySup").child(saleEmail).child("Mới").child(pushKey).setValue(clientMan);
+                                                        refDatabase.child(emailLogin).child("ClientManBySup").child(supEmail).child("Group").addListenerForSingleValueEvent(new ValueEventListener() {
+                                                            @Override
+                                                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                                                Iterable<DataSnapshot> snapGroup = dataSnapshot.getChildren();
+                                                                long itemCount = dataSnapshot.getChildrenCount();
+
+                                                                int i = 0;
+                                                                for(DataSnapshot itemGroup:snapGroup){
+                                                                    i++;
+                                                                    Group group = itemGroup.getValue(Group.class);
+                                                                    String groupName = group.getGroupName();
+                                                                    groups.add(groupName);
+
+                                                                    if(i==itemCount){
+                                                                        if(!groups.contains("Mới")){
+                                                                            refDatabase.child(emailLogin).child("ClientManBySup").child(supEmail).child("Group").push().child("groupName").setValue("Mới");
+                                                                        }
+                                                                    }
+                                                                }
+
+                                                            }
+
+                                                            @Override
+                                                            public void onCancelled(DatabaseError databaseError) {
+
+                                                            }
+                                                        });
+                                                        refDatabase.child(emailLogin).child("ClientManBySup").child(supEmail).child("Mới").child(pushKey).setValue(client).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                            @Override
+                                                            public void onComplete(@NonNull Task<Void> task) {
+                                                                Toast.makeText(getApplicationContext(),"Đã thêm khách hàng mới và chờ duyệt!", Toast.LENGTH_LONG).show();
+                                                                Intent it = new Intent(getApplicationContext(), ActionList.class);
+                                                                it.putExtra("EmailLogin",emailLogin);
+                                                                it.putExtra("SaleMan",true);
+                                                                startActivity(it);
+                                                            }
+                                                        });
                                                     }
                                                 }
 
@@ -368,6 +408,7 @@ public class AddClientActivity extends AppCompatActivity {
 
                                                 }
                                             });
+
                                         }
                                     }
 

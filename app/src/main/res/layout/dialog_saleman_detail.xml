@@ -97,7 +97,7 @@
     </LinearLayout>
 
     <android.support.constraint.ConstraintLayout
-        android:id="@+id/constraintLayout11"
+        android:id="@+id/cs_client_list"
         android:layout_width="0dp"
         android:layout_height="140dp"
         android:layout_marginStart="8dp"
@@ -133,10 +133,11 @@
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
             android:max="100"
-            android:progress="60"
+            android:progress="0"
             app:layout_constraintEnd_toStartOf="@+id/textView210"
+            app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView204" />
+            app:layout_constraintTop_toBottomOf="@+id/textView203" />
 
         <TextView
             android:id="@+id/textView203"
@@ -153,10 +154,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="12dp"
             android:text="Khách hàng"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/bar_dialog_saleman_kpi_new" />
+            app:layout_constraintTop_toBottomOf="@+id/bar_dialog_saleman_kpi_sale" />
 
         <ProgressBar
             android:id="@+id/bar_dialog_saleman_kpi_new"
@@ -166,20 +167,20 @@
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
             android:max="100"
-            android:progress="30"
+            android:progress="0"
             app:layout_constraintEnd_toStartOf="@+id/textView210"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView203" />
+            app:layout_constraintTop_toBottomOf="@+id/textView204" />
 
         <TextView
             android:id="@+id/tv_dialog_saleman_kpi_sale"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
-            android:text="50%"
-            app:layout_constraintBottom_toBottomOf="@+id/bar_dialog_saleman_kpi_new"
+            android:text="0%"
+            app:layout_constraintBottom_toBottomOf="@+id/bar_dialog_saleman_kpi_sale"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/bar_dialog_saleman_kpi_new" />
+            app:layout_constraintTop_toTopOf="@+id/bar_dialog_saleman_kpi_sale" />
 
         <TextView
             android:id="@+id/textView210"
@@ -196,10 +197,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
-            android:text="50%"
-            app:layout_constraintBottom_toBottomOf="@+id/bar_dialog_saleman_kpi_sale"
+            android:text="0%"
+            app:layout_constraintBottom_toBottomOf="@+id/bar_dialog_saleman_kpi_new"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/bar_dialog_saleman_kpi_sale" />
+            app:layout_constraintTop_toTopOf="@+id/bar_dialog_saleman_kpi_new" />
     </android.support.constraint.ConstraintLayout>
 
     <ImageView
@@ -211,6 +212,37 @@
         app:layout_constraintEnd_toStartOf="@+id/iv_sale_detail_route"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/icon_kpi" />
+
+    <ImageView
+        android:id="@+id/iv_sale_detail_team"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@+id/iv_sale_detail_kpi"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/icon_team2" />
+
+    <ImageView
+        android:id="@+id/iv_saleman_detail_client"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintEnd_toStartOf="@+id/iv_sale_detail_kpi"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/icon_client2" />
+
+    <ImageView
+        android:id="@+id/iv_saleman_detail_employee_list"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintEnd_toStartOf="@+id/iv_saleman_detail_client"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/icon_saleman" />
 
 
 </android.support.constraint.ConstraintLayout>

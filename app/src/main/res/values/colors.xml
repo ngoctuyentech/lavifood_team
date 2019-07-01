@@ -8,5 +8,12 @@
     <color name="colorPromotion">#E9C83F</color>
     <color name="colorAnnouncement">#DB99E0</color>
     <color name="colorGroup">#FF0000</color>
+    <color name="colorReport">#03B5AE</color>
+    <color name="colorSupervisor">#CDC411</color>
+    <color name="colorSaleMan">#4EC510</color>
+    <color name="colorAccount">#0F3FBC</color>
+    <color name="colorProduct">#417505</color>
+    <color name="colorOrderAdmin">#50E3C2</color>
+    <color name="colorPayroll">#E3E050</color>
 
 </resources>

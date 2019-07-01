@@ -16,6 +16,7 @@ public class Product {
     String productOrder;
     String productTotal;
     String nameNotViet;
+    String productCode;
 
     public Product() {
     }
@@ -24,11 +25,11 @@ public class Product {
         this.productName = productName;
     }
 
-    public Product(String productName, String unitPrice, String unitName, String productUrl) {
+    public Product(String productName, String unitPrice, String unitName, String product) {
         this.productName = productName;
         this.unitPrice = unitPrice;
         this.unitName = unitName;
-        this.productUrl = productUrl;
+        this.productCode = productCode;
     }
 
     public Product(String productName, String unitQuantity) {
@@ -51,11 +52,11 @@ public class Product {
         this.nameNotViet = nameNotViet;
     }
 
-    public Product(String productName, String unitPrice, String unitQuantity, String productVAT, String finalPayment) {
+    public Product(String productName, String unitPrice, String unitQuantity, String productCode, String finalPayment) {
         this.productName = productName;
         this.unitPrice = unitPrice;
         this.unitQuantity = unitQuantity;
-        this.productVAT = productVAT;
+        this.productCode = productCode;
         this.finalPayment = finalPayment;
     }
 
@@ -101,5 +102,9 @@ public class Product {
 
     public String getNameNotViet() {
         return nameNotViet;
+    }
+
+    public String getProductCode() {
+        return productCode;
     }
 }

@@ -24,16 +24,18 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.Description;
@@ -101,9 +103,11 @@ public class ClientListBySaleTeam extends AppCompatActivity {
     private double latitude,longitude;
     private boolean saleMan,supervisor;
     private int choosenEmployee;
-    private String choosenEmployeeEmail;
+    private String choosenEmployeeEmail,managedByEmail,choosenEmployeeName,choosenClientCode,choosenGroup;
     private  int MY_REQUEST_READ = 1;
     private ProgressBar barKPISale, barKPINewClient;
+    private ArrayAdapter<String> adpProduct;
+    private RecyclerView rvListSale;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -179,26 +183,39 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                     String kpiType = kpi.getKpiType();
 
                     final NumberFormat numberFormat = NumberFormat.getPercentInstance();
-                    numberFormat.setMaximumFractionDigits(2);
+                    numberFormat.setMaximumFractionDigits(0);
 
                     if(kpiTime.equals(year+"-"+month) && kpiType.equals("TotalSale")){
 
                         final int kpiTarget = Integer.parseInt(kpi.getKpiTarget());
 
-                        refDatabase.child(emailLogin).child("TotalBySale").child(userEmail).child(year+"-"+month).addListenerForSingleValueEvent(new ValueEventListener() {
+                        refDatabase.child(emailLogin).child("TotalBySale").child(userEmail).addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
-                                float kpiReach = Float.parseFloat(dataSnapshot.getValue().toString());
-                                float percentReach = kpiReach/kpiTarget;
+                                if(dataSnapshot.hasChild(year+"-"+month)){
+                                    refDatabase.child(emailLogin).child("TotalBySale").child(userEmail).child(year+"-"+month).addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                            float kpiReach = Float.parseFloat(dataSnapshot.getValue().toString());
+                                            float percentReach = kpiReach/kpiTarget;
 
-                                //Toast.makeText(getApplicationContext(), percentReach+"", Toast.LENGTH_LONG).show();
+                                            //Toast.makeText(getApplicationContext(), percentReach+"", Toast.LENGTH_LONG).show();
 
-                                String formattedString = numberFormat.format(percentReach);
-                                tvKPISale.setText(formattedString);
+                                            String formattedString = numberFormat.format(percentReach);
+                                            tvKPISale.setText(formattedString);
 
-                                barKPISale.setMax(kpiTarget);
-                                //barKPISale.setMin(0);
-                                barKPISale.setProgress((int) kpiReach);
+                                            barKPISale.setMax(kpiTarget);
+                                            //barKPISale.setMin(0);
+                                            barKPISale.setProgress((int) kpiReach);
+                                        }
+
+                                        @Override
+                                        public void onCancelled(DatabaseError databaseError) {
+
+                                        }
+                                    });
+
+                                }
                             }
 
                             @Override
@@ -207,8 +224,9 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                             }
                         });
 
-                    }
 
+                    }
+/*
                     if(kpiTime.equals(year+"-"+month) && kpiType.equals("New Client")){
                         float kpiReach = Float.parseFloat(kpi.getKpiReach());
                         float kpiTarget = Float.parseFloat(kpi.getKpiTarget());
@@ -221,6 +239,8 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                         barKPINewClient.setProgress((int) kpiReach);
 
                     }
+
+                    */
                 }
             }
 
@@ -601,10 +621,13 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                 private void clientSupClick() {
                     int position = getAdapterPosition();
                     final Client client = adapterDetail.getItem(position);
+                    final DatabaseReference refClient = adapterDetail.getRef(position);
+                    final String parentKey = adapterDetail.getRef(position).getParent().getKey();
                     final String clientCode = client.getClientCode();
                     exportClickName = "ThisMonth";
+                    choosenClientCode = clientCode;
 
-                    AlertDialog.Builder builder = new AlertDialog.Builder(ClientListBySaleTeam.this);
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(ClientListBySaleTeam.this);
                     View dialogView = getLayoutInflater().inflate(R.layout.dialog_client_detail,null);
                     builder.setView(dialogView);
 
@@ -626,6 +649,37 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                     ImageView ivOrder = dialogView.findViewById(R.id.iv_client_detail_order);
                     ImageView ivFixLoc = dialogView.findViewById(R.id.iv_client_fix_location);
                     ImageView ivSaleRoute = dialogView.findViewById(R.id.iv_client_detail_saleroute);
+                    ImageView ivApprove = dialogView.findViewById(R.id.iv_client_detail_approve);
+
+
+                    if(parentKey.equals("Mới")) {
+                        ivApprove.setVisibility(View.VISIBLE);
+                    }
+
+                    ivApprove.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            v.startAnimation(buttonClick);
+
+                            AlertDialog.Builder builder = new AlertDialog.Builder(ClientListBySaleTeam.this);
+                            builder.setMessage("Duyệt khách hàng này?");
+                            builder.setPositiveButton("Duyệt", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+
+                                    refDatabase.child(emailLogin).child("Client").child(clientCode).setValue(client).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            refClient.setValue(null);
+
+                                        }
+                                    });
+                                }
+                            }).show();
+
+
+                        }
+                    });
 
                     //ivSaleRoute.setVisibility(View.GONE);
 
@@ -633,23 +687,8 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                     monthSale.setBackground(getResources().getDrawable(R.drawable.border_drug_cat));
                     thisMonthSale.setBackground(getResources().getDrawable(R.drawable.border_drug_cat_accent));
 
-                    refDatabase.child(emailLogin).child("Client").child(clientCode).addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            Client clientInfo = dataSnapshot.getValue(Client.class);
-                            assert clientInfo != null;
-                            String clientStreet = clientInfo.getClientStreet();
-                            String clientProvince = clientInfo.getClientProvince();
-                            tvClientName.setText(clientInfo.getClientName());
-                            tvClientAddress.setText(clientStreet + ", " + clientProvince);
-
-                        }
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-
-                        }
-                    });
+                    tvClientName.setText(client.getClientName());
+                    tvClientAddress.setText(client.getClientStreet());
 
                     DateTime dt = new DateTime();
                     final String month = dt.getMonthOfYear()+"";
@@ -718,15 +757,76 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                     ivSaleRoute.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
+
+
                             v.startAnimation(buttonClick);
                             AlertDialog.Builder builder = new AlertDialog.Builder(ClientListBySaleTeam.this);
                             View dialogView = getLayoutInflater().inflate(R.layout.dialog_sale_route_man,null);
                             builder.setView(dialogView);
 
+
                             final Dialog dialog = builder.create();
                             dialog.show();
 
-                            RecyclerView rvListSale = dialogView.findViewById(R.id.rv_dialog_route_sale_list);
+                            final TextView tvManageBy = dialogView.findViewById(R.id.tv_dialog_route_man_manageBy);
+
+                            refDatabase.child(emailLogin).child("Client").child(choosenClientCode).addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    if(dataSnapshot.hasChild("managedBy")){
+
+                                        refDatabase.child(emailLogin).child("Client").child(choosenClientCode).child("managedBy").addListenerForSingleValueEvent(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                                Employee employee = dataSnapshot.getValue(Employee.class);
+                                                //Toast.makeText(getApplicationContext(), employee.getEmployeeName(), Toast.LENGTH_LONG).show();
+                                                final String employeeEmail = employee.getEmployeeEmail();
+                                                tvManageBy.setText(employee.getEmployeeName());
+
+                                                refDatabase.child(emailLogin).child("SaleManBySup").child(userEmail).child("Tất cả").addListenerForSingleValueEvent(new ValueEventListener() {
+                                                    @Override
+                                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                                        Iterable<DataSnapshot> snapSale = dataSnapshot.getChildren();
+
+                                                        int i =0;
+                                                        for(DataSnapshot itemSale:snapSale){
+                                                            String itemEmail = itemSale.getKey();
+                                                            if(employeeEmail.equals(itemEmail)){
+                                                                choosenEmployee = i;
+                                                                adapterEmployee.notifyDataSetChanged();
+
+                                                            }
+
+                                                            i++;
+                                                        }
+                                                    }
+
+                                                    @Override
+                                                    public void onCancelled(DatabaseError databaseError) {
+
+                                                    }
+                                                });
+
+                                            }
+
+                                            @Override
+                                            public void onCancelled(DatabaseError databaseError) {
+
+                                            }
+                                        });
+
+
+                                    }
+
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+
+                                }
+                            });
+
+                            rvListSale = dialogView.findViewById(R.id.rv_dialog_route_sale_list);
                             rvListSale.setHasFixedSize(true);
                             LinearLayoutManager linearLayoutManager = new LinearLayoutManager(ClientListBySaleTeam.this,LinearLayoutManager.HORIZONTAL,false);
                             rvListSale.setLayoutManager(linearLayoutManager);
@@ -752,12 +852,15 @@ public class ClientListBySaleTeam extends AppCompatActivity {
 
                                     //holder.circleClient.setBackground((position==choosenClient)? context.getResources().getDrawable(android.R.color.white):context.getResources().getDrawable(R.drawable.border_drug_cat_accent));
                                     viewHolder.circleSale.setCircleBackgroundColor((position==choosenEmployee)? getResources().getColor(android.R.color.white):getResources().getColor(android.R.color.transparent));
-                                    Glide.with(getApplicationContext()).load(model.getEmployeeUrl()).into(viewHolder.circleSale);
+                                    viewHolder.circleSale.setImageDrawable(getResources().getDrawable(R.drawable.icon_saleman));
+
                                 }
                             };
 
                             rvListSale.setAdapter(adapterEmployee);
                             adapterEmployee.notifyDataSetChanged();
+
+
 
                             final CheckBox chMon = dialogView.findViewById(R.id.check_dialog_route_monday);
                             final CheckBox chTue = dialogView.findViewById(R.id.check_dialog_route_tuesday);
@@ -766,40 +869,170 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                             final CheckBox chFri = dialogView.findViewById(R.id.check_dialog_route_fri);
                             final CheckBox chSar = dialogView.findViewById(R.id.check_dialog_route_sar);
 
+                            refDatabase.child(emailLogin).child("Client").child(choosenClientCode).addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    if(dataSnapshot.hasChild("managedBy")){
+
+                                        refDatabase.child(emailLogin).child("Client").child(choosenClientCode).child("managedBy").addListenerForSingleValueEvent(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                                Employee employee = dataSnapshot.getValue(Employee.class);
+                                                //Toast.makeText(getApplicationContext(), employee.getEmployeeName(), Toast.LENGTH_LONG).show();
+
+                                                tvManageBy.setText(employee.getEmployeeName());
+                                                managedByEmail = employee.getEmployeeEmail();
+
+                                                refDatabase.child(emailLogin).child("SaleRoute").child(managedByEmail).addListenerForSingleValueEvent(new ValueEventListener() {
+                                                    @Override
+                                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                                        Iterable<DataSnapshot> snapDay = dataSnapshot.getChildren();
+                                                        for(DataSnapshot itemDay:snapDay){
+                                                            String dayName = itemDay.getKey();
+                                                            Iterable<DataSnapshot> snapClient = itemDay.getChildren();
+
+                                                            for(DataSnapshot itemClient:snapClient){
+                                                                String itemClientCode = itemClient.getKey();
+                                                                if(itemClientCode.equals(clientCode)){
+
+                                                                    switch (dayName){
+                                                                        case "a_Thứ hai":
+                                                                            chMon.setChecked(true);
+                                                                            break;
+
+                                                                        case "b_Thứ ba":
+                                                                            chTue.setChecked(true);
+                                                                            break;
+
+                                                                        case "c_Thứ tư":
+                                                                            chWed.setChecked(true);
+                                                                            break;
+
+                                                                        case "d_Thứ năm":
+                                                                            chThu.setChecked(true);
+                                                                            break;
+
+                                                                        case "e_Thứ sáu":
+                                                                            chFri.setChecked(true);
+                                                                            break;
+
+                                                                        case "f_Thứ bảy":
+                                                                            chSar.setChecked(true);
+                                                                            break;
+
+                                                                    }
+                                                                }
+                                                            }
+                                                 }
+                                                    }
+
+                                                    @Override
+                                                    public void onCancelled(DatabaseError databaseError) {
+
+                                                    }
+                                                });
+
+                                                refDatabase.child(emailLogin).child("SaleManBySup").child(userEmail).child("Tất cả").addListenerForSingleValueEvent(new ValueEventListener() {
+                                                    @Override
+                                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                                        Iterable<DataSnapshot> snapSaleMan = dataSnapshot.getChildren();
+                                                        int i = 0;
+                                                        for(DataSnapshot itemSale:snapSaleMan){
+                                                            String salemanEmail = itemSale.getKey();
+                                                            if(salemanEmail.equals(managedByEmail)){
+                                                                choosenEmployee = i;
+                                                            }else{
+                                                                choosenEmployee = 0;
+                                                            }
+                                                            i++;
+
+                                                        }
+                                                    }
+
+                                                    @Override
+                                                    public void onCancelled(DatabaseError databaseError) {
+
+                                                    }
+                                                });
+
+
+                                            }
+
+                                            @Override
+                                            public void onCancelled(DatabaseError databaseError) {
+
+                                            }
+                                        });
+
+
+                                    }else{
+                                        tvManageBy.setText("Chưa");
+                                        //Toast.makeText(getApplicationContext(), "here", Toast.LENGTH_LONG).show();
+
+                                    }
+
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+
+                                }
+                            });
+
                             Button btnDone = dialogView.findViewById(R.id.btn_dialog_route_done);
                             btnDone.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
                                     v.startAnimation(buttonClick);
 
+                                    Employee manageByEmployee = new Employee(choosenEmployeeName,choosenEmployeeEmail);
+
                                     refDatabase.child(emailLogin).child("ClientManBySale").child(choosenEmployeeEmail).child("Tất cả").child(clientCode).setValue(client);
 
                                     if(chMon.isChecked()){
                                         refDatabase.child(emailLogin).child("SaleRoute").child(choosenEmployeeEmail).child("a_Thứ hai").child(clientCode).setValue(client);
+                                        refDatabase.child(emailLogin).child("Client").child(choosenClientCode).child("managedBy").setValue(manageByEmployee);
+                                    }else{
+                                        refDatabase.child(emailLogin).child("SaleRoute").child(choosenEmployeeEmail).child("a_Thứ hai").child(clientCode).setValue(null);
                                     }
 
                                     if(chTue.isChecked()){
                                         refDatabase.child(emailLogin).child("SaleRoute").child(choosenEmployeeEmail).child("b_Thứ ba").child(clientCode).setValue(client);
+                                        refDatabase.child(emailLogin).child("Client").child(choosenClientCode).child("managedBy").setValue(manageByEmployee);
 
+                                    }else{
+                                        refDatabase.child(emailLogin).child("SaleRoute").child(choosenEmployeeEmail).child("b_Thứ ba").child(clientCode).setValue(null);
                                     }
                                     if(chWed.isChecked()){
                                         refDatabase.child(emailLogin).child("SaleRoute").child(choosenEmployeeEmail).child("c_Thứ tư").child(clientCode).setValue(client);
+                                        refDatabase.child(emailLogin).child("Client").child(choosenClientCode).child("managedBy").setValue(manageByEmployee);
 
+                                    }else{
+                                        refDatabase.child(emailLogin).child("SaleRoute").child(choosenEmployeeEmail).child("c_Thứ tư").child(clientCode).setValue(null);
                                     }
 
                                     if(chThu.isChecked()){
                                         refDatabase.child(emailLogin).child("SaleRoute").child(choosenEmployeeEmail).child("d_Thứ năm").child(clientCode).setValue(client);
+                                        refDatabase.child(emailLogin).child("Client").child(choosenClientCode).child("managedBy").setValue(manageByEmployee);
 
+                                    }else{
+                                        refDatabase.child(emailLogin).child("SaleRoute").child(choosenEmployeeEmail).child("d_Thứ năm").child(clientCode).setValue(null);
                                     }
 
                                     if(chFri.isChecked()){
                                         refDatabase.child(emailLogin).child("SaleRoute").child(choosenEmployeeEmail).child("e_Thứ sáu").child(clientCode).setValue(client);
+                                        refDatabase.child(emailLogin).child("Client").child(choosenClientCode).child("managedBy").setValue(manageByEmployee);
 
+                                    }else{
+                                        refDatabase.child(emailLogin).child("SaleRoute").child(choosenEmployeeEmail).child("e_Thứ sáu").child(clientCode).setValue(null);
                                     }
 
                                     if(chSar.isChecked()){
                                         refDatabase.child(emailLogin).child("SaleRoute").child(choosenEmployeeEmail).child("f_Thứ bảy").child(clientCode).setValue(client);
+                                        refDatabase.child(emailLogin).child("Client").child(choosenClientCode).child("managedBy").setValue(manageByEmployee);
 
+                                    }else{
+                                        refDatabase.child(emailLogin).child("SaleRoute").child(choosenEmployeeEmail).child("f_Thứ bảy").child(clientCode).setValue(null);
                                     }
 
                                     dialog.dismiss();
@@ -885,6 +1118,12 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                             v.startAnimation(buttonClick);
 
                             AlertDialog.Builder builder = new AlertDialog.Builder(ClientListBySaleTeam.this);
+                            View dialogView = getLayoutInflater().inflate(R.layout.dialog_grouping,null);
+                            builder.setView(dialogView);
+
+                            final Dialog dialog = builder.create();
+                            dialog.show();
+                            /*
                             builder.setMessage("Đổi nhóm khách hàng?");
 
                             final EditText input = new EditText(ClientListBySaleTeam.this);
@@ -895,68 +1134,85 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                             input.setInputType(InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
                             input.setHint("Nhập tên nhóm");
                             builder.setView(input);
+*/
+                             Spinner spinGroup = dialogView.findViewById(R.id.spin_grouping);
+                             final EditText edtGroupName = dialogView.findViewById(R.id.edt_grouping_input);
+                             Button btnDone = dialogView.findViewById(R.id.btn_grouping_done);
+                             final CheckBox chDelete = dialogView.findViewById(R.id.ch_grouping_delete);
 
-                            builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                             final List<String> listGroup = new ArrayList<>();
+
+                            listGroup.add("Chọn nhóm");
+                            Toast.makeText(getApplicationContext(), userEmail, Toast.LENGTH_LONG).show();
+
+                            refDatabase.child(emailLogin).child("ClientManBySup").child(userEmail).child("Group").addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    final String newGroupName = input.getText().toString();
-                                    if(TextUtils.isEmpty(newGroupName)){
-                                        Toast.makeText(getApplicationContext(), "Vui lòng nhập tên nhóm!", Toast.LENGTH_LONG).show();
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    Iterable<DataSnapshot> snapGroup = dataSnapshot.getChildren();
+                                    for(DataSnapshot itemGroup:snapGroup){
+                                        Group group = itemGroup.getValue(Group.class);
 
-                                    }else if (newGroupName.equals("Tất cả")){
-                                        Toast.makeText(getApplicationContext(), "Không thể đặt tên này!", Toast.LENGTH_LONG).show();
+                                        String groupName = group.getGroupName();
+                                        if(!groupName.equals("Tất cả")) {
+                                            listGroup.add(groupName);
 
-                                    }
-                                    else{
-                                        refDatabase.child(emailLogin).child("ClientManBySale").child(userEmail).child("Group").addListenerForSingleValueEvent(new ValueEventListener() {
-                                            @Override
-                                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                                Iterable<DataSnapshot> snapGroup = dataSnapshot.getChildren();
-                                                long itemCount = dataSnapshot.getChildrenCount();
-                                                ArrayList<String> names = new ArrayList<>();
-
-                                                int i = 0;
-                                                for(DataSnapshot itemGroup:snapGroup){
-                                                    i++;
-                                                    Group group = itemGroup.getValue(Group.class);
-                                                    String groupName = group.getGroupName();
-                                                    names.add(groupName);
-
-                                                    if(i == itemCount){
-                                                        if(names.contains(newGroupName)){
-                                                            refDatabase.child(emailLogin).child("ClientManBySale").child(userEmail).child(newGroupName).child(clientCode).setValue(client);
-
-                                                        }else{
-                                                            refDatabase.child(emailLogin).child("ClientManBySale").child(userEmail).child("Group").push().child("groupName").setValue(newGroupName);
-                                                            refDatabase.child(emailLogin).child("ClientManBySale").child(userEmail).child(newGroupName).child(clientCode).setValue(client);
-                                                        }
-
-                                                        /*
-                                                        if(groupName.equals(newGroupName)){
-                                                            String keyGroup = itemGroup.getKey();
-                                                            refDatabase.child(emailLogin).child("ClientManBySale").child(userEmail).child(newGroupName).child(clientCode).setValue(client);
-                                                        }else{
-                                                            refDatabase.child(emailLogin).child("ClientManBySale").child(userEmail).child("Group").push().child("groupName").setValue(newGroupName);
-                                                            refDatabase.child(emailLogin).child("ClientManBySale").child(userEmail).child(newGroupName).child(clientCode).setValue(client);
-                                                        }
-                                                        */
-                                                    }
-
-
-
-                                                }
-                                            }
-
-                                            @Override
-                                            public void onCancelled(DatabaseError databaseError) {
-
-                                            }
-                                        });
-
+                                        }
                                     }
 
                                 }
-                            }).show();
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+
+                                }
+                            });
+
+                            adpProduct = new ArrayAdapter<String>(getApplicationContext(),
+                                    android.R.layout.simple_list_item_1, listGroup);
+                            adpProduct.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+                            spinGroup.setAdapter(adpProduct);
+
+                            spinGroup.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                                @Override
+                                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                                    if(position!=0){
+                                        choosenGroup = (String) parent.getItemAtPosition(position);
+                                    }
+                                }
+
+                                @Override
+                                public void onNothingSelected(AdapterView<?> parent) {
+
+                                }
+                            });
+                            btnDone.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    v.startAnimation(buttonClick);
+                                    final String newGroupName = edtGroupName.getText().toString();
+
+                                    if (newGroupName.equals("Tất cả")){
+                                        Toast.makeText(getApplicationContext(), "Không thể đặt tên này!", Toast.LENGTH_LONG).show();
+
+                                    }else if(choosenGroup == null){
+                                        Toast.makeText(getApplicationContext(), "Vui lòng chọn tên nhóm!", Toast.LENGTH_LONG).show();
+
+                                    }
+                                    else{
+                                        dialog.dismiss();
+
+                                        refDatabase.child(emailLogin).child("ClientManBySup").child(userEmail).child(choosenGroup).child(clientCode).setValue(client);
+                                        if(chDelete.isChecked()){
+                                            if(!parentKey.equals("Tất cả")){
+                                                refDatabase.child(emailLogin).child("ClientManBySup").child(userEmail).child(choosenGroup).child(clientCode).setValue(null);
+                                                //Toast.makeText(getApplicationContext(),refClient+"", Toast.LENGTH_LONG).show();
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+
 
                         }
                     });
@@ -1181,6 +1437,8 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                 private void clientSaleClick() {
                     int position = getAdapterPosition();
                     final Client client = adapterDetail.getItem(position);
+                    final DatabaseReference refClient = adapterDetail.getRef(position);
+                    final String parentKey = adapterDetail.getRef(position).getParent().getKey();
                     final String clientCode = client.getClientCode();
                     exportClickName = "ThisMonth";
 
@@ -1369,6 +1627,12 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                             v.startAnimation(buttonClick);
 
                             AlertDialog.Builder builder = new AlertDialog.Builder(ClientListBySaleTeam.this);
+                            View dialogView = getLayoutInflater().inflate(R.layout.dialog_grouping,null);
+                            builder.setView(dialogView);
+
+                            final Dialog dialog = builder.create();
+                            dialog.show();
+                            /*
                             builder.setMessage("Đổi nhóm khách hàng?");
 
                             final EditText input = new EditText(ClientListBySaleTeam.this);
@@ -1377,71 +1641,87 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                                     LinearLayout.LayoutParams.MATCH_PARENT);
                             input.setLayoutParams(lp);
                             input.setInputType(InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
-                            input.setHint("Nhập tên nhóm (nhóm cũ hoặc )");
+                            input.setHint("Nhập tên nhóm");
                             builder.setView(input);
+*/
+                            Spinner spinGroup = dialogView.findViewById(R.id.spin_grouping);
+                            final EditText edtGroupName = dialogView.findViewById(R.id.edt_grouping_input);
+                            Button btnDone = dialogView.findViewById(R.id.btn_grouping_done);
+                            final CheckBox chDelete = dialogView.findViewById(R.id.ch_grouping_delete);
 
-                            builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                            final List<String> listGroup = new ArrayList<>();
+
+                            listGroup.add("Chọn nhóm");
+                            Toast.makeText(getApplicationContext(), userEmail, Toast.LENGTH_LONG).show();
+
+                            refDatabase.child(emailLogin).child("ClientManBySale").child(userEmail).child("Group").addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    final String newGroupName = input.getText().toString();
-                                    if(TextUtils.isEmpty(newGroupName)){
-                                        Toast.makeText(getApplicationContext(), "Vui lòng nhập tên nhóm!", Toast.LENGTH_LONG).show();
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    Iterable<DataSnapshot> snapGroup = dataSnapshot.getChildren();
+                                    for(DataSnapshot itemGroup:snapGroup){
+                                        Group group = itemGroup.getValue(Group.class);
 
-                                    }else if (newGroupName.equals("Tất cả")){
-                                        Toast.makeText(getApplicationContext(), "Không thể đặt tên này!", Toast.LENGTH_LONG).show();
+                                        String groupName = group.getGroupName();
+                                        if(!groupName.equals("Tất cả")) {
+                                            listGroup.add(groupName);
 
+                                        }
                                     }
-                                    else{
-                                        refDatabase.child(emailLogin).child("ClientManBySale").child(userEmail).child("Group").addListenerForSingleValueEvent(new ValueEventListener() {
-                                            @Override
-                                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                                Iterable<DataSnapshot> snapGroup = dataSnapshot.getChildren();
-                                                long itemCount = dataSnapshot.getChildrenCount();
-                                                ArrayList<String> names = new ArrayList<>();
 
-                                                int i = 0;
-                                                for(DataSnapshot itemGroup:snapGroup){
-                                                    i++;
-                                                    Group group = itemGroup.getValue(Group.class);
-                                                    String groupName = group.getGroupName();
-                                                    names.add(groupName);
-
-                                                    if(i == itemCount){
-                                                        if(names.contains(newGroupName)){
-                                                            refDatabase.child(emailLogin).child("ClientManBySale").child(userEmail).child(newGroupName).child(clientCode).setValue(client);
-
-                                                        }else{
-                                                            refDatabase.child(emailLogin).child("ClientManBySale").child(userEmail).child("Group").push().child("groupName").setValue(newGroupName);
-                                                            refDatabase.child(emailLogin).child("ClientManBySale").child(userEmail).child(newGroupName).child(clientCode).setValue(client);
-                                                        }
-
-                                                        /*
-                                                        if(groupName.equals(newGroupName)){
-                                                            String keyGroup = itemGroup.getKey();
-                                                            refDatabase.child(emailLogin).child("ClientManBySale").child(userEmail).child(newGroupName).child(clientCode).setValue(client);
-                                                        }else{
-                                                            refDatabase.child(emailLogin).child("ClientManBySale").child(userEmail).child("Group").push().child("groupName").setValue(newGroupName);
-                                                            refDatabase.child(emailLogin).child("ClientManBySale").child(userEmail).child(newGroupName).child(clientCode).setValue(client);
-                                                        }
-                                                        */
-                                                    }
-
-
-
-                                                }
-                                            }
-
-                                            @Override
-                                            public void onCancelled(DatabaseError databaseError) {
-
-                                            }
-                                        });
-
-                                    }
 
                                 }
-                            }).show();
 
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+
+                                }
+                            });
+
+                            adpProduct = new ArrayAdapter<String>(getApplicationContext(),
+                                    android.R.layout.simple_list_item_1, listGroup);
+                            adpProduct.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+                            spinGroup.setAdapter(adpProduct);
+
+                            spinGroup.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                                @Override
+                                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                                    if(position!=0){
+                                        choosenGroup = (String) parent.getItemAtPosition(position);
+                                    }
+                                }
+
+                                @Override
+                                public void onNothingSelected(AdapterView<?> parent) {
+
+                                }
+                            });
+                            btnDone.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    v.startAnimation(buttonClick);
+                                    final String newGroupName = edtGroupName.getText().toString();
+
+                                    if (newGroupName.equals("Tất cả")){
+                                        Toast.makeText(getApplicationContext(), "Không thể đặt tên này!", Toast.LENGTH_LONG).show();
+
+                                    }else if(choosenGroup == null){
+                                        Toast.makeText(getApplicationContext(), "Vui lòng chọn tên nhóm!", Toast.LENGTH_LONG).show();
+                                    }
+                                    else{
+                                        refDatabase.child(emailLogin).child("ClientManBySup").child(userEmail).child(choosenGroup).child(clientCode).setValue(client);
+                                        dialog.dismiss();
+
+                                        if(chDelete.isChecked()){
+                                            if(!parentKey.equals("Tất cả")){
+                                                refClient.setValue(null);
+                                                //Toast.makeText(getApplicationContext(),refClient+"", Toast.LENGTH_LONG).show();
+                                            }
+                                        }
+
+                                    }
+                                }
+                            });
                         }
                     });
 
@@ -1819,6 +2099,8 @@ public class ClientListBySaleTeam extends AppCompatActivity {
 
 
             });
+
+
         }
     }
 
@@ -1857,6 +2139,8 @@ public class ClientListBySaleTeam extends AppCompatActivity {
 
                     Group group = adapterGroup.getItem(itemCat);
                     final String oldName = group.getGroupName();
+
+
                     AlertDialog.Builder builder = new AlertDialog.Builder(ClientListBySaleTeam.this);
                     builder.setMessage("Đổi tên nhóm khách hàng?");
 
@@ -1882,30 +2166,61 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                             else{
                                 int pos = getAdapterPosition();
                                 String key = adapterGroup.getRef(pos).getKey();
-                                refDatabase.child(emailLogin).child("ClientManBySale").child(userEmail).child("Group").child(key).child("groupName").setValue(newGroupName);
-                                //Đổi tên và copy các thành phần trong group
-                                refDatabase.child(emailLogin).child("ClientManBySale").child(userEmail).child(oldName).addListenerForSingleValueEvent(new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(DataSnapshot dataSnapshot) {
-                                        Iterable<DataSnapshot> snapClient = dataSnapshot.getChildren();
-                                        for(DataSnapshot itemClient: snapClient){
-                                            Client clientCopied = itemClient.getValue(Client.class);
 
-                                            refDatabase.child(emailLogin).child("ClientManBySale").child(userEmail).child(newGroupName).push().setValue(clientCopied).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                @Override
-                                                public void onComplete(@NonNull Task<Void> task) {
-                                                    refDatabase.child(emailLogin).child("ClientManBySale").child(userEmail).child(oldName).setValue(null);
-                                                }
-                                            });
+                                if(saleMan){
+                                    refDatabase.child(emailLogin).child("ClientManBySale").child(userEmail).child("Group").child(key).child("groupName").setValue(newGroupName);
+                                    //Đổi tên và copy các thành phần trong group
+                                    refDatabase.child(emailLogin).child("ClientManBySale").child(userEmail).child(oldName).addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                            Iterable<DataSnapshot> snapClient = dataSnapshot.getChildren();
+                                            for(DataSnapshot itemClient: snapClient){
+                                                Client clientCopied = itemClient.getValue(Client.class);
+
+                                                refDatabase.child(emailLogin).child("ClientManBySale").child(userEmail).child(newGroupName).push().setValue(clientCopied).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<Void> task) {
+                                                        refDatabase.child(emailLogin).child("ClientManBySale").child(userEmail).child(oldName).setValue(null);
+                                                    }
+                                                });
+
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onCancelled(DatabaseError databaseError) {
 
                                         }
-                                    }
+                                    });
+                                }
 
-                                    @Override
-                                    public void onCancelled(DatabaseError databaseError) {
+                                if(supervisor){
+                                    refDatabase.child(emailLogin).child("ClientManBySup").child(userEmail).child("Group").child(key).child("groupName").setValue(newGroupName);
+                                    //Đổi tên và copy các thành phần trong group
+                                    refDatabase.child(emailLogin).child("ClientManBySup").child(userEmail).child(oldName).addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                            Iterable<DataSnapshot> snapClient = dataSnapshot.getChildren();
+                                            for(DataSnapshot itemClient: snapClient){
+                                                Client clientCopied = itemClient.getValue(Client.class);
 
-                                    }
-                                });
+                                                refDatabase.child(emailLogin).child("ClientManBySup").child(userEmail).child(newGroupName).push().setValue(clientCopied).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<Void> task) {
+                                                        refDatabase.child(emailLogin).child("ClientManBySup").child(userEmail).child(oldName).setValue(null);
+                                                    }
+                                                });
+
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onCancelled(DatabaseError databaseError) {
+
+                                        }
+                                    });
+                                }
+
                             }
 
                         }
@@ -1931,9 +2246,89 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                 public void onClick(View v) {
                     v.startAnimation(buttonClick);
                     choosenEmployee = getAdapterPosition();
-                    adapterEmployee.notifyDataSetChanged();
-                    Employee employee = adapterEmployee.getItem(choosenEmployee);
+                    final Employee employee = adapterEmployee.getItem(choosenEmployee);
                     choosenEmployeeEmail = employee.getEmployeeEmail();
+                    choosenEmployeeName = employee.getEmployeeName();
+
+                    adapterEmployee.notifyDataSetChanged();
+
+                    refDatabase.child(emailLogin).child("Client").child(choosenClientCode).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            if(dataSnapshot.hasChild("managedBy")){
+
+                                refDatabase.child(emailLogin).child("Client").child(choosenClientCode).child("managedBy").addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        final Employee  currentEmployee = dataSnapshot.getValue(Employee.class);
+                                        //Toast.makeText(getApplicationContext(), employee.getEmployeeName(), Toast.LENGTH_LONG).show();
+
+                                        if(!choosenEmployeeEmail.equals(currentEmployee.getEmployeeEmail())){
+
+                                            AlertDialog.Builder builder = new AlertDialog.Builder(ClientListBySaleTeam.this);
+                                            builder.setMessage("Khách hàng đang được quản lý bởi nhân viên " + currentEmployee.getEmployeeName()+", bạn muốn chuyển sang quản lý bởi " +
+                                                            choosenEmployeeName +" ?");
+
+                                            builder.setNegativeButton("Không", new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which) {
+
+                                                }
+                                            }).setPositiveButton("Có", new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialog, int which) {
+                                                    //adapterEmployee.notifyDataSetChanged();
+                                                    refDatabase.child(emailLogin).child("Client").child(choosenClientCode).child("managedBy").setValue(employee);
+                                                    refDatabase.child(emailLogin).child("ClientManBySale").child(currentEmployee.getEmployeeEmail()).child("Tất cả").child(choosenClientCode).setValue(null);
+
+                                                    refDatabase.child(emailLogin).child("SaleRoute").child(currentEmployee.getEmployeeEmail()).addListenerForSingleValueEvent(new ValueEventListener() {
+                                                        @Override
+                                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                                            Iterable<DataSnapshot> snapDay = dataSnapshot.getChildren();
+                                                            for(DataSnapshot itemDay:snapDay){
+                                                                String dayName = itemDay.getKey();
+                                                                Iterable<DataSnapshot> snapClient = itemDay.getChildren();
+
+                                                                for(DataSnapshot itemClient:snapClient){
+                                                                    String itemClientCode = itemClient.getKey();
+                                                                    DatabaseReference refClient = itemClient.getRef();
+
+                                                                    if(itemClientCode.equals(choosenClientCode)){
+                                                                        refClient.setValue(null);
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+
+                                                        @Override
+                                                        public void onCancelled(DatabaseError databaseError) {
+
+                                                        }
+                                                    });
+                                                }
+                                            }).show();
+
+                                        }
+
+
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+
+                                    }
+                                });
+
+
+                            }
+
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
 
                 }
             });

@@ -4,10 +4,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".list.ClientListBySaleTeam">
+    tools:context=".list.SaleListByASM">
+
 
     <ImageView
-        android:id="@+id/iv_sale_list_add_group"
+        android:id="@+id/iv_sale_list_add_group_asm"
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_marginTop="16dp"
@@ -17,59 +18,32 @@
         app:srcCompat="@drawable/icon_plus" />
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/rv_sale_list_group"
+        android:id="@+id/rv_sale_list_group_asm"
         android:layout_width="0dp"
         android:layout_height="40dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="8dp"
-        app:layout_constraintEnd_toStartOf="@+id/iv_sale_list_add_group"
+        app:layout_constraintEnd_toStartOf="@+id/iv_sale_list_add_group_asm"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/rv_sale_list_detail"
+        android:id="@+id/rv_sale_list_detail_asm"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
-        android:visibility="visible"
-        app:layout_constraintBottom_toTopOf="@+id/cs_client_list"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/rv_sale_list_group" />
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab_sale_client"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
-        android:clickable="true"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:visibility="visible"
+        app:layout_constraintBottom_toTopOf="@+id/cs_sale_list_asm"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/icon_plus_white" />
-
-    <Button
-        android:id="@+id/btn_sale_client_route"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:background="@drawable/border_drug_cat_accent"
-        android:text="Lộ trình"
-        android:textColor="@android:color/white"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@+id/fab_sale_client"
-        app:layout_constraintEnd_toStartOf="@+id/fab_sale_client"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/fab_sale_client" />
+        app:layout_constraintTop_toBottomOf="@+id/rv_sale_list_group_asm" />
 
     <android.support.constraint.ConstraintLayout
-        android:id="@+id/cs_client_list"
+        android:id="@+id/cs_sale_list_asm"
         android:layout_width="0dp"
         android:layout_height="140dp"
         android:layout_marginStart="8dp"
@@ -77,8 +51,9 @@
         android:layout_marginBottom="8dp"
         android:background="@drawable/border_white"
         android:elevation="4dp"
-        app:layout_constraintBottom_toTopOf="@+id/fab_sale_client"
+        app:layout_constraintBottom_toTopOf="@+id/btn_sale_client_route_asm"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent">
 
         <TextView
@@ -94,7 +69,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <ProgressBar
-            android:id="@+id/bar_client_list_kpi_sale"
+            android:id="@+id/bar_sale_list_kpi_sale_asm"
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -125,10 +100,10 @@
             android:layout_marginTop="8dp"
             android:text="Khách hàng"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/bar_client_list_kpi_sale" />
+            app:layout_constraintTop_toBottomOf="@+id/bar_sale_list_kpi_sale_asm" />
 
         <ProgressBar
-            android:id="@+id/bar_client_list_kpi_new"
+            android:id="@+id/bar_sale_list_kpi_new_asm"
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -142,14 +117,14 @@
             app:layout_constraintTop_toBottomOf="@+id/textView204" />
 
         <TextView
-            android:id="@+id/tv_client_list_kpi_sale"
+            android:id="@+id/tv_sale_list_kpi_sale_asm"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:text="0%"
-            app:layout_constraintBottom_toBottomOf="@+id/bar_client_list_kpi_sale"
+            app:layout_constraintBottom_toBottomOf="@+id/bar_sale_list_kpi_sale_asm"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/bar_client_list_kpi_sale" />
+            app:layout_constraintTop_toTopOf="@+id/bar_sale_list_kpi_sale_asm" />
 
         <TextView
             android:id="@+id/textView210"
@@ -162,14 +137,45 @@
             app:layout_constraintTop_toBottomOf="@+id/textView202" />
 
         <TextView
-            android:id="@+id/tv_client_list_kpi_new"
+            android:id="@+id/tv_sale_list_kpi_new_asm"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:text="0%"
-            app:layout_constraintBottom_toBottomOf="@+id/bar_client_list_kpi_new"
+            app:layout_constraintBottom_toBottomOf="@+id/bar_sale_list_kpi_new_asm"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/bar_client_list_kpi_new" />
+            app:layout_constraintTop_toTopOf="@+id/bar_sale_list_kpi_new_asm" />
     </android.support.constraint.ConstraintLayout>
+
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_sale_client"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:clickable="true"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/icon_plus_white" />
+
+    <Button
+        android:id="@+id/btn_sale_client_route_asm"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/border_drug_cat_accent"
+        android:text="Vị trí nhân viên"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/fab_sale_client"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </android.support.constraint.ConstraintLayout>

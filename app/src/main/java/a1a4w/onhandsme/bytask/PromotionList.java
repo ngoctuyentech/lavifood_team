@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,6 +27,9 @@ public class PromotionList extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_promotion_list);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_promotion);
+        setSupportActionBar(toolbar);
 
         Intent intent = this.getIntent();
         emailLogin = intent.getStringExtra("EmailLogin");

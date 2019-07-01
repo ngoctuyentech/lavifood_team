@@ -496,8 +496,8 @@ public class SaleRoute extends AppCompatActivity implements OnMapReadyCallback {
                         sortTopProduct = Utils.sortIncreaseByValues(distanceMap);
 
                         if(i == itemCount){
-
                             Set set = sortTopProduct.entrySet();
+
                             Iterator iterator = set.iterator();
                             Map.Entry me = (Map.Entry) iterator.next();
 

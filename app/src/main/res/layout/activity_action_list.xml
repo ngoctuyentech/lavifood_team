@@ -60,8 +60,8 @@
 
             <ImageView
                 android:id="@+id/iv_bar_sale_logout"
-                android:layout_width="30dp"
-                android:layout_height="match_parent"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:layout_gravity="center"
                 android:layout_weight="1"
                 app:srcCompat="@drawable/icon_logout" />
@@ -121,20 +121,128 @@
 
             <ImageView
                 android:id="@+id/iv_bar_sup_logout"
-                android:layout_width="30dp"
-                android:layout_height="match_parent"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:layout_gravity="center"
                 android:layout_weight="1"
                 app:srcCompat="@drawable/icon_logout" />
 
 
         </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ln_asm"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <ImageView
+                android:id="@+id/iv_bar_sup_asm"
+                android:layout_width="50dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                app:srcCompat="@drawable/icon_supervisor" />
+
+
+            <ImageView
+                android:id="@+id/iv_bar_promotion_asm"
+                android:layout_width="50dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                app:srcCompat="@drawable/icon_promotion" />
+
+            <ImageView
+                android:id="@+id/iv_bar_report_asm"
+                android:layout_width="50dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                app:srcCompat="@drawable/icon_report" />
+
+            <ImageView
+                android:id="@+id/iv_bar_announcement_asm"
+                android:layout_width="50dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                app:srcCompat="@drawable/icon_annoucement" />
+
+            <ImageView
+                android:id="@+id/iv_bar_asm_logout"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                app:srcCompat="@drawable/icon_logout" />
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ln_admin"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <ImageView
+                android:id="@+id/iv_bar_account_admin_order"
+                android:layout_width="50dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                app:srcCompat="@drawable/icon_approve_order" />
+
+            <ImageView
+                android:id="@+id/iv_bar_account_admin"
+                android:layout_width="50dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                app:srcCompat="@drawable/icon_account" />
+
+
+            <ImageView
+            android:id="@+id/iv_bar_account_admin_product"
+            android:layout_width="50dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            app:srcCompat="@drawable/icon_product" />
+
+            <ImageView
+                android:id="@+id/iv_bar_account_admin_product_payroll"
+                android:layout_width="50dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                app:srcCompat="@drawable/icon_payroll" />
+
+            <ImageView
+                android:id="@+id/iv_bar_admin_logout"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                app:srcCompat="@drawable/icon_logout" />
+
+
+        </LinearLayout>
+
     </LinearLayout>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rv_sale_action"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginTop="24dp"
         android:visibility="visible"
         app:layout_constraintBottom_toTopOf="@+id/linearLayout2"
         app:layout_constraintEnd_toEndOf="parent"
@@ -142,5 +250,25 @@
         app:layout_constraintTop_toTopOf="parent">
 
     </android.support.v7.widget.RecyclerView>
+
+    <TextView
+        android:id="@+id/tv_action_list_account_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:text="Nguyễn Văn A"
+        app:layout_constraintBottom_toTopOf="@+id/rv_sale_action"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_action_list_account_role"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:text="Giám sát"
+        app:layout_constraintBottom_toTopOf="@+id/rv_sale_action"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </android.support.constraint.ConstraintLayout>

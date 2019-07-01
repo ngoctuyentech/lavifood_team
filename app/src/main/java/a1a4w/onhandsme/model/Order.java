@@ -5,19 +5,19 @@ package a1a4w.onhandsme.model;
  */
 
 public class Order {
-    String orderName;
-    String orderCreatedBy;
+    OrderDetail OtherInformation;
+    VatModel VAT;
 
     public Order() {
     }
 
-
-    public String getOrderName() {
-        return orderName;
+    public OrderDetail getOtherInformation() {
+        return OtherInformation;
     }
 
-    public String getOrderCreatedBy() {
-        return orderCreatedBy;
-    }
 
+
+    public VatModel getVAT() {
+        return VAT;
+    }
 }

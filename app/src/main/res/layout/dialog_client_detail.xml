@@ -190,4 +190,15 @@
         app:layout_constraintTop_toTopOf="@+id/btn_client_detail_phone"
         app:srcCompat="@drawable/icon_saleman" />
 
+    <ImageView
+        android:id="@+id/iv_client_detail_approve"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@+id/iv_client_detail_saleroute"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_action_approve_icon_pink" />
+
 </android.support.constraint.ConstraintLayout>

@@ -8,7 +8,6 @@
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-
     <uses-permission android:name="android.permission.CALL_PHONE" />
 
     <application
@@ -19,8 +18,13 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".list.AddSale"></activity>
-        <activity android:name=".list.SaleListBySup" />
+        <activity android:name=".list.AccountList"></activity>
+        <activity android:name=".bytask.CreateProduct" />
+        <activity android:name=".bytask.CreateAccount" />
+        <activity android:name=".list.SaleListByASM" />
+        <activity android:name=".bytask.SaleReport" />
+        <activity android:name=".list.AddSale" />
+        <activity android:name=".list.SaleList" />
         <activity
             android:name=".bytask.PromotionList"
             android:label="Chương trình" />
