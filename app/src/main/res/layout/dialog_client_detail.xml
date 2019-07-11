@@ -146,8 +146,8 @@
 
     <ImageView
         android:id="@+id/btn_client_detail_grouping"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
         android:layout_marginEnd="16dp"
         app:layout_constraintEnd_toStartOf="@+id/btn_client_detail_phone"
         app:layout_constraintTop_toTopOf="@+id/btn_client_detail_phone"
@@ -155,8 +155,8 @@
 
     <ImageView
         android:id="@+id/btn_client_detail_phone"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -165,8 +165,8 @@
 
     <ImageView
         android:id="@+id/iv_client_detail_order"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
         android:layout_marginEnd="16dp"
         app:layout_constraintEnd_toStartOf="@+id/btn_client_detail_grouping"
         app:layout_constraintTop_toTopOf="@+id/btn_client_detail_phone"
@@ -174,8 +174,8 @@
 
     <ImageView
         android:id="@+id/iv_client_fix_location"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
         android:layout_marginEnd="16dp"
         app:layout_constraintEnd_toStartOf="@+id/iv_client_detail_order"
         app:layout_constraintTop_toTopOf="@+id/btn_client_detail_phone"
@@ -183,8 +183,8 @@
 
     <ImageView
         android:id="@+id/iv_client_detail_saleroute"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
         android:layout_marginEnd="16dp"
         app:layout_constraintEnd_toStartOf="@+id/iv_client_fix_location"
         app:layout_constraintTop_toTopOf="@+id/btn_client_detail_phone"
@@ -192,8 +192,8 @@
 
     <ImageView
         android:id="@+id/iv_client_detail_approve"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:visibility="gone"

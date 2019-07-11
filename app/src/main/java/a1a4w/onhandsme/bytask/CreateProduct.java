@@ -1,5 +1,7 @@
 package a1a4w.onhandsme.bytask;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -16,6 +18,7 @@ import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 
+import a1a4w.onhandsme.MainActivity;
 import a1a4w.onhandsme.R;
 import a1a4w.onhandsme.model.Product;
 
@@ -83,7 +86,16 @@ public class CreateProduct extends AppCompatActivity {
               }else{
                     String productCode = refDatabase.child(emailLogin).child("Product").push().getKey();
                     Product product = new Product(name,price,unit,productCode);
-                    refDatabase.child(emailLogin).child("Product").push().setValue(product);
+                    refDatabase.child(emailLogin).child("Product").child(productCode).setValue(product);
+
+                    AlertDialog.Builder builder = new AlertDialog.Builder(CreateProduct.this);
+                    builder.setMessage("Tạo sản phẩm thành công!");
+                    builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                        }
+                    }).show();
                 }
             }
         });
@@ -101,5 +113,11 @@ public class CreateProduct extends AppCompatActivity {
 
 
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        startActivity(new Intent(this, MainActivity.class));
     }
 }

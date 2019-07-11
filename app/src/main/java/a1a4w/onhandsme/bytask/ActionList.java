@@ -1,7 +1,10 @@
 package a1a4w.onhandsme.bytask;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.LinearSnapHelper;
@@ -43,12 +46,16 @@ public class ActionList extends AppCompatActivity {
     private ImageView ivOrder, ivClient,ivPromotion,ivAnnouncement,ivTeam,
             ivOrderSup,ivPromotionSup,ivAnnoucementSup,ivSaleLogout,ivSupLogout,ivClientSup,
             ivSupASM,ivPromotionASM,ivReportASM,ivAnnouncementASM,ivLogoutASM,ivSaleASM,
-            ivCreateAcc,ivLogoutAdmin,ivAdminProduct,ivAdminOrder,ivAdminPayroll;
+            ivCreateAcc,ivLogoutAdmin,ivAdminProduct,ivAdminOrder,ivAdminPayroll,ivAdminPromotion;
     private String emailLogin,userEmail;
-    private boolean saleMan,supervisor,asm,admin;
+    private boolean saleMan,supervisor,asm,admin,rsm;
     private LinearLayout lnSup,lnSaleMan,lnASM,lnAdmin;
     DatabaseReference refCompany;
     private String currentDay,date,day,year,month;
+    private TextView tvName,tvRole;
+    private SharedPreferences.Editor editor;
+    private SharedPreferences sharedPref;
+    private int pos;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,8 +68,15 @@ public class ActionList extends AppCompatActivity {
         supervisor = it.getBooleanExtra("Supervisor",false);
         asm = it.getBooleanExtra("ASM",false);
         admin = it.getBooleanExtra("Admin",false);
+        rsm = it.getBooleanExtra("RSM", false);
+
         userEmail = FirebaseAuth.getInstance().getCurrentUser().getEmail().replace(".", ",");
         refCompany = refDatabase.child(emailLogin);
+
+        sharedPref = getPreferences(Context.MODE_PRIVATE);
+        editor = sharedPref.edit();
+        //Toast.makeText(getApplicationContext(), userEmail, Toast.LENGTH_LONG).show();
+        //pos = sharedPref.getInt("LayoutPosition", 0);
 
         DateTime dt = new DateTime();
         day = dt.dayOfWeek().getAsText();
@@ -95,213 +109,230 @@ public class ActionList extends AppCompatActivity {
          ivAdminProduct = findViewById(R.id.iv_bar_account_admin_product);
          ivAdminOrder = findViewById(R.id.iv_bar_account_admin_order);
          ivAdminPayroll = findViewById(R.id.iv_bar_account_admin_product_payroll);
+         ivAdminPromotion = findViewById(R.id.iv_bar_account_admin_promotion);
 
-         final TextView tvName = findViewById(R.id.tv_action_list_account_name);
-         final TextView tvRole = findViewById(R.id.tv_action_list_account_role);
+         tvName = findViewById(R.id.tv_action_list_account_name);
+         tvRole = findViewById(R.id.tv_action_list_account_role);
 
-         refDatabase.child(emailLogin).child("Employee").child(userEmail).addListenerForSingleValueEvent(new ValueEventListener() {
-             @Override
-             public void onDataChange(DataSnapshot dataSnapshot) {
-                 Employee employee = dataSnapshot.getValue(Employee.class);
-                 tvName.setText(employee.getEmployeeName());
-                 if(saleMan) tvRole.setText("Bán hàng");
-                 if(supervisor) tvRole.setText("Giám sát");
-                 if(asm) tvRole.setText("ASM");
-                 if(admin) tvRole.setText("Admin");
-             }
-
-             @Override
-             public void onCancelled(DatabaseError databaseError) {
-
-             }
-         });
 
         lnSup = findViewById(R.id.ln_sup);
          lnSaleMan = findViewById(R.id.ln_sale_man);
         lnASM = findViewById(R.id.ln_asm);
         lnAdmin = findViewById(R.id.ln_admin);
-         
-         if(saleMan){
-             lnSup.setVisibility(View.GONE);
-             lnSaleMan.setVisibility(View.VISIBLE);
-             lnASM.setVisibility(View.GONE);
-             lnAdmin.setVisibility(View.GONE);
 
-             ivOrder.setBackgroundColor(getResources().getColor(R.color.colorOrder));
+    }
 
-             rvAction = (RecyclerView) findViewById(R.id.rv_sale_action);
-             rvAction.setHasFixedSize(true);
-             final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext(),LinearLayoutManager.HORIZONTAL,false);
-             rvAction.setLayoutManager(linearLayoutManager);
-             final SnapHelper snapHelper = new LinearSnapHelper();
-             snapHelper.attachToRecyclerView(rvAction);
+    @Override
+    protected void onResume() {
+        super.onResume();
 
-             rvAction.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        refDatabase.child(emailLogin).child("Employee").child(userEmail).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Employee employee = dataSnapshot.getValue(Employee.class);
+                tvName.setText(employee.getEmployeeName());
+                if(saleMan) tvRole.setText("Bán hàng");
+                if(supervisor) tvRole.setText("Giám sát");
+                if(asm) tvRole.setText("ASM");
+                if(admin) tvRole.setText("Admin");
+                if(rsm) tvRole.setText("RSM");
+            }
 
-                 @Override
-                 public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                     super.onScrollStateChanged(recyclerView, newState);
-                     if(newState == RecyclerView.SCROLL_STATE_IDLE) {
-                         View centerView = snapHelper.findSnapView(linearLayoutManager);
-                         int pos = linearLayoutManager.getPosition(centerView);
-                         Log.e("Snapped Item Position:",""+pos);
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
 
-                         if(pos == 0){
-                             ivOrder.setBackgroundColor(getResources().getColor(R.color.colorOrder));
-                             ivClient.setBackgroundColor(getResources().getColor(R.color.transparent));
-                             ivPromotion.setBackgroundColor(getResources().getColor(R.color.transparent));
-                             ivAnnouncement.setBackgroundColor(getResources().getColor(R.color.transparent));
-
-                         }
-
-                         if(pos == 1){
-                             ivClient.setBackgroundColor(getResources().getColor(R.color.colorClient));
-                             ivOrder.setBackgroundColor(getResources().getColor(R.color.transparent));
-                             ivPromotion.setBackgroundColor(getResources().getColor(R.color.transparent));
-                             ivAnnouncement.setBackgroundColor(getResources().getColor(R.color.transparent));
-                         }
-
-                         if(pos == 2){
-                             ivPromotion.setBackgroundColor(getResources().getColor(R.color.colorPromotion));
-                             ivClient.setBackgroundColor(getResources().getColor(R.color.transparent));
-                             ivOrder.setBackgroundColor(getResources().getColor(R.color.transparent));
-                             ivAnnouncement.setBackgroundColor(getResources().getColor(R.color.transparent));
-                         }
-
-                         if(pos == 3){
-                             ivAnnouncement.setBackgroundColor(getResources().getColor(R.color.colorAnnouncement));
-                             ivPromotion.setBackgroundColor(getResources().getColor(R.color.transparent));
-                             ivClient.setBackgroundColor(getResources().getColor(R.color.transparent));
-                             ivOrder.setBackgroundColor(getResources().getColor(R.color.transparent));
-                         }
-                     }
-                 }
-             });
-
-             adapter = new FirebaseRecyclerAdapter<Employee,EmployeeViewHolder>(
-                     Employee.class,
-                     R.layout.item_menu,
-                     EmployeeViewHolder.class,
-                     refDatabase.child("1-System/MainMenu/SaleMan")
-             ) {
-                 @Override
-                 public EmployeeViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-                     View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_menu, parent, false);
-                     return new EmployeeViewHolder(v);
-                 }
+            }
+        });
 
 
-                 @Override
-                 protected void populateViewHolder(EmployeeViewHolder viewHolder, Employee model, int position) {
-                     Glide.with(getApplicationContext()).load(model.getMenuOrderUrl()).into(viewHolder.ivOrderPic);
-                 }
-             };
+        if(saleMan){
+            lnSup.setVisibility(View.GONE);
+            lnSaleMan.setVisibility(View.VISIBLE);
+            lnASM.setVisibility(View.GONE);
+            lnAdmin.setVisibility(View.GONE);
+
+            ivOrder.setBackgroundColor(getResources().getColor(R.color.colorOrder));
+
+            rvAction = (RecyclerView) findViewById(R.id.rv_sale_action);
+            rvAction.setHasFixedSize(true);
+            final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(ActionList.this,LinearLayoutManager.HORIZONTAL,false);
+            rvAction.setLayoutManager(linearLayoutManager);
+            final SnapHelper snapHelper = new LinearSnapHelper();
+            if (rvAction.getOnFlingListener() == null)
+                snapHelper.attachToRecyclerView(rvAction);
+
+            rvAction.addOnScrollListener(new RecyclerView.OnScrollListener() {
+
+                @Override
+                public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                    super.onScrollStateChanged(recyclerView, newState);
+                    if(newState == RecyclerView.SCROLL_STATE_IDLE) {
+                        View centerView = snapHelper.findSnapView(linearLayoutManager);
+                        assert centerView != null;
+                        pos = linearLayoutManager.getPosition(centerView);
+                   Log.e("Snapped Item Position:",""+pos);
+                       // editor.putInt("LayoutPosition",pos).apply();
+
+                      if(pos == 0){
+                            ivOrder.setBackgroundColor(getResources().getColor(R.color.colorOrder));
+                            ivClient.setBackgroundColor(getResources().getColor(R.color.transparent));
+                            ivPromotion.setBackgroundColor(getResources().getColor(R.color.transparent));
+                            ivAnnouncement.setBackgroundColor(getResources().getColor(R.color.transparent));
+
+                        }
+
+                        if(pos == 1){
+                            ivClient.setBackgroundColor(getResources().getColor(R.color.colorClient));
+                            ivOrder.setBackgroundColor(getResources().getColor(R.color.transparent));
+                            ivPromotion.setBackgroundColor(getResources().getColor(R.color.transparent));
+                            ivAnnouncement.setBackgroundColor(getResources().getColor(R.color.transparent));
+                        }
+
+                        if(pos == 2){
+                            ivPromotion.setBackgroundColor(getResources().getColor(R.color.colorPromotion));
+                            ivClient.setBackgroundColor(getResources().getColor(R.color.transparent));
+                            ivOrder.setBackgroundColor(getResources().getColor(R.color.transparent));
+                            ivAnnouncement.setBackgroundColor(getResources().getColor(R.color.transparent));
+                        }
+
+                        if(pos == 3){
+                            ivAnnouncement.setBackgroundColor(getResources().getColor(R.color.colorAnnouncement));
+                            ivPromotion.setBackgroundColor(getResources().getColor(R.color.transparent));
+                            ivClient.setBackgroundColor(getResources().getColor(R.color.transparent));
+                            ivOrder.setBackgroundColor(getResources().getColor(R.color.transparent));
+                        }
+                    }
+                }
+            });
+
+            adapter = new FirebaseRecyclerAdapter<Employee,EmployeeViewHolder>(
+                    Employee.class,
+                    R.layout.item_menu,
+                    EmployeeViewHolder.class,
+                    refDatabase.child("1-System/MainMenu/SaleMan")
+            ) {
+                @Override
+                public EmployeeViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+                    View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_menu, parent, false);
+                    return new EmployeeViewHolder(v);
+                }
 
 
-             rvAction.setAdapter(adapter);
-             adapter.notifyDataSetChanged();
+                @Override
+                protected void populateViewHolder(EmployeeViewHolder viewHolder, Employee model, int position) {
+                    Glide.with(getApplicationContext()).load(model.getMenuOrderUrl()).into(viewHolder.ivOrderPic);
+                }
+            };
 
-             actionOnClick();
-         }
-         
-         if(supervisor){
-             getSupSale();
-             lnSup.setVisibility(View.VISIBLE);
-             lnSaleMan.setVisibility(View.GONE);
-             lnASM.setVisibility(View.GONE);
-             lnAdmin.setVisibility(View.GONE);
 
-             rvAction = (RecyclerView) findViewById(R.id.rv_sale_action);
-             rvAction.setHasFixedSize(true);
-             final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext(),LinearLayoutManager.HORIZONTAL,false);
-             rvAction.setLayoutManager(linearLayoutManager);
-             final SnapHelper snapHelper = new PagerSnapHelper();
-             snapHelper.attachToRecyclerView(rvAction);
-             ivTeam.setBackgroundColor(getResources().getColor(R.color.colorGroup));
+            rvAction.setAdapter(adapter);
+            adapter.notifyDataSetChanged();
 
-             rvAction.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            actionOnClick();
+        }
 
-                 @Override
-                 public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                     super.onScrollStateChanged(recyclerView, newState);
-                     if(newState == RecyclerView.SCROLL_STATE_IDLE) {
-                         View centerView = snapHelper.findSnapView(linearLayoutManager);
-                         int pos = linearLayoutManager.getPosition(centerView);
+        if(supervisor){
+            getSupSale();
+            lnSup.setVisibility(View.VISIBLE);
+            lnSaleMan.setVisibility(View.GONE);
+            lnASM.setVisibility(View.GONE);
+            lnAdmin.setVisibility(View.GONE);
+
+            rvAction = (RecyclerView) findViewById(R.id.rv_sale_action);
+            rvAction.setHasFixedSize(true);
+            final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(ActionList.this,LinearLayoutManager.HORIZONTAL,false);
+            rvAction.setLayoutManager(linearLayoutManager);
+            //rvAction.smoothScrollToPosition();
+            final SnapHelper snapHelper = new PagerSnapHelper();
+            if (rvAction.getOnFlingListener() == null)
+                snapHelper.attachToRecyclerView(rvAction);
+            ivTeam.setBackgroundColor(getResources().getColor(R.color.colorGroup));
+
+            rvAction.addOnScrollListener(new RecyclerView.OnScrollListener() {
+
+                @Override
+                public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                    super.onScrollStateChanged(recyclerView, newState);
+                    if(newState == RecyclerView.SCROLL_STATE_IDLE) {
+                        View centerView = snapHelper.findSnapView(linearLayoutManager);
+                        assert centerView != null;
+                        pos = linearLayoutManager.getPosition(centerView);
+                        //editor.putInt("LayoutPosition", pos).apply();
 
                         //Toast.makeText(getApplicationContext(), pos+"", Toast.LENGTH_LONG).show();
-                         if(pos == 0){
-                             ivTeam.setBackgroundColor(getResources().getColor(R.color.colorGroup));
-                             ivOrderSup.setBackgroundColor(getResources().getColor(R.color.transparent));
-                             ivClientSup.setBackgroundColor(getResources().getColor(R.color.transparent));
-                             ivPromotionSup.setBackgroundColor(getResources().getColor(R.color.transparent));
-                             ivAnnoucementSup.setBackgroundColor(getResources().getColor(R.color.transparent));
+                        if(pos == 0){
+                            ivTeam.setBackgroundColor(getResources().getColor(R.color.colorGroup));
+                            ivOrderSup.setBackgroundColor(getResources().getColor(R.color.transparent));
+                            ivClientSup.setBackgroundColor(getResources().getColor(R.color.transparent));
+                            ivPromotionSup.setBackgroundColor(getResources().getColor(R.color.transparent));
+                            ivAnnoucementSup.setBackgroundColor(getResources().getColor(R.color.transparent));
 
-                         }
+                        }
 
-                         if(pos == 1){
-                             ivTeam.setBackgroundColor(getResources().getColor(R.color.transparent));
+                        if(pos == 1){
+                            ivTeam.setBackgroundColor(getResources().getColor(R.color.transparent));
 
-                             ivClientSup.setBackgroundColor(getResources().getColor(R.color.colorClient));
-                             ivOrderSup.setBackgroundColor(getResources().getColor(R.color.transparent));
-                             ivPromotionSup.setBackgroundColor(getResources().getColor(R.color.transparent));
-                             ivAnnoucementSup.setBackgroundColor(getResources().getColor(R.color.transparent));
-                         }
+                            ivClientSup.setBackgroundColor(getResources().getColor(R.color.colorClient));
+                            ivOrderSup.setBackgroundColor(getResources().getColor(R.color.transparent));
+                            ivPromotionSup.setBackgroundColor(getResources().getColor(R.color.transparent));
+                            ivAnnoucementSup.setBackgroundColor(getResources().getColor(R.color.transparent));
+                        }
 
-                         if(pos == 2){
-                             ivTeam.setBackgroundColor(getResources().getColor(R.color.transparent));
+                        if(pos == 2){
+                            ivTeam.setBackgroundColor(getResources().getColor(R.color.transparent));
 
-                             ivPromotionSup.setBackgroundColor(getResources().getColor(R.color.transparent));
-                             ivClientSup.setBackgroundColor(getResources().getColor(R.color.transparent));
-                             ivOrderSup.setBackgroundColor(getResources().getColor(R.color.colorOrder));
-                             ivAnnoucementSup.setBackgroundColor(getResources().getColor(R.color.transparent));
-                         }
+                            ivPromotionSup.setBackgroundColor(getResources().getColor(R.color.transparent));
+                            ivClientSup.setBackgroundColor(getResources().getColor(R.color.transparent));
+                            ivOrderSup.setBackgroundColor(getResources().getColor(R.color.colorOrder));
+                            ivAnnoucementSup.setBackgroundColor(getResources().getColor(R.color.transparent));
+                        }
 
-                         if(pos == 3){
-                             ivTeam.setBackgroundColor(getResources().getColor(R.color.transparent));
+                        if(pos == 3){
+                            ivTeam.setBackgroundColor(getResources().getColor(R.color.transparent));
 
-                             ivAnnoucementSup.setBackgroundColor(getResources().getColor(R.color.transparent));
-                             ivPromotionSup.setBackgroundColor(getResources().getColor(R.color.colorPromotion));
-                             ivClientSup.setBackgroundColor(getResources().getColor(R.color.transparent));
-                             ivOrderSup.setBackgroundColor(getResources().getColor(R.color.transparent));
-                         }
+                            ivAnnoucementSup.setBackgroundColor(getResources().getColor(R.color.transparent));
+                            ivPromotionSup.setBackgroundColor(getResources().getColor(R.color.colorPromotion));
+                            ivClientSup.setBackgroundColor(getResources().getColor(R.color.transparent));
+                            ivOrderSup.setBackgroundColor(getResources().getColor(R.color.transparent));
+                        }
 
-                         if(pos == 4){
-                             ivTeam.setBackgroundColor(getResources().getColor(R.color.transparent));
+                        if(pos == 4){
+                            ivTeam.setBackgroundColor(getResources().getColor(R.color.transparent));
 
-                             ivAnnoucementSup.setBackgroundColor(getResources().getColor(R.color.colorAnnouncement));
-                             ivPromotionSup.setBackgroundColor(getResources().getColor(R.color.transparent));
-                             ivClientSup.setBackgroundColor(getResources().getColor(R.color.transparent));
-                             ivOrderSup.setBackgroundColor(getResources().getColor(R.color.transparent));
-                         }
-                     }
-                 }
-             });
+                            ivAnnoucementSup.setBackgroundColor(getResources().getColor(R.color.colorAnnouncement));
+                            ivPromotionSup.setBackgroundColor(getResources().getColor(R.color.transparent));
+                            ivClientSup.setBackgroundColor(getResources().getColor(R.color.transparent));
+                            ivOrderSup.setBackgroundColor(getResources().getColor(R.color.transparent));
+                        }
+                    }
+                }
+            });
 
-             adapter = new FirebaseRecyclerAdapter<Employee,EmployeeViewHolder>(
-                     Employee.class,
-                     R.layout.item_menu,
-                     EmployeeViewHolder.class,
-                     refDatabase.child("1-System/MainMenu/Supervisor")
-             ) {
-                 @Override
-                 public EmployeeViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-                     View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_menu, parent, false);
-                     return new EmployeeViewHolder(v);
-                 }
-
-
-                 @Override
-                 protected void populateViewHolder(EmployeeViewHolder viewHolder, Employee model, int position) {
-                     Glide.with(getApplicationContext()).load(model.getMenuOrderUrl()).into(viewHolder.ivOrderPic);
-                 }
-             };
+            adapter = new FirebaseRecyclerAdapter<Employee,EmployeeViewHolder>(
+                    Employee.class,
+                    R.layout.item_menu,
+                    EmployeeViewHolder.class,
+                    refDatabase.child("1-System/MainMenu/Supervisor")
+            ) {
+                @Override
+                public EmployeeViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+                    View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_menu, parent, false);
+                    return new EmployeeViewHolder(v);
+                }
 
 
-             rvAction.setAdapter(adapter);
-             adapter.notifyDataSetChanged();
+                @Override
+                protected void populateViewHolder(EmployeeViewHolder viewHolder, Employee model, int position) {
+                    Glide.with(getApplicationContext()).load(model.getMenuOrderUrl()).into(viewHolder.ivOrderPic);
+                }
+            };
 
-             actionSupOnClick();
-         }
+
+            rvAction.setAdapter(adapter);
+            adapter.notifyDataSetChanged();
+
+            actionSupOnClick();
+        }
 
         if(asm){
             getASMSale();
@@ -312,10 +343,101 @@ public class ActionList extends AppCompatActivity {
 
             rvAction = (RecyclerView) findViewById(R.id.rv_sale_action);
             rvAction.setHasFixedSize(true);
-            final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext(),LinearLayoutManager.HORIZONTAL,false);
+            final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(ActionList.this,LinearLayoutManager.HORIZONTAL,false);
             rvAction.setLayoutManager(linearLayoutManager);
             final SnapHelper snapHelper = new PagerSnapHelper();
             snapHelper.attachToRecyclerView(rvAction);
+            if (rvAction.getOnFlingListener() == null)
+                ivSupASM.setBackgroundColor(getResources().getColor(R.color.colorSupervisor));
+
+            rvAction.addOnScrollListener(new RecyclerView.OnScrollListener() {
+
+                @Override
+                public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                    super.onScrollStateChanged(recyclerView, newState);
+                    if(newState == RecyclerView.SCROLL_STATE_IDLE) {
+                        View centerView = snapHelper.findSnapView(linearLayoutManager);
+                        assert centerView != null;
+                        int pos = linearLayoutManager.getPosition(centerView);
+
+                        //Toast.makeText(getApplicationContext(), pos+"", Toast.LENGTH_LONG).show();
+                        if(pos == 0){
+                            ivSupASM.setBackgroundColor(getResources().getColor(R.color.colorSupervisor));
+                            ivReportASM.setBackgroundColor(getResources().getColor(R.color.transparent));
+                            ivPromotionASM.setBackgroundColor(getResources().getColor(R.color.transparent));
+                            ivAnnouncementASM.setBackgroundColor(getResources().getColor(R.color.transparent));
+
+                        }
+
+                        if(pos == 1){
+                            ivSupASM.setBackgroundColor(getResources().getColor(R.color.transparent));
+
+                            ivReportASM.setBackgroundColor(getResources().getColor(R.color.transparent));
+                            ivPromotionASM.setBackgroundColor(getResources().getColor(R.color.colorPromotion));
+                            ivAnnouncementASM.setBackgroundColor(getResources().getColor(R.color.transparent));
+                        }
+
+                        if(pos == 2){
+                            ivSupASM.setBackgroundColor(getResources().getColor(R.color.transparent));
+
+                            ivPromotionASM.setBackgroundColor(getResources().getColor(R.color.transparent));
+                            ivReportASM.setBackgroundColor(getResources().getColor(R.color.colorReport));
+                            ivAnnouncementASM.setBackgroundColor(getResources().getColor(R.color.transparent));
+                        }
+
+                        if(pos == 3){
+                            ivSupASM.setBackgroundColor(getResources().getColor(R.color.transparent));
+
+                            ivAnnouncementASM.setBackgroundColor(getResources().getColor(R.color.colorAnnouncement));
+                            ivPromotionASM.setBackgroundColor(getResources().getColor(R.color.transparent));
+                            ivReportASM.setBackgroundColor(getResources().getColor(R.color.transparent));
+                        }
+
+
+                    }
+                }
+            });
+
+            adapter = new FirebaseRecyclerAdapter<Employee,EmployeeViewHolder>(
+                    Employee.class,
+                    R.layout.item_menu,
+                    EmployeeViewHolder.class,
+                    refDatabase.child("1-System/MainMenu/ASM")
+            ) {
+                @Override
+                public EmployeeViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+                    View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_menu, parent, false);
+                    return new EmployeeViewHolder(v);
+                }
+
+
+                @Override
+                protected void populateViewHolder(EmployeeViewHolder viewHolder, Employee model, int position) {
+                    Glide.with(getApplicationContext()).load(model.getMenuOrderUrl()).into(viewHolder.ivOrderPic);
+                }
+            };
+
+
+            rvAction.setAdapter(adapter);
+            adapter.notifyDataSetChanged();
+
+            actionASM();
+        }
+
+        if(rsm){
+            getASMSale();
+            lnSup.setVisibility(View.GONE);
+            lnSaleMan.setVisibility(View.GONE);
+            lnASM.setVisibility(View.VISIBLE);
+            lnAdmin.setVisibility(View.GONE);
+
+            rvAction = (RecyclerView) findViewById(R.id.rv_sale_action);
+            rvAction.setHasFixedSize(true);
+            final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(ActionList.this,LinearLayoutManager.HORIZONTAL,false);
+            rvAction.setLayoutManager(linearLayoutManager);
+            final SnapHelper snapHelper = new PagerSnapHelper();
+            if (rvAction.getOnFlingListener() == null)
+                snapHelper.attachToRecyclerView(rvAction);
             ivSupASM.setBackgroundColor(getResources().getColor(R.color.colorSupervisor));
 
             rvAction.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -399,10 +521,11 @@ public class ActionList extends AppCompatActivity {
 
             rvAction = (RecyclerView) findViewById(R.id.rv_sale_action);
             rvAction.setHasFixedSize(true);
-            final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext(),LinearLayoutManager.HORIZONTAL,false);
+            final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(ActionList.this,LinearLayoutManager.HORIZONTAL,false);
             rvAction.setLayoutManager(linearLayoutManager);
             final SnapHelper snapHelper = new PagerSnapHelper();
-            snapHelper.attachToRecyclerView(rvAction);
+            if (rvAction.getOnFlingListener() == null)
+                snapHelper.attachToRecyclerView(rvAction);
             ivAdminOrder.setBackgroundColor(getResources().getColor(R.color.colorOrderAdmin));
 
             rvAction.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -412,6 +535,7 @@ public class ActionList extends AppCompatActivity {
                     super.onScrollStateChanged(recyclerView, newState);
                     if(newState == RecyclerView.SCROLL_STATE_IDLE) {
                         View centerView = snapHelper.findSnapView(linearLayoutManager);
+                        assert centerView != null;
                         int pos = linearLayoutManager.getPosition(centerView);
 
                         //Toast.makeText(getApplicationContext(), pos+"", Toast.LENGTH_LONG).show();
@@ -420,30 +544,43 @@ public class ActionList extends AppCompatActivity {
                             ivCreateAcc.setBackgroundColor(getResources().getColor(R.color.transparent));
                             ivAdminProduct.setBackgroundColor(getResources().getColor(R.color.transparent));
                             ivAdminPayroll.setBackgroundColor(getResources().getColor(R.color.transparent));
+                            ivAdminPromotion.setBackgroundColor(getResources().getColor(R.color.transparent));
 
 
                         }
-
                         if(pos == 1){
+                            ivAdminOrder.setBackgroundColor(getResources().getColor(R.color.transparent));
+                            ivCreateAcc.setBackgroundColor(getResources().getColor(R.color.transparent));
+                            ivAdminProduct.setBackgroundColor(getResources().getColor(R.color.transparent));
+                            ivAdminPayroll.setBackgroundColor(getResources().getColor(R.color.transparent));
+                            ivAdminPromotion.setBackgroundColor(getResources().getColor(R.color.colorPromotion));
+
+                        }
+
+
+                        if(pos == 2){
                             ivAdminOrder.setBackgroundColor(getResources().getColor(R.color.transparent));
                             ivCreateAcc.setBackgroundColor(getResources().getColor(R.color.colorAccount));
                             ivAdminProduct.setBackgroundColor(getResources().getColor(R.color.transparent));
                             ivAdminPayroll.setBackgroundColor(getResources().getColor(R.color.transparent));
+                            ivAdminPromotion.setBackgroundColor(getResources().getColor(R.color.transparent));
 
                         }
 
-                        if(pos == 2){
+                        if(pos == 3){
                             ivAdminOrder.setBackgroundColor(getResources().getColor(R.color.transparent));
                             ivCreateAcc.setBackgroundColor(getResources().getColor(R.color.transparent));
                             ivAdminProduct.setBackgroundColor(getResources().getColor(R.color.colorProduct));
                             ivAdminPayroll.setBackgroundColor(getResources().getColor(R.color.transparent));
+                            ivAdminPromotion.setBackgroundColor(getResources().getColor(R.color.transparent));
 
                         }
-                        if(pos == 3){
+                        if(pos == 4){
                             ivAdminOrder.setBackgroundColor(getResources().getColor(R.color.transparent));
                             ivCreateAcc.setBackgroundColor(getResources().getColor(R.color.transparent));
                             ivAdminProduct.setBackgroundColor(getResources().getColor(R.color.transparent));
                             ivAdminPayroll.setBackgroundColor(getResources().getColor(R.color.colorPayroll));
+                            ivAdminPromotion.setBackgroundColor(getResources().getColor(R.color.transparent));
 
                         }
 
@@ -708,8 +845,9 @@ public class ActionList extends AppCompatActivity {
             public void onClick(View v) {
 
                 FirebaseAuth.getInstance().signOut();
-                startActivity(new Intent(getApplicationContext(), LoginActivity.class));
-
+                Intent it = new Intent(getApplicationContext(), LoginActivity.class);
+                it.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(it);
             }
         });
     }
@@ -746,13 +884,24 @@ public class ActionList extends AppCompatActivity {
             }
         });
 
+        ivAdminPromotion.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent it = new Intent(getApplicationContext(),PromotionList.class);
+                it.putExtra("EmailLogin",emailLogin);
+                it.putExtra("Admin",true);
+                startActivity(it);
+            }
+        });
+
         ivLogoutAdmin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
                 FirebaseAuth.getInstance().signOut();
-                startActivity(new Intent(getApplicationContext(), LoginActivity.class));
-
+                Intent it = new Intent(getApplicationContext(), LoginActivity.class);
+                it.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(it);
             }
         });
     }
@@ -795,7 +944,10 @@ public class ActionList extends AppCompatActivity {
         ivPromotionSup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                Intent it = new Intent(getApplicationContext(),PromotionList.class);
+                it.putExtra("EmailLogin",emailLogin);
+                it.putExtra("Supervisor",supervisor);
+                startActivity(it);
             }
         });
 
@@ -812,7 +964,9 @@ public class ActionList extends AppCompatActivity {
             public void onClick(View v) {
 
                 FirebaseAuth.getInstance().signOut();
-                startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+                Intent it = new Intent(getApplicationContext(), LoginActivity.class);
+                it.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(it);
 
             }
         });
@@ -865,7 +1019,9 @@ public class ActionList extends AppCompatActivity {
             public void onClick(View v) {
 
                 FirebaseAuth.getInstance().signOut();
-                startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+                Intent it = new Intent(getApplicationContext(), LoginActivity.class);
+                it.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(it);
 
             }
         });
@@ -1065,37 +1221,6 @@ public class ActionList extends AppCompatActivity {
         public EmployeeViewHolder(View itemView) {
             super(itemView);
             ivOrderPic = itemView.findViewById(R.id.iv_item_menu);
-
-            ivOrderPic.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    int position = getAdapterPosition();
-                    Employee em = adapter.getItem(position);
-                    String menuName = em.getMenuOrderName();
-
-                    if (menuName.equals("Đơn hàng")){
-                        Intent it = new Intent(getApplicationContext(),OrderManActivity.class);
-                        it.putExtra("EmailLogin",emailLogin);
-                        startActivity(it);
-
-                    }
-
-                    if (menuName.equals("Khách hàng")){
-                        Intent it = new Intent(getApplicationContext(), ClientListBySaleTeam.class);
-                        it.putExtra("EmailLogin",emailLogin);
-                        startActivity(it);
-
-                    }
-
-                    if (menuName.equals("Chương trình")){
-
-                    }
-
-                    if (menuName.equals("Thông báo")){
-
-                    }
-                }
-            });
 
         }
     }

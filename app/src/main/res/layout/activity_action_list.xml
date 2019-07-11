@@ -201,6 +201,14 @@
                 app:srcCompat="@drawable/icon_approve_order" />
 
             <ImageView
+                android:id="@+id/iv_bar_account_admin_promotion"
+                android:layout_width="50dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                app:srcCompat="@drawable/icon_promotion" />
+
+            <ImageView
                 android:id="@+id/iv_bar_account_admin"
                 android:layout_width="50dp"
                 android:layout_height="match_parent"
@@ -257,6 +265,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:text="Nguyễn Văn A"
+        android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/rv_sale_action"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -267,6 +276,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:text="Giám sát"
+        android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/rv_sale_action"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

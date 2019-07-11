@@ -69,7 +69,7 @@ public class PreviewOrderActivivity extends AppCompatActivity {
     private boolean discountVAT,outRoute,viewOnly,saleMan;
 
     private TextView tvClientName, tvClientType, tvPayment, tvDelivery, tvNotVAT,tvPromotionStorage,tvProductStorage,
-            tvVAT,tvNotVATDiscount, tvFinalPayment,tvClientAddress, tvDeliveryName,tvNote,tvPromotionChoosen,tvProductChoosen;
+            tvVAT,tvNotVATDiscount, tvFinalPayment,tvClientAddress, tvDeliveryName,tvNote,tvPromotionChoosen,tvProductChoosen,tvSaleName;
     private String orderPushKey,orderName,employeeName,clientType,clientCode,paymentType,deliveryDate,choosenVAT,emailLogin,discount;
 
     private float VAT,notVAT;
@@ -85,7 +85,7 @@ public class PreviewOrderActivivity extends AppCompatActivity {
     private String promotionStorageDialog;
     private Dialog dialogAddPromotion;
     private String promotionNameDialog;
-    private Button btnSendApproved;
+    private Button btnSendApproved,btnCancel;
     private EditText edtDialogProductPrice;
     private String productCode;
     private String managerEmail;
@@ -104,7 +104,7 @@ public class PreviewOrderActivivity extends AppCompatActivity {
 
         discount = intent.getStringExtra("OrderDiscount");
         choosenVAT = intent.getStringExtra("VAT");
-        clientCode = intent.getStringExtra("ClientCode");
+        //clientCode = intent.getStringExtra("ClientCode");
         emailLogin = intent.getStringExtra("EmailLogin");
         viewOnly = intent.getBooleanExtra("ViewOnly",false);
 
@@ -146,8 +146,18 @@ public class PreviewOrderActivivity extends AppCompatActivity {
         tvClientAddress = (TextView)findViewById(R.id.tv_preview_order_address);
         tvDelivery = findViewById(R.id.tv_preview_delivery_date);
         tvNote = findViewById(R.id.tv_preview_order_note);
+        tvSaleName = findViewById(R.id.tv_preview_sale_name);
 
         btnSendApproved = findViewById(R.id.btn_preview_send_approved);
+        btnCancel = findViewById(R.id.btn_preview_cancel);
+
+        btnCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                refDatabase.child(emailLogin+"/OrderList").child(orderPushKey).setValue(null);
+                startActivity(new Intent(getApplicationContext(),MainActivity.class));
+            }
+        });
 
         btnSendApproved.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -210,6 +220,7 @@ public class PreviewOrderActivivity extends AppCompatActivity {
 
         if(viewOnly){
             btnSendApproved.setVisibility(View.GONE);
+            btnCancel.setVisibility(View.GONE);
             ibProduct.setVisibility(View.GONE);
         }
 
@@ -273,12 +284,15 @@ public class PreviewOrderActivivity extends AppCompatActivity {
                     String payment = orderDetail.getPaymentType();
                     String deliveryDate = orderDetail.getDateDelivery();
                     String orderNote = orderDetail.getOrderNote();
+                    String saleName = orderDetail.getSaleName();
+                    clientCode = orderDetail.getClientCode();
 
                     tvClientName.setText(clientName);
                     //tvClientType.setText(clientType);
                     tvPayment.setText(payment);
                     tvDelivery.setText(deliveryDate);
                     tvNote.setText(orderNote);
+                    tvSaleName.setText(saleName);
 
                     refDatabase.child(emailLogin+"/Client").child(clientCode).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
@@ -628,18 +642,6 @@ public class PreviewOrderActivivity extends AppCompatActivity {
                 String productPrice = edtDialogProductPrice.getText().toString();
 
 
-                float choosenVATInt = Float.parseFloat(choosenVAT);
-                float discountProduct = Float.parseFloat(discount)/100;
-
-                float newNotVAT = Float.parseFloat(productPrice)*Float.parseFloat(productQuantity);
-                float newVAT = Float.parseFloat(productPrice)*Float.parseFloat(productQuantity)*(1+choosenVATInt);
-                float newVATDiscount = newVAT*(1-discountProduct);;
-
-                float  currentNotVAT = newNotVAT + notVAT;
-                float  currentVAT = newVAT + VAT;
-
-                float currentVATDiscount = currentVAT*(1-discountProduct);
-
                 if(productQuantityInt > Float.parseFloat(productStorageDialog)){
                     Toast.makeText(getApplicationContext(),"Không đủ hàng tồn kho", Toast.LENGTH_LONG).show();
                     edtDialogProductQuantity.setText("");
@@ -652,19 +654,9 @@ public class PreviewOrderActivivity extends AppCompatActivity {
 
                 }else {
 
-                     VatModel vat = new VatModel(currentNotVAT,currentVAT,currentVATDiscount);
-                     Product productAdded = new Product(productNameDialog,productPrice,productQuantity,productCode,newVATDiscount+"");
-                     refDatabase.child(emailLogin+"/OrderList").child(orderPushKey).child("ProductList").push().setValue(productAdded).addOnCompleteListener(new OnCompleteListener<Void>() {
-                         @Override
-                         public void onComplete(@NonNull Task<Void> task) {
-                         }
-                     });
-                     refDatabase.child(emailLogin+"/OrderList").child(orderPushKey).child("VAT").setValue(vat).addOnCompleteListener(new OnCompleteListener<Void>() {
-                         @Override
-                         public void onComplete(@NonNull Task<Void> task) {
-                             dialog.dismiss();
-                         }
-                     });
+                     float productPayment = Float.parseFloat(productPrice) * Float.parseFloat(productQuantity);
+                     Product productAdded = new Product(productNameDialog,productPrice,productQuantity,productCode,productPayment+"");
+                     refDatabase.child(emailLogin+"/OrderList").child(orderPushKey).child("ProductList").push().setValue(productAdded);
 
                      /*
 
@@ -706,67 +698,6 @@ public class PreviewOrderActivivity extends AppCompatActivity {
             }
         });
 
-    }
-    public void addPromotionDialog() {
-        final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = this.getLayoutInflater();
-        final View dialogView = inflater.inflate(R.layout.dialog_add_promotion, null);
-
-        final EditText edtDialogProductPrice = (EditText)dialogView.findViewById(R.id.edt_add_product_price);
-        final EditText edtDialogProductQuantity = (EditText)dialogView.findViewById(R.id.edt_add_product_quantity);
-        final Button btnDialogAddPromotion = (Button)dialogView.findViewById(R.id.btn_add_product);
-        Button btnDialogeCancel = (Button)dialogView.findViewById(R.id.btn_dialog_cancel);
-        tvPromotionChoosen = (TextView)dialogView.findViewById(R.id.tv_dialog_add_promotion_choosen_product);
-        tvPromotionStorage = (TextView)dialogView.findViewById(R.id.tv_add_promotion_storage);
-
-        tvPromotionChoosen.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                v.startAnimation(Constants.buttonClick);
-                productListDialog();
-                dialogPromotion = true;
-
-            }
-        });
-
-        dialogBuilder.setView(dialogView);
-
-        dialogBuilder.setTitle("Thêm hàng khuyến mãi");
-
-        dialogAddPromotion = dialogBuilder.create();
-        dialogAddPromotion.show();
-        btnDialogeCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                v.startAnimation(Constants.buttonClick);
-                dialogAddPromotion.dismiss();
-            }
-        });
-
-        btnDialogAddPromotion.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                btnDialogAddPromotion.setEnabled(false);
-                v.startAnimation(Constants.buttonClick);
-                String promotionPrice = edtDialogProductPrice.getText().toString();
-                final String promotionQuantity = edtDialogProductQuantity.getText().toString();
-                Product promotion = new Product(promotionNameDialog,promotionQuantity);
-
-                if (TextUtils.isEmpty(promotionQuantity)){
-                    Toast.makeText(getApplicationContext(),"Vui lòng nhập số lượng", Toast.LENGTH_LONG).show();
-
-                }
-
-                else if (Float.parseFloat(promotionQuantity)>Float.parseFloat(promotionStorageDialog)){
-                    Toast.makeText(getApplicationContext(),"Không đủ hàng tồn kho.", Toast.LENGTH_LONG).show();
-
-                }
-                else {
-                    refDatabase.child(emailLogin+"/OrderList").child(orderPushKey).child("Promotion").push().setValue(promotion);
-                    dialogAddPromotion.dismiss();
-                }
-            }
-        });
     }
     private void productListDialog() {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);

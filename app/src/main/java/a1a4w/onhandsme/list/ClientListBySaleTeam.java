@@ -67,6 +67,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import a1a4w.onhandsme.MainActivity;
 import a1a4w.onhandsme.R;
 import a1a4w.onhandsme.bytask.SaleRoute;
 import a1a4w.onhandsme.model.Client;
@@ -172,6 +173,7 @@ public class ClientListBySaleTeam extends AppCompatActivity {
         barKPINewClient = findViewById(R.id.bar_client_list_kpi_new);
         final TextView tvKPISale = findViewById(R.id.tv_client_list_kpi_sale);
         final TextView tvKPINew = findViewById(R.id.tv_client_list_kpi_new);
+
 
         refDatabase.child(emailLogin).child("KPI").child(userEmail).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -665,13 +667,16 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                             builder.setMessage("Duyệt khách hàng này?");
                             builder.setPositiveButton("Duyệt", new DialogInterface.OnClickListener() {
                                 @Override
-                                public void onClick(DialogInterface dialog, int which) {
+                                public void onClick(final DialogInterface dialog, int which) {
+
+                                    refDatabase.child(emailLogin).child("ClientManBySup").child(userEmail).child("Tất cả").child(clientCode).setValue(client);
 
                                     refDatabase.child(emailLogin).child("Client").child(clientCode).setValue(client).addOnCompleteListener(new OnCompleteListener<Void>() {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
                                             refClient.setValue(null);
-
+                                            refDatabase.child(emailLogin).child("ClientManBySup").child(userEmail).child("Mới").child(clientCode).setValue(null);
+                                            dialog.dismiss();
                                         }
                                     });
                                 }
@@ -1135,7 +1140,7 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                             input.setHint("Nhập tên nhóm");
                             builder.setView(input);
 */
-                             Spinner spinGroup = dialogView.findViewById(R.id.spin_grouping);
+                             final Spinner spinGroup = dialogView.findViewById(R.id.spin_grouping);
                              final EditText edtGroupName = dialogView.findViewById(R.id.edt_grouping_input);
                              Button btnDone = dialogView.findViewById(R.id.btn_grouping_done);
                              final CheckBox chDelete = dialogView.findViewById(R.id.ch_grouping_delete);
@@ -1143,7 +1148,6 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                              final List<String> listGroup = new ArrayList<>();
 
                             listGroup.add("Chọn nhóm");
-                            Toast.makeText(getApplicationContext(), userEmail, Toast.LENGTH_LONG).show();
 
                             refDatabase.child(emailLogin).child("ClientManBySup").child(userEmail).child("Group").addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
@@ -1176,6 +1180,8 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                             spinGroup.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                                 @Override
                                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                                    ((TextView) spinGroup.getSelectedView()).setTextColor(getResources().getColor(android.R.color.black));
+
                                     if(position!=0){
                                         choosenGroup = (String) parent.getItemAtPosition(position);
                                     }
@@ -2337,5 +2343,9 @@ public class ClientListBySaleTeam extends AppCompatActivity {
     }
     }
 
-
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        startActivity(new Intent(this, MainActivity.class));
+    }
 }

@@ -18,6 +18,7 @@ public class OrderDetail {
     String clientPayment;
     String billCode;
     String timeStamp;
+    String orderPushKey;
 
 
     public OrderDetail() {
@@ -35,8 +36,12 @@ public class OrderDetail {
         this.timeStamp = timeStamp;
     }
 
+    public OrderDetail(String orderName, String orderPushKey) {
+        this.orderName = orderName;
+        this.orderPushKey = orderPushKey;
+    }
 
-    public OrderDetail(String clientCode, String orderName, String saleName, String paymentType, String dateDelivery, String employeeCode,String orderNote) {
+    public OrderDetail(String clientCode, String orderName, String saleName, String paymentType, String dateDelivery, String employeeCode, String orderNote) {
         this.clientCode = clientCode;
         this.orderName = orderName;
         this.saleName = saleName;
@@ -96,5 +101,9 @@ public class OrderDetail {
 
     public String getBillCode() {
         return billCode;
+    }
+
+    public String getOrderPushKey() {
+        return orderPushKey;
     }
 }

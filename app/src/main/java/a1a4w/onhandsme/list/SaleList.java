@@ -47,7 +47,6 @@ import org.joda.time.DateTime;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import a1a4w.onhandsme.MainActivity;
@@ -59,6 +58,7 @@ import a1a4w.onhandsme.model.Employee;
 import a1a4w.onhandsme.model.Group;
 import a1a4w.onhandsme.model.KPI;
 import a1a4w.onhandsme.utils.Constants;
+import a1a4w.onhandsme.utils.Utils;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 import static a1a4w.onhandsme.utils.Constants.buttonClick;
@@ -422,7 +422,19 @@ public class SaleList extends AppCompatActivity {
 
                     final Dialog dialog = builder.create();
                     dialog.show();
+                    final TextView tvName = dialogView.findViewById(R.id.tv_sale_detail_name);
 
+                    refCompany.child("Employee").child(saleEmail).child("employeeName").addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            tvName.setText(dataSnapshot.getValue().toString());
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
                     final BarChart barTime = (BarChart)dialogView.findViewById(R.id.bar_sale_detail);
 
                     final Button yearSale = dialogView.findViewById(R.id.btn_sale_detail_yearsale);
@@ -989,8 +1001,32 @@ public class SaleList extends AppCompatActivity {
                             final Dialog dialog = builder.create();
                             dialog.show();
 
+
+
                             final EditText edtSale = dialogView.findViewById(R.id.edt_set_kpi_sale);
                             final EditText edtNew = dialogView.findViewById(R.id.edt_set_kpi_new);
+                            final TextView tvThisMonthSaleKPI = dialogView.findViewById(R.id.tv_set_kpi_thismonth);
+
+                            refCompany.child("KPI").child(saleEmail).addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    Iterable<DataSnapshot> snapKPI = dataSnapshot.getChildren();
+                                    for(DataSnapshot itemKPI:snapKPI){
+                                        KPI kpi = itemKPI.getValue(KPI.class);
+                                        String kpiTime = kpi.getKpiTime();
+                                        String kpiType = kpi.getKpiType();
+
+                                        if(kpiTime.equals(year+"-"+month) && kpiType.equals("TotalSale")){
+                                            tvThisMonthSaleKPI.setText(Utils.convertNumber(kpi.getKpiTarget()));
+                                        }
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+
+                                }
+                            });
 
                             Spinner spinMonth = dialogView.findViewById(R.id.spin_set_kpi_month);
 
@@ -1026,8 +1062,8 @@ public class SaleList extends AppCompatActivity {
                                     }
                                     else{
 
-                                        final KPI updateClientKPI = new KPI("New Client",year+"-"+choosenMonth,newClient);
-                                        final KPI updateSaleKPI = new KPI("TotalSale",year+"-"+choosenMonth,sale);
+                                        final KPI updateClientKPI = new KPI(year+"-"+choosenMonth,"New ",newClient);
+                                        final KPI updateSaleKPI = new KPI(year+"-"+choosenMonth,"TotalSale",sale);
 
                                         refDatabase.child(emailLogin).child("KPI").addListenerForSingleValueEvent(new ValueEventListener() {
                                             @Override
@@ -1039,9 +1075,9 @@ public class SaleList extends AppCompatActivity {
                                                             Iterable<DataSnapshot> snapKPI = dataSnapshot.getChildren();
                                                             long itemCount = dataSnapshot.getChildrenCount();
 
-                                                            boolean updateSale = false;
-                                                            boolean updateClient = false;
+
                                                             int i = 0;
+                                                            boolean updateSale = false;
                                                             for (DataSnapshot itemKPI:snapKPI){
                                                                 i++;
                                                                 KPI kpi = itemKPI.getValue(KPI.class);
@@ -1049,8 +1085,7 @@ public class SaleList extends AppCompatActivity {
                                                                 String kpiTime = kpi.getKpiTime();
                                                                 DatabaseReference refKPI = itemKPI.getRef();
 
-
-
+                                                                //Toast.makeText(getApplicationContext(), refKPI+"", Toast.LENGTH_LONG).show();
 
                                                                 if(kpiTime.equals(year+"-"+choosenMonth) && kpiType.equals("TotalSale")){
                                                                     refKPI.setValue(updateSaleKPI);
@@ -1058,21 +1093,15 @@ public class SaleList extends AppCompatActivity {
 
                                                                 }
 
-                                                                if(kpiTime.equals(year+"-"+choosenMonth) && kpiType.equals("New Client")){
-                                                                    refKPI.setValue(updateClientKPI);
-                                                                    updateClient = true;
-                                                                }
-
                                                                 if(i == itemCount){
                                                                     if(!updateSale){
 
                                                                         refDatabase.child(emailLogin).child("KPI").child(saleEmail).push().setValue(updateSaleKPI);
+
                                                                     }
 
-                                                                    if(!updateClient){
-                                                                        refDatabase.child(emailLogin).child("KPI").child(saleEmail).push().setValue(updateClientKPI);
-                                                                    }
                                                                 }
+
                                                             }
                                                         }
 
@@ -1108,7 +1137,7 @@ public class SaleList extends AppCompatActivity {
 
                 }
 
-                private void supClick() {
+                private void supClick(){
                     int position = getAdapterPosition();
                     final Employee employee = adapterDetail.getItem(position);
                     final String saleEmail = employee.getEmployeeEmail();
@@ -1121,7 +1150,19 @@ public class SaleList extends AppCompatActivity {
 
                     Dialog dialog = builder.create();
                     dialog.show();
+                    final TextView tvName = dialogView.findViewById(R.id.tv_sale_detail_name);
 
+                    refCompany.child("Employee").child(saleEmail).child("employeeName").addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            tvName.setText(dataSnapshot.getValue().toString());
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
                     final BarChart barTime = (BarChart)dialogView.findViewById(R.id.bar_sale_detail);
 
                     final Button yearSale = dialogView.findViewById(R.id.btn_sale_detail_yearsale);
@@ -1676,6 +1717,28 @@ public class SaleList extends AppCompatActivity {
 
                             final EditText edtSale = dialogView.findViewById(R.id.edt_set_kpi_sale);
                             final EditText edtNew = dialogView.findViewById(R.id.edt_set_kpi_new);
+                            final TextView tvThisMonthSaleKPI = dialogView.findViewById(R.id.tv_set_kpi_thismonth);
+
+                            refCompany.child("KPI").child(saleEmail).addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    Iterable<DataSnapshot> snapKPI = dataSnapshot.getChildren();
+                                    for(DataSnapshot itemKPI:snapKPI){
+                                        KPI kpi = itemKPI.getValue(KPI.class);
+                                        String kpiTime = kpi.getKpiTime();
+                                        String kpiType = kpi.getKpiType();
+
+                                        if(kpiTime.equals(year+"-"+month) && kpiType.equals("TotalSale")){
+                                            tvThisMonthSaleKPI.setText(Utils.convertNumber(kpi.getKpiTarget()));
+                                        }
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+
+                                }
+                            });
 
                             Spinner spinMonth = dialogView.findViewById(R.id.spin_set_kpi_month);
 
@@ -1723,9 +1786,9 @@ public class SaleList extends AppCompatActivity {
                                                             Iterable<DataSnapshot> snapKPI = dataSnapshot.getChildren();
                                                             long itemCount = dataSnapshot.getChildrenCount();
 
-                                                            boolean updateSale = false;
-                                                            boolean updateClient = false;
+
                                                             int i = 0;
+                                                            boolean updateSale = false;
                                                             for (DataSnapshot itemKPI:snapKPI){
                                                                 i++;
                                                                 KPI kpi = itemKPI.getValue(KPI.class);
@@ -1741,20 +1804,15 @@ public class SaleList extends AppCompatActivity {
 
                                                                 }
 
-                                                                if(kpiTime.equals(year+"-"+choosenMonth) && kpiType.equals("New Client")){
-                                                                    refKPI.setValue(updateClientKPI);
-                                                                    updateClient = true;
-                                                                }
-
                                                                 if(i == itemCount){
-                                                                    if(updateSale){
+                                                                    if(!updateSale){
+
                                                                         refDatabase.child(emailLogin).child("KPI").child(saleEmail).push().setValue(updateSaleKPI);
+
                                                                     }
 
-                                                                    if(updateClient){
-                                                                        refDatabase.child(emailLogin).child("KPI").child(saleEmail).push().setValue(updateClientKPI);
-                                                                    }
                                                                 }
+
                                                             }
                                                         }
 
@@ -1829,5 +1887,9 @@ public class SaleList extends AppCompatActivity {
         }
     }
 
-
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        startActivity(new Intent(this, MainActivity.class));
+    }
 }

@@ -128,6 +128,14 @@ public class MainActivity extends AppCompatActivity {
                                                         startActivity(intent);
                                                         break;
 
+                                                    case "RSM":
+                                                        intent = new Intent(MainActivity.this, ActionList.class);
+                                                        intent.putExtra("EmailLogin",emailLogin);
+                                                        intent.putExtra("RSM",true);
+                                                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                                        startActivity(intent);
+                                                        break;
+
                                                     case "Admin":
                                                         intent = new Intent(MainActivity.this, ActionList.class);
                                                         intent.putExtra("EmailLogin",emailLogin);

@@ -9,8 +9,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.Description;
@@ -30,15 +30,18 @@ import com.google.firebase.database.ValueEventListener;
 
 import org.joda.time.DateTime;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import a1a4w.onhandsme.MainActivity;
 import a1a4w.onhandsme.R;
 import a1a4w.onhandsme.model.Client;
 import a1a4w.onhandsme.model.Employee;
+import a1a4w.onhandsme.model.KPI;
 import a1a4w.onhandsme.utils.Utils;
 
 import static a1a4w.onhandsme.utils.Constants.buttonClick;
@@ -47,7 +50,7 @@ import static a1a4w.onhandsme.utils.Constants.refDatabase;
 public class SaleReport extends AppCompatActivity {
 
     Button btnByEmployee,btnByProduct,btnByZone,btnMonth,btnYear,btnThisMonth,btnQuarter,btnTopSale,btnTopClient;
-    String emailLogin,userEmail;
+    String emailLogin,userEmail,month,year,exportClickName;
     DatabaseReference refCompany;
     String timeClicked, filterClicked;
     boolean updat= false,monthCountDone;
@@ -97,8 +100,8 @@ public class SaleReport extends AppCompatActivity {
         refCompany = refDatabase.child(emailLogin);
 
         DateTime dt = new DateTime();
-        final String month = dt.getMonthOfYear()+"";
-        final String year = dt.getYear()+"";
+        month = dt.getMonthOfYear()+"";
+        year = dt.getYear()+"";
 
         refCompany.child("SupByASM").child(userEmail).child("Tất cả").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -133,7 +136,7 @@ public class SaleReport extends AppCompatActivity {
                                         BarDataSet set = new BarDataSet(monthEntries,"Doanh số tháng này theo nhân viên");
 
                                         BarData data = new BarData(set);
-
+                                        data.setDrawValues(false);
                                         Description description = new Description();
                                         description.setText("");
 
@@ -190,7 +193,7 @@ public class SaleReport extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Iterable<DataSnapshot> snapSup = dataSnapshot.getChildren();
-                long supCount = dataSnapshot.getChildrenCount();
+                final long supCount = dataSnapshot.getChildrenCount();
 
                 final HashMap<String,Float> saleValues = new HashMap<>();
                 final List<BarEntry> monthEntries = new ArrayList<>();
@@ -201,20 +204,21 @@ public class SaleReport extends AppCompatActivity {
                     i++;
                     String supEmail = itemSup.getKey();
 
+                    final int finalI = i;
                     refCompany.child("SaleManBySup").child(supEmail).child("Tất cả").addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             Iterable<DataSnapshot> snapSale = dataSnapshot.getChildren();
-                            long saleCount = dataSnapshot.getChildrenCount();
+                            final long saleCount = dataSnapshot.getChildrenCount();
 
-                            int i = 0;
+                            int y = 0;
                             for(final DataSnapshot itemSale:snapSale){
-                                i++;
+                                y++;
                                 final String saleEmail = itemSale.getKey();
                                 final String saleName = itemSale.getValue(Employee.class).getEmployeeName();
                                 final String saleNameShort = saleName.substring(saleName.lastIndexOf(" ")+1);
 
-
+                                final int finalY = y;
                                 refCompany.child("TotalBySale").child(saleEmail).addListenerForSingleValueEvent(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -222,38 +226,41 @@ public class SaleReport extends AppCompatActivity {
                                             refCompany.child("TotalBySale").child(saleEmail).child(year+"-"+month).addListenerForSingleValueEvent(new ValueEventListener() {
                                                 @Override
                                                 public void onDataChange(DataSnapshot dataSnapshot) {
-                                                    saleValues.put(saleName,Float.parseFloat(dataSnapshot.getValue().toString()));
+                                                    saleValues.put(saleEmail,Float.parseFloat(dataSnapshot.getValue().toString()));
                                                     sortedSaleValue = Utils.sortDecreaseByValues(saleValues);
 
-                                                    Set setSort = sortedSaleValue.entrySet();
+                                                    if(finalI == supCount && finalY == saleCount){
 
-                                                    int i = 0;
-                                                    for (Object o : setSort) {
-                                                        i++;
+                                                        Set setSort = sortedSaleValue.entrySet();
 
-                                                        if (i<=10){
-                                                            Map.Entry me = (Map.Entry) o;
-                                                            String saleName = (String) me.getKey();
-                                                            xLabels.add(saleName);
-                                                            monthEntries.add(new BarEntry(i, (Float) me.getValue(),me.getKey()));
+                                                        int i = 0;
+                                                        for (Object o : setSort) {
+                                                            i++;
+
+                                                            if (i<=10){
+                                                                Map.Entry me = (Map.Entry) o;
+                                                                String saleName = (String) me.getKey();
+                                                                xLabels.add(saleName);
+                                                                monthEntries.add(new BarEntry(i, (Float) me.getValue(),me.getKey()));
+
+                                                            }
 
                                                         }
 
-                                                    }
+                                                        //Toast.makeText(getApplicationContext(), saleEmail, Toast.LENGTH_LONG).show();
+                                                        BarDataSet set = new BarDataSet(monthEntries,"Doanh số TOP tháng này theo nhân viên");
 
-                                                    BarDataSet set = new BarDataSet(monthEntries,"Doanh số TOP tháng này theo nhân viên");
+                                                        BarData data = new BarData(set);
+                                                        data.setDrawValues(false);
+                                                        Description description = new Description();
+                                                        description.setText("");
 
-                                                    BarData data = new BarData(set);
-
-                                                    Description description = new Description();
-                                                    description.setText("");
-
-                                                    barTop.getAxisRight().setDrawGridLines(false);
-                                                    barTop.getAxisLeft().setDrawGridLines(false);
-                                                    barTop.getXAxis().setDrawGridLines(false);
-                                                    barTop.getXAxis().setGranularityEnabled(true);
-                                                    //barTime.getXAxis().setDrawLabels(false);
-                                                    barTop.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
+                                                        barTop.getAxisRight().setDrawGridLines(false);
+                                                        barTop.getAxisLeft().setDrawGridLines(false);
+                                                        barTop.getXAxis().setDrawGridLines(false);
+                                                        barTop.getXAxis().setGranularityEnabled(true);
+                                                        //barTime.getXAxis().setDrawLabels(false);
+                                                        barTop.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
 /*
                                                             barTop.getXAxis().setValueFormatter(new IndexAxisValueFormatter() {
 
@@ -262,95 +269,35 @@ public class SaleReport extends AppCompatActivity {
                                                                     return xLabels.get((int) value);                                            }
                                                             });
 */
-                                                    barTop.setDescription(description);
-                                                    barTop.getAxisRight().setEnabled(false);
-                                                    barTop.setTouchEnabled(true);
-                                                    //barTime.setMarker(mv);
-                                                    barTop.setData(data);
-                                                    barTop.animateXY(1000,2000);
-                                                    barTop.setFitBars(true); // make the x-axis fit exactly all bars
-                                                    barTop.invalidate(); // refresh
+                                                        barTop.setDescription(description);
+                                                        barTop.getAxisRight().setEnabled(false);
+                                                        barTop.setTouchEnabled(true);
+                                                        //barTime.setMarker(mv);
+                                                        barTop.setData(data);
+                                                        barTop.animateXY(1000,2000);
+                                                        barTop.setFitBars(true); // make the x-axis fit exactly all bars
+                                                        barTop.invalidate(); // refresh
 
-                                                    barTop.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
-                                                        @Override
-                                                        public void onValueSelected(Entry e, Highlight h) {
-                                                            Toast.makeText(getApplicationContext(),e.getData().toString(),Toast.LENGTH_LONG).show();
-                                                        }
+                                                        barTop.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
+                                                            @Override
+                                                            public void onValueSelected(Entry e, Highlight h) {
+                                                                //Toast.makeText(getApplicationContext(),e.getData().toString(),Toast.LENGTH_LONG).show();
+                                                                getSaleDetail(e.getData().toString());
+                                                            }
 
-                                                        @Override
-                                                        public void onNothingSelected() {
+                                                            @Override
+                                                            public void onNothingSelected() {
 
-                                                        }
-                                                    });
+                                                            }
+                                                        });
 
-
+                                                    }
 
 
                                                 }
 
                                                 @Override
                                                 public void onCancelled(DatabaseError databaseError) {
-
-                                                }
-                                            });
-                                        }else{
-                                            sortedSaleValue = Utils.sortDecreaseByValues(saleValues);;
-                                            Set setSort = sortedSaleValue.entrySet();
-
-                                            int i = 0;
-                                            for (Object o : setSort) {
-                                                i++;
-
-                                                if (i<=10){
-                                                    Map.Entry me = (Map.Entry) o;
-                                                    String saleName = (String) me.getKey();
-                                                    xLabels.add(saleName);
-                                                    monthEntries.add(new BarEntry(i, (Float) me.getValue(),me.getKey()));
-
-                                                }
-
-                                            }
-
-
-
-                                            BarDataSet set = new BarDataSet(monthEntries,"Doanh số TOP tháng này theo nhân viên");
-
-                                            BarData data = new BarData(set);
-
-                                            Description description = new Description();
-                                            description.setText("");
-
-                                            barTop.getAxisRight().setDrawGridLines(false);
-                                            barTop.getAxisLeft().setDrawGridLines(false);
-                                            barTop.getXAxis().setDrawGridLines(false);
-                                            barTop.getXAxis().setGranularityEnabled(true);
-                                            //barTime.getXAxis().setDrawLabels(false);
-                                            barTop.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
-/*
-                                                            barTop.getXAxis().setValueFormatter(new IndexAxisValueFormatter() {
-
-                                                                @Override
-                                                                public String getFormattedValue(float value) {
-                                                                    return xLabels.get((int) value);                                            }
-                                                            });
-*/
-                                            barTop.setDescription(description);
-                                            barTop.getAxisRight().setEnabled(false);
-                                            barTop.setTouchEnabled(true);
-                                            //barTime.setMarker(mv);
-                                            barTop.setData(data);
-                                            barTop.animateXY(1000,2000);
-                                            barTop.setFitBars(true); // make the x-axis fit exactly all bars
-                                            barTop.invalidate(); // refresh
-
-                                            barTop.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
-                                                @Override
-                                                public void onValueSelected(Entry e, Highlight h) {
-                                                    Toast.makeText(getApplicationContext(),e.getData().toString(),Toast.LENGTH_LONG).show();
-                                                }
-
-                                                @Override
-                                                public void onNothingSelected() {
 
                                                 }
                                             });
@@ -1864,7 +1811,7 @@ public class SaleReport extends AppCompatActivity {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         Iterable<DataSnapshot> snapSup = dataSnapshot.getChildren();
-                        long supCount = dataSnapshot.getChildrenCount();
+                        final long supCount = dataSnapshot.getChildrenCount();
 
                         final HashMap<String,Float> saleValues = new HashMap<>();
                         final List<BarEntry> monthEntries = new ArrayList<>();
@@ -1875,25 +1822,32 @@ public class SaleReport extends AppCompatActivity {
                             i++;
                             String supEmail = itemSup.getKey();
 
+                            final int finalI = i;
                             refCompany.child("SaleManBySup").child(supEmail).child("Tất cả").addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     Iterable<DataSnapshot> snapSale = dataSnapshot.getChildren();
-                                    long saleCount = dataSnapshot.getChildrenCount();
+                                    final long saleCount = dataSnapshot.getChildrenCount();
 
-                                    int i = 0;
+                                    int y = 0;
                                     for(final DataSnapshot itemSale:snapSale){
-                                        i++;
+                                        y++;
                                         final String saleEmail = itemSale.getKey();
                                         final String saleName = itemSale.getValue(Employee.class).getEmployeeName();
                                         final String saleNameShort = saleName.substring(saleName.lastIndexOf(" ")+1);
 
+                                        final int finalY = y;
                                         refCompany.child("ClientManBySale").child(saleEmail).child("Tất cả").addListenerForSingleValueEvent(new ValueEventListener() {
                                             @Override
                                             public void onDataChange(DataSnapshot dataSnapshot) {
                                                 Iterable<DataSnapshot> snapClient = dataSnapshot.getChildren();
+                                                final long clientCount = dataSnapshot.getChildrenCount();
+
+                                                int z = 0;
                                                 for(DataSnapshot itemClient:snapClient){
+                                                    z++;
                                                     final String clientCode = itemClient.getKey();
+                                                    final int finalZ = z;
                                                     refCompany.child("TotalByClient").child(clientCode).addListenerForSingleValueEvent(new ValueEventListener() {
                                                         @Override
                                                         public void onDataChange(DataSnapshot dataSnapshot) {
@@ -1902,60 +1856,67 @@ public class SaleReport extends AppCompatActivity {
                                                                     @Override
                                                                     public void onDataChange(DataSnapshot dataSnapshot) {
                                                                         saleValues.put(clientCode,Float.parseFloat(dataSnapshot.getValue().toString()));
-                                                                        sortClientValue = Utils.sortDecreaseByValues(saleValues);
+                                                             sortClientValue = Utils.sortDecreaseByValues(saleValues);
 
-                                                                        Set setSort = sortClientValue.entrySet();
+                                                                        if(finalI == supCount && finalY == saleCount && finalZ == clientCount){
 
-                                                                        int i = 0;
-                                                                        for (Object o : setSort) {
-                                                                            i++;
+                                                                            Set setSort = sortClientValue.entrySet();
 
-                                                                            if (i<=10){
-                                                                                Map.Entry me = (Map.Entry) o;
-                                                                                String saleName = (String) me.getKey();
-                                                                                xLabels.add(saleName);
-                                                                                monthEntries.add(new BarEntry(i, (Float) me.getValue(),me.getKey()));
+                                                                            int i = 0;
+                                                                            for (Object o : setSort) {
+                                                                                i++;
+
+                                                                                if (i<=10){
+                                                                                    Map.Entry me = (Map.Entry) o;
+                                                                                    String saleName = (String) me.getKey();
+                                                                                    xLabels.add(saleName);
+                                                                                    monthEntries.add(new BarEntry(i, (Float) me.getValue(),me.getKey()));
+
+                                                                                }
 
                                                                             }
+
+                                                                            BarDataSet set = new BarDataSet(monthEntries,"Doanh số TOP tháng này theo khách hàng");
+
+                                                                            BarData data = new BarData(set);
+
+                                                                            data.setDrawValues(false);
+
+                                                                            Description description = new Description();
+                                                                            description.setText("");
+
+                                                                            barTop.getAxisRight().setDrawGridLines(false);
+                                                                            barTop.getAxisLeft().setDrawGridLines(false);
+                                                                            barTop.getXAxis().setDrawGridLines(false);
+                                                                            barTop.getXAxis().setGranularityEnabled(true);
+
+                                                                            //barTop.getXAxis().setDrawLabels(false);
+                                                                            barTop.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
+
+                                                                            barTop.setDescription(description);
+                                                                            barTop.getAxisRight().setEnabled(false);
+                                                                            barTop.setTouchEnabled(true);
+                                                                            //barTime.setMarker(mv);
+                                                                            barTop.setData(data);
+                                                                            barTop.animateXY(1000,2000);
+                                                                            barTop.setFitBars(true); // make the x-axis fit exactly all bars
+                                                                            barTop.invalidate(); // refresh
+
+                                                                            barTop.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
+                                                                                @Override
+                                                                                public void onValueSelected(Entry e, Highlight h) {
+                                                                                    //Toast.makeText(getApplicationContext(),e.getData().toString(),Toast.LENGTH_LONG).show();
+
+                                                                                    getClientDetail(e.getData().toString());
+                                                                                }
+
+                                                                                @Override
+                                                                                public void onNothingSelected() {
+
+                                                                                }
+                                                                            });
 
                                                                         }
-
-
-                                                                        BarDataSet set = new BarDataSet(monthEntries,"Doanh số TOP tháng này theo khách hàng");
-
-                                                                        BarData data = new BarData(set);
-
-                                                                        Description description = new Description();
-                                                                        description.setText("");
-
-                                                                        barTop.getAxisRight().setDrawGridLines(false);
-                                                                        barTop.getAxisLeft().setDrawGridLines(false);
-                                                                        barTop.getXAxis().setDrawGridLines(false);
-                                                                        barTop.getXAxis().setGranularityEnabled(true);
-                                                                        //barTime.getXAxis().setDrawLabels(false);
-                                                                        barTop.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
-
-                                                                        barTop.setDescription(description);
-                                                                        barTop.getAxisRight().setEnabled(false);
-                                                                        barTop.setTouchEnabled(true);
-                                                                        //barTime.setMarker(mv);
-                                                                        barTop.setData(data);
-                                                                        barTop.animateXY(1000,2000);
-                                                                        barTop.setFitBars(true); // make the x-axis fit exactly all bars
-                                                                        barTop.invalidate(); // refresh
-
-                                                                        barTop.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
-                                                                            @Override
-                                                                            public void onValueSelected(Entry e, Highlight h) {
-
-                                                                                getClientDetail(e.getData().toString());
-                                                                            }
-
-                                                                            @Override
-                                                                            public void onNothingSelected() {
-
-                                                                            }
-                                                                        });
 
                                                                     }
 
@@ -1964,65 +1925,6 @@ public class SaleReport extends AppCompatActivity {
 
                                                                     }
                                                                 });
-                                                            }else{
-                                                                sortClientValue = Utils.sortDecreaseByValues(saleValues);
-                                                                Toast.makeText(getApplicationContext(), clientCode, Toast.LENGTH_LONG).show();
-
-                                                                Set setSort = sortClientValue.entrySet();
-
-                                                                int i = 0;
-                                                                for (Object o : setSort) {
-                                                                    i++;
-
-                                                                    if (i<=10){
-                                                                        Map.Entry me = (Map.Entry) o;
-                                                                        String saleName = (String) me.getKey();
-                                                                        xLabels.add(saleName);
-                                                                        monthEntries.add(new BarEntry(i, (Float) me.getValue(),me.getKey()));
-
-                                                                    }
-
-                                                                }
-
-
-                                                                Toast.makeText(getApplicationContext(), sortClientValue.size()+"", Toast.LENGTH_LONG).show();
-
-                                                                BarDataSet set = new BarDataSet(monthEntries,"Doanh số TOP tháng này theo khách hàng");
-
-                                                                BarData data = new BarData(set);
-
-                                                                Description description = new Description();
-                                                                description.setText("");
-
-                                                                barTop.getAxisRight().setDrawGridLines(false);
-                                                                barTop.getAxisLeft().setDrawGridLines(false);
-                                                                barTop.getXAxis().setDrawGridLines(false);
-                                                                barTop.getXAxis().setGranularityEnabled(true);
-                                                                //barTime.getXAxis().setDrawLabels(false);
-                                                                barTop.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
-
-                                                                barTop.setDescription(description);
-                                                                barTop.getAxisRight().setEnabled(false);
-                                                                barTop.setTouchEnabled(true);
-                                                                //barTime.setMarker(mv);
-                                                                barTop.setData(data);
-                                                                barTop.animateXY(1000,2000);
-                                                                barTop.setFitBars(true); // make the x-axis fit exactly all bars
-                                                                barTop.invalidate(); // refresh
-
-                                                                barTop.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
-                                                                    @Override
-                                                                    public void onValueSelected(Entry e, Highlight h) {
-
-                                                                        getClientDetail(e.getData().toString());
-                                                                    }
-
-                                                                    @Override
-                                                                    public void onNothingSelected() {
-
-                                                                    }
-                                                                });
-
                                                             }
                                                         }
 
@@ -2074,7 +1976,7 @@ public class SaleReport extends AppCompatActivity {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         Iterable<DataSnapshot> snapSup = dataSnapshot.getChildren();
-                        long supCount = dataSnapshot.getChildrenCount();
+                        final long supCount = dataSnapshot.getChildrenCount();
 
                         final HashMap<String,Float> saleValues = new HashMap<>();
                         final List<BarEntry> monthEntries = new ArrayList<>();
@@ -2085,20 +1987,21 @@ public class SaleReport extends AppCompatActivity {
                             i++;
                             String supEmail = itemSup.getKey();
 
+                            final int finalI = i;
                             refCompany.child("SaleManBySup").child(supEmail).child("Tất cả").addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     Iterable<DataSnapshot> snapSale = dataSnapshot.getChildren();
-                                    long saleCount = dataSnapshot.getChildrenCount();
+                                    final long saleCount = dataSnapshot.getChildrenCount();
 
-                                    int i = 0;
+                                    int y = 0;
                                     for(final DataSnapshot itemSale:snapSale){
-                                        i++;
+                                        y++;
                                         final String saleEmail = itemSale.getKey();
                                         final String saleName = itemSale.getValue(Employee.class).getEmployeeName();
                                         final String saleNameShort = saleName.substring(saleName.lastIndexOf(" ")+1);
 
-
+                                        final int finalY = y;
                                         refCompany.child("TotalBySale").child(saleEmail).addListenerForSingleValueEvent(new ValueEventListener() {
                                             @Override
                                             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -2106,38 +2009,41 @@ public class SaleReport extends AppCompatActivity {
                                                     refCompany.child("TotalBySale").child(saleEmail).child(year+"-"+month).addListenerForSingleValueEvent(new ValueEventListener() {
                                                         @Override
                                                         public void onDataChange(DataSnapshot dataSnapshot) {
-                                                            saleValues.put(saleName,Float.parseFloat(dataSnapshot.getValue().toString()));
+                                                            saleValues.put(saleEmail,Float.parseFloat(dataSnapshot.getValue().toString()));
                                                             sortedSaleValue = Utils.sortDecreaseByValues(saleValues);
 
-                                                            Set setSort = sortedSaleValue.entrySet();
+                                                            if(finalI == supCount && finalY == saleCount){
 
-                                                            int i = 0;
-                                                            for (Object o : setSort) {
-                                                                i++;
+                                                                Set setSort = sortedSaleValue.entrySet();
 
-                                                                if (i<=10){
-                                                                    Map.Entry me = (Map.Entry) o;
-                                                                    String saleName = (String) me.getKey();
-                                                                    xLabels.add(saleName);
-                                                                    monthEntries.add(new BarEntry(i, (Float) me.getValue(),me.getKey()));
+                                                                int i = 0;
+                                                                for (Object o : setSort) {
+                                                                    i++;
+
+                                                                    if (i<=10){
+                                                                        Map.Entry me = (Map.Entry) o;
+                                                                        String saleName = (String) me.getKey();
+                                                                        xLabels.add(saleName);
+                                                                        monthEntries.add(new BarEntry(i, (Float) me.getValue(),me.getKey()));
+
+                                                                    }
 
                                                                 }
 
-                                                            }
+                                                                //Toast.makeText(getApplicationContext(), saleEmail, Toast.LENGTH_LONG).show();
+                                                                BarDataSet set = new BarDataSet(monthEntries,"Doanh số TOP tháng này theo nhân viên");
 
-                                                            BarDataSet set = new BarDataSet(monthEntries,"Doanh số TOP tháng này theo nhân viên");
+                                                                BarData data = new BarData(set);
+                                                                data.setDrawValues(false);
+                                                                Description description = new Description();
+                                                                description.setText("");
 
-                                                            BarData data = new BarData(set);
-
-                                                            Description description = new Description();
-                                                            description.setText("");
-
-                                                            barTop.getAxisRight().setDrawGridLines(false);
-                                                            barTop.getAxisLeft().setDrawGridLines(false);
-                                                            barTop.getXAxis().setDrawGridLines(false);
-                                                            barTop.getXAxis().setGranularityEnabled(true);
-                                                            //barTime.getXAxis().setDrawLabels(false);
-                                                            barTop.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
+                                                                barTop.getAxisRight().setDrawGridLines(false);
+                                                                barTop.getAxisLeft().setDrawGridLines(false);
+                                                                barTop.getXAxis().setDrawGridLines(false);
+                                                                barTop.getXAxis().setGranularityEnabled(true);
+                                                                //barTime.getXAxis().setDrawLabels(false);
+                                                                barTop.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
 /*
                                                             barTop.getXAxis().setValueFormatter(new IndexAxisValueFormatter() {
 
@@ -2146,95 +2052,35 @@ public class SaleReport extends AppCompatActivity {
                                                                     return xLabels.get((int) value);                                            }
                                                             });
 */
-                                                            barTop.setDescription(description);
-                                                            barTop.getAxisRight().setEnabled(false);
-                                                            barTop.setTouchEnabled(true);
-                                                            //barTime.setMarker(mv);
-                                                            barTop.setData(data);
-                                                            barTop.animateXY(1000,2000);
-                                                            barTop.setFitBars(true); // make the x-axis fit exactly all bars
-                                                            barTop.invalidate(); // refresh
+                                                                barTop.setDescription(description);
+                                                                barTop.getAxisRight().setEnabled(false);
+                                                                barTop.setTouchEnabled(true);
+                                                                //barTime.setMarker(mv);
+                                                                barTop.setData(data);
+                                                                barTop.animateXY(1000,2000);
+                                                                barTop.setFitBars(true); // make the x-axis fit exactly all bars
+                                                                barTop.invalidate(); // refresh
 
-                                                            barTop.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
-                                                                @Override
-                                                                public void onValueSelected(Entry e, Highlight h) {
-                                                                    Toast.makeText(getApplicationContext(),e.getData().toString(),Toast.LENGTH_LONG).show();
-                                                                }
+                                                                barTop.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
+                                                                    @Override
+                                                                    public void onValueSelected(Entry e, Highlight h) {
+                                                                        //Toast.makeText(getApplicationContext(),e.getData().toString(),Toast.LENGTH_LONG).show();
+                                                                        getSaleDetail(e.getData().toString());
+                                                                    }
 
-                                                                @Override
-                                                                public void onNothingSelected() {
+                                                                    @Override
+                                                                    public void onNothingSelected() {
 
-                                                                }
-                                                            });
+                                                                    }
+                                                                });
 
-
+                                                            }
 
 
                                                         }
 
                                                         @Override
                                                         public void onCancelled(DatabaseError databaseError) {
-
-                                                        }
-                                                    });
-                                                }else{
-                                                    sortedSaleValue = Utils.sortDecreaseByValues(saleValues);;
-                                                    Set setSort = sortedSaleValue.entrySet();
-
-                                                    int i = 0;
-                                                    for (Object o : setSort) {
-                                                        i++;
-
-                                                        if (i<=10){
-                                                            Map.Entry me = (Map.Entry) o;
-                                                            String saleName = (String) me.getKey();
-                                                            xLabels.add(saleName);
-                                                            monthEntries.add(new BarEntry(i, (Float) me.getValue(),me.getKey()));
-
-                                                        }
-
-                                                    }
-
-
-
-                                                    BarDataSet set = new BarDataSet(monthEntries,"Doanh số TOP tháng này theo nhân viên");
-
-                                                    BarData data = new BarData(set);
-
-                                                    Description description = new Description();
-                                                    description.setText("");
-
-                                                    barTop.getAxisRight().setDrawGridLines(false);
-                                                    barTop.getAxisLeft().setDrawGridLines(false);
-                                                    barTop.getXAxis().setDrawGridLines(false);
-                                                    barTop.getXAxis().setGranularityEnabled(true);
-                                                    //barTime.getXAxis().setDrawLabels(false);
-                                                    barTop.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
-/*
-                                                            barTop.getXAxis().setValueFormatter(new IndexAxisValueFormatter() {
-
-                                                                @Override
-                                                                public String getFormattedValue(float value) {
-                                                                    return xLabels.get((int) value);                                            }
-                                                            });
-*/
-                                                    barTop.setDescription(description);
-                                                    barTop.getAxisRight().setEnabled(false);
-                                                    barTop.setTouchEnabled(true);
-                                                    //barTime.setMarker(mv);
-                                                    barTop.setData(data);
-                                                    barTop.animateXY(1000,2000);
-                                                    barTop.setFitBars(true); // make the x-axis fit exactly all bars
-                                                    barTop.invalidate(); // refresh
-
-                                                    barTop.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
-                                                        @Override
-                                                        public void onValueSelected(Entry e, Highlight h) {
-                                                            Toast.makeText(getApplicationContext(),e.getData().toString(),Toast.LENGTH_LONG).show();
-                                                        }
-
-                                                        @Override
-                                                        public void onNothingSelected() {
 
                                                         }
                                                     });
@@ -2267,6 +2113,415 @@ public class SaleReport extends AppCompatActivity {
 
             }
         });
+
+    }
+
+    private void getSaleDetail(final String saleEmail) {
+        android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(SaleReport.this);
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_saleman_detail,null);
+        builder.setView(dialogView);
+
+        final Dialog dialog = builder.create();
+        dialog.show();
+
+        final TextView tvName = dialogView.findViewById(R.id.tv_sale_detail_name);
+
+        refCompany.child("Employee").child(saleEmail).child("employeeName").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                tvName.setText(dataSnapshot.getValue().toString());
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+        final BarChart barTime = (BarChart)dialogView.findViewById(R.id.bar_sale_detail);
+
+        final Button yearSale = dialogView.findViewById(R.id.btn_sale_detail_yearsale);
+        final Button monthSale = dialogView.findViewById(R.id.btn_sale_month_sale);
+        final Button thisMonthSale = dialogView.findViewById(R.id.btn_sale_thismonth);
+
+
+        yearSale.setBackground(getResources().getDrawable(R.drawable.border_drug_cat));
+        monthSale.setBackground(getResources().getDrawable(R.drawable.border_drug_cat));
+        thisMonthSale.setBackground(getResources().getDrawable(R.drawable.border_drug_cat_accent));
+
+        yearSale.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                v.startAnimation(buttonClick);
+
+                exportClickName = "YearSale";
+
+                yearSale.setBackground(getResources().getDrawable(R.drawable.border_drug_cat_accent));
+                monthSale.setBackground(getResources().getDrawable(R.drawable.border_drug_cat));
+                thisMonthSale.setBackground(getResources().getDrawable(R.drawable.border_drug_cat));
+
+                final List<BarEntry> yearEntries = new ArrayList<>();
+                final ArrayList<String> barEntryLabels = new ArrayList<>();;
+
+                refDatabase.child(emailLogin).child("TotalBySale").child(saleEmail).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        Iterable<DataSnapshot> snapTimeSale = dataSnapshot.getChildren();
+
+
+                        for(DataSnapshot itemTime:snapTimeSale){
+
+                            String timeKey = itemTime.getKey();
+
+                            String value = itemTime.getValue().toString();
+
+                            if(timeKey.length()<5){
+
+                                barEntryLabels.add(timeKey);
+                                yearEntries.add(new BarEntry(Integer.parseInt(timeKey), Float.parseFloat(value)));
+
+                                BarDataSet set = new BarDataSet(yearEntries,"Doanh số theo năm");
+
+                                BarData data = new BarData(set);
+
+                                Description description = new Description();
+                                description.setText("");
+
+                                barTime.getAxisRight().setDrawGridLines(false);
+                                barTime.getAxisLeft().setDrawGridLines(false);
+                                barTime.getXAxis().setDrawGridLines(false);
+                                barTime.getXAxis().setGranularityEnabled(true);
+                                //barTime.getXAxis().setDrawLabels(false);
+                                barTime.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
+
+                                //barTime.getXAxis().setValueFormatter(new IndexAxisValueFormatter(barEntryLabels));
+                                barTime.setDescription(description);
+                                barTime.getAxisRight().setEnabled(false);
+                                barTime.setTouchEnabled(true);
+                                //barTime.setMarker(mv);
+                                barTime.setData(data);
+                                barTime.animateXY(1000,2000);
+                                barTime.setFitBars(true); // make the x-axis fit exactly all bars
+                                barTime.invalidate(); // refresh
+
+                            }
+
+
+                        }
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+            }
+        });
+
+        monthSale.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                v.startAnimation(buttonClick);
+                exportClickName = "MonthSale";
+                yearSale.setBackground(getResources().getDrawable(R.drawable.border_drug_cat));
+                monthSale.setBackground(getResources().getDrawable(R.drawable.border_drug_cat_accent));
+                thisMonthSale.setBackground(getResources().getDrawable(R.drawable.border_drug_cat));
+
+                final List<BarEntry> monthEntries = new ArrayList<>();
+
+                refDatabase.child(emailLogin).child("TotalBySale").child(saleEmail).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        Iterable<DataSnapshot> snapTimeSale = dataSnapshot.getChildren();
+
+
+                        for(DataSnapshot itemTime:snapTimeSale){
+
+                            String timeKey = itemTime.getKey();
+
+                            String value = itemTime.getValue().toString();
+
+                            if(timeKey.length()>5 && timeKey.length()<8){
+
+
+                                //barEntryLabels.add(timeKey.substring(5));
+
+                                monthEntries.add(new BarEntry(Integer.parseInt(timeKey.substring(5)), Float.parseFloat(value)));
+
+                                BarDataSet set = new BarDataSet(monthEntries,"Doanh số theo tháng");
+
+                                BarData data = new BarData(set);
+
+                                Description description = new Description();
+                                description.setText("");
+
+                                barTime.getAxisRight().setDrawGridLines(false);
+                                barTime.getAxisLeft().setDrawGridLines(false);
+                                barTime.getXAxis().setDrawGridLines(false);
+                                barTime.getXAxis().setGranularityEnabled(true);
+                                //barTime.getXAxis().setDrawLabels(false);
+                                barTime.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
+
+                                //barTime.getXAxis().setValueFormatter(new IndexAxisValueFormatter(barEntryLabels));
+                                barTime.setDescription(description);
+                                barTime.getAxisRight().setEnabled(false);
+                                barTime.setTouchEnabled(true);
+                                //barTime.setMarker(mv);
+                                barTime.setData(data);
+                                barTime.animateXY(1000,2000);
+                                barTime.setFitBars(true); // make the x-axis fit exactly all bars
+                                barTime.invalidate(); // refresh
+
+                            }
+
+
+                        }
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+            }
+        });
+
+        thisMonthSale.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                v.startAnimation(buttonClick);
+                exportClickName = "DaySale";
+                yearSale.setBackground(getResources().getDrawable(R.drawable.border_drug_cat));
+                monthSale.setBackground(getResources().getDrawable(R.drawable.border_drug_cat));
+                thisMonthSale.setBackground(getResources().getDrawable(R.drawable.border_drug_cat_accent));
+                DateTime dt = new DateTime();
+                final String month = dt.getMonthOfYear()+"";
+                final String year = dt.getYear()+"";
+
+                final List<BarEntry> monthEntries = new ArrayList<>();
+
+                refDatabase.child(emailLogin).child("TotalBySale").child(saleEmail).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        Iterable<DataSnapshot> snapTimeSale = dataSnapshot.getChildren();
+
+
+                        for(DataSnapshot itemTime:snapTimeSale){
+
+                            String timeKey = itemTime.getKey();
+
+                            String value = itemTime.getValue().toString();
+
+
+                            if(timeKey.length()>7 ){
+
+                                if(timeKey.contains(year+"-"+month)){
+
+                                    monthEntries.add(new BarEntry(Integer.parseInt(timeKey.substring(timeKey.lastIndexOf("-")+1)), Float.parseFloat(value)));
+
+                                    BarDataSet set = new BarDataSet(monthEntries,"Doanh số theo ngày");
+
+                                    BarData data = new BarData(set);
+
+                                    Description description = new Description();
+                                    description.setText("");
+
+                                    barTime.getAxisRight().setDrawGridLines(false);
+                                    barTime.getAxisLeft().setDrawGridLines(false);
+                                    barTime.getXAxis().setDrawGridLines(false);
+                                    barTime.getXAxis().setGranularityEnabled(true);
+                                    //barTime.getXAxis().setDrawLabels(false);
+                                    barTime.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
+
+                                    //barTime.getXAxis().setValueFormatter(new IndexAxisValueFormatter(barEntryLabels));
+                                    barTime.setDescription(description);
+                                    barTime.getAxisRight().setEnabled(false);
+                                    barTime.setTouchEnabled(true);
+                                    //barTime.setMarker(mv);
+                                    barTime.setData(data);
+                                    barTime.animateXY(1000,2000);
+                                    barTime.setFitBars(true); // make the x-axis fit exactly all bars
+                                    barTime.invalidate(); // refresh
+
+                                }
+                                //barEntryLabels.add(timeKey.substring(5));
+
+                            }
+
+
+                        }
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+            }
+        });
+
+        final List<BarEntry> monthEntries = new ArrayList<>();
+
+        refDatabase.child(emailLogin).child("TotalBySale").child(saleEmail).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Iterable<DataSnapshot> snapTimeSale = dataSnapshot.getChildren();
+
+
+                for(DataSnapshot itemTime:snapTimeSale){
+
+                    String timeKey = itemTime.getKey();
+
+                    String value = itemTime.getValue().toString();
+
+                    if(timeKey.length()>7 ){
+
+                        if(timeKey.contains(year+"-"+month)){
+
+                            monthEntries.add(new BarEntry(Integer.parseInt(timeKey.substring(timeKey.lastIndexOf("-")+1)), Float.parseFloat(value)));
+
+                            BarDataSet set = new BarDataSet(monthEntries,"Doanh số theo tháng");
+
+                            BarData data = new BarData(set);
+
+                            Description description = new Description();
+                            description.setText("");
+
+                            barTime.getAxisRight().setDrawGridLines(false);
+                            barTime.getAxisLeft().setDrawGridLines(false);
+                            barTime.getXAxis().setDrawGridLines(false);
+                            barTime.getXAxis().setGranularityEnabled(true);
+                            //barTime.getXAxis().setDrawLabels(false);
+                            barTime.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
+
+                            //barTime.getXAxis().setValueFormatter(new IndexAxisValueFormatter(barEntryLabels));
+                            barTime.setDescription(description);
+                            barTime.getAxisRight().setEnabled(false);
+                            barTime.setTouchEnabled(true);
+                            //barTime.setMarker(mv);
+                            barTime.setData(data);
+                            barTime.animateXY(1000,2000);
+                            barTime.setFitBars(true); // make the x-axis fit exactly all bars
+                            barTime.invalidate(); // refresh
+
+                        }
+                        //barEntryLabels.add(timeKey.substring(5));
+
+                    }
+
+
+                }
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+        final ProgressBar barKPISale = dialogView.findViewById(R.id.bar_dialog_saleman_kpi_sale);
+        final ProgressBar barKPINewClient = dialogView.findViewById(R.id.bar_dialog_saleman_kpi_new);
+
+        final TextView tvKPISale = dialogView.findViewById(R.id.tv_dialog_saleman_kpi_sale);
+        final TextView tvKPINew = dialogView.findViewById(R.id.tv_dialog_saleman_kpi_new);
+
+        refDatabase.child(emailLogin).child("KPI").child(saleEmail).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Iterable<DataSnapshot> snapKPI = dataSnapshot.getChildren();
+                for (DataSnapshot itemKPI : snapKPI) {
+                    KPI kpi = itemKPI.getValue(KPI.class);
+                    String kpiTime = kpi.getKpiTime();
+                    String kpiType = kpi.getKpiType();
+
+                    final NumberFormat numberFormat = NumberFormat.getPercentInstance();
+                    numberFormat.setMaximumFractionDigits(0);
+
+                    if(kpiTime.equals(year+"-"+month) && kpiType.equals("TotalSale")){
+
+                        final int kpiTarget = Integer.parseInt(kpi.getKpiTarget());
+
+                        refDatabase.child(emailLogin).child("TotalBySale").child(saleEmail).child(year+"-"+month).addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                float kpiReach = Float.parseFloat(dataSnapshot.getValue().toString());
+                                float percentReach = kpiReach/kpiTarget;
+
+                                //Toast.makeText(getApplicationContext(), percentReach+"", Toast.LENGTH_LONG).show();
+
+                                String formattedString = numberFormat.format(percentReach);
+                                tvKPISale.setText(formattedString);
+
+                                barKPISale.setMax(kpiTarget);
+                                //barKPISale.setMin(0);
+                                barKPISale.setProgress((int) kpiReach);
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+
+                    }
+
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+        ImageView phone = dialogView.findViewById(R.id.iv_sale_detail_phone);
+        ImageView grouping = dialogView.findViewById(R.id.iv_sale_detail_grouping);
+        ImageView ivRoute = dialogView.findViewById(R.id.iv_sale_detail_route);
+        ImageView ivKPI = dialogView.findViewById(R.id.iv_sale_detail_kpi);
+        //ImageView ivTeam = dialogView.findViewById(R.id.iv_sale_detail_team);
+        //ivTeam.setVisibility(View.VISIBLE);
+
+
+        ivRoute.setVisibility(View.GONE);
+        grouping.setVisibility(View.GONE);
+        ivKPI.setVisibility(View.GONE);
+
+        ImageView ivClient = dialogView.findViewById(R.id.iv_saleman_detail_client);
+        ivClient.setVisibility(View.GONE);
+
+        ImageView ivSupList = dialogView.findViewById(R.id.iv_saleman_detail_employee_list);
+        ivSupList.setVisibility(View.GONE);
+
+
+
+        phone.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                v.startAnimation(buttonClick);
+
+                refDatabase.child(emailLogin).child("Employee").child(saleEmail).child("employeePhone").addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        String phone = dataSnapshot.getValue().toString();
+                        Intent intent = new Intent(Intent.ACTION_DIAL);
+                        intent.setData(Uri.parse("tel:" + phone));
+                        startActivity(intent);
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+            }
+        });
+
 
     }
 
@@ -2416,8 +2671,6 @@ public class SaleReport extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 v.startAnimation(buttonClick);
-
-
 
                 yearSale.setBackground(getResources().getDrawable(R.drawable.border_drug_cat_accent));
                 monthSale.setBackground(getResources().getDrawable(R.drawable.border_drug_cat));
@@ -2627,6 +2880,10 @@ public class SaleReport extends AppCompatActivity {
         });
     }
 
-
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        startActivity(new Intent(this, MainActivity.class));
+    }
 }
 

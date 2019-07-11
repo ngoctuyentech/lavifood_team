@@ -8,7 +8,7 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/btn_preview_send_approved"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout14"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -95,7 +95,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:layout_marginBottom="8dp"
-                    android:text="Thanh toán thực"
+                    android:text="Thanh toán thực (trừ chương trình)"
                     android:textSize="12sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -247,6 +247,7 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="16dp"
                 android:background="@color/colorPrimary"
+                android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/constraintLayout7"
                 app:srcCompat="@drawable/ic_mode_edit_black_24dp"
@@ -363,7 +364,7 @@
                     android:text="Địa chỉ"
                     android:textSize="12sp"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/tv_gh" />
+                    app:layout_constraintTop_toBottomOf="@+id/textView237" />
 
                 <TextView
                     android:id="@+id/tv_preview_order_address"
@@ -404,6 +405,26 @@
                     app:layout_constraintTop_toBottomOf="@+id/textView195"
                     app:layout_constraintVertical_bias="0.0" />
 
+                <TextView
+                    android:id="@+id/textView237"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="Nhân viên"
+                    android:textSize="12sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_gh" />
+
+                <TextView
+                    android:id="@+id/tv_preview_sale_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:text="Nguyễn V B"
+                    android:textSize="12sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_preview_delivery_date" />
+
             </android.support.constraint.ConstraintLayout>
 
             <TextView
@@ -425,18 +446,32 @@
     </ScrollView>
 
 
-
-
-    <Button
-        android:id="@+id/btn_preview_send_approved"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="@color/colorPrimary"
-        android:text="Gửi đơn hàng"
-        android:textColor="@android:color/white"
-        android:visibility="visible"
+    <LinearLayout
+        android:id="@+id/linearLayout14"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent">
+
+        <Button
+            android:id="@+id/btn_preview_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@color/colorAccent"
+            android:text="Hủy"
+            android:textColor="@android:color/white" />
+
+        <Button
+            android:id="@+id/btn_preview_send_approved"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@color/colorPrimary"
+            android:text="Gửi"
+            android:textColor="@android:color/white" />
+    </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

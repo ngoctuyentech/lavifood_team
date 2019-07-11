@@ -232,21 +232,11 @@ public class CreateAccount extends AppCompatActivity {
                                                 }
                                             });
 
+                                            refDatabase.child(emailLogin).child("ClientManBySale").child(email.replace(".",",")).child("Group").push().child("groupName").setValue("Tất cả");
+
                                             refDatabase.child(emailLogin).child("SaleManBySup").child(managerEmail.replace(".",",")).child("Tất cả").child(email.replace(".",",")).setValue(addEmployee);
+                                            refDatabase.child(emailLogin).child("SaleManBySup").child(managerEmail.replace(".",",")).child("Group").push().child("groupName").setValue("Tất cả");
 
-                                            refDatabase.child(emailLogin).child("SaleManBySup").child(managerEmail.replace(".",",")).addListenerForSingleValueEvent(new ValueEventListener() {
-                                                @Override
-                                                public void onDataChange(DataSnapshot dataSnapshot) {
-                                                    if(!dataSnapshot.hasChild("Group")){
-                                                        refDatabase.child(emailLogin).child("SaleManBySup").child(managerEmail.replace(".",",")).child("Group").push().child("groupName").setValue("Tất cả");
-                                                    }
-                                                }
-
-                                                @Override
-                                                public void onCancelled(DatabaseError databaseError) {
-
-                                                }
-                                            });
 
                                             //FirebaseAuth.getInstance().signOut();
                                         }
@@ -272,6 +262,8 @@ public class CreateAccount extends AppCompatActivity {
                                             refDatabase.child("1-System/Login").child(email.replace(".",",")).setValue(emailLogin);
                                             refDatabase.child("1-System/Role").child(emailLogin).child(email.replace(".",",")).setValue("Supervisor");
                                             refDatabase.child(emailLogin).child("SaleManBySup").child(email.replace(".",",")).child("Group").push().setValue("Tất cả");
+                                            refDatabase.child(emailLogin).child("SupByASM").child(managerEmail.replace(".",",")).child("Group").push().child("groupName").setValue("Tất cả");
+                                            refDatabase.child(emailLogin).child("ClientManBySup").child(email.replace(".",",")).child("Group").push().child("groupName").setValue("Tất cả");
 
                                             refDatabase.child(emailLogin).child("SupByASM").child(managerEmail.replace(".",",")).child("Tất cả").child(email.replace(".",",")).setValue(addEmployee);
                                             refDatabase.child(emailLogin).child("Employee").child(email.replace(".",",")).setValue(addEmployee).addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -282,19 +274,7 @@ public class CreateAccount extends AppCompatActivity {
 
                                                 }
                                             });
-                                            refDatabase.child(emailLogin).child("SupByASM").child(managerEmail.replace(".",",")).addListenerForSingleValueEvent(new ValueEventListener() {
-                                                @Override
-                                                public void onDataChange(DataSnapshot dataSnapshot) {
-                                                    if(!dataSnapshot.hasChild("Group")){
-                                                        refDatabase.child(emailLogin).child("SupByASM").child(managerEmail.replace(".",",")).child("Group").push().child("groupName").setValue("Tất cả");
-                                                    }
-                                                }
 
-                                                @Override
-                                                public void onCancelled(DatabaseError databaseError) {
-
-                                                }
-                                            });
                                             Toast.makeText(getApplicationContext(), "Đã tạo TK thành công", Toast.LENGTH_LONG).show();
 //FirebaseAuth.getInstance().signOut();
                                         }
@@ -331,19 +311,7 @@ public class CreateAccount extends AppCompatActivity {
                                             });
                                             refDatabase.child(emailLogin).child("ASMByRSM").child(managerEmail.replace(".",",")).child("Tất cả").child(email.replace(".",",")).setValue(addEmployee);
                                             refDatabase.child(emailLogin).child("Employee").child(email.replace(".",",")).setValue(addEmployee);
-                                            refDatabase.child(emailLogin).child("ASMByRSM").child(managerEmail.replace(".",",")).addListenerForSingleValueEvent(new ValueEventListener() {
-                                                @Override
-                                                public void onDataChange(DataSnapshot dataSnapshot) {
-                                                    if(!dataSnapshot.hasChild("Group")){
-                                                        refDatabase.child(emailLogin).child("ASMByRSM").child(managerEmail.replace(".",",")).child("Group").push().child("groupName").setValue("Tất cả");
-                                                    }
-                                                }
-
-                                                @Override
-                                                public void onCancelled(DatabaseError databaseError) {
-
-                                                }
-                                            });
+                                            refDatabase.child(emailLogin).child("ASMByRSM").child(managerEmail.replace(".",",")).child("Group").push().child("groupName").setValue("Tất cả");
 
 //FirebaseAuth.getInstance().signOut();
                                         }
@@ -377,19 +345,7 @@ public class CreateAccount extends AppCompatActivity {
                                                 }
                                             });
                                             refDatabase.child(emailLogin).child("ASMByRSM").child(email.replace(".",",")).child("Group").push().setValue("Tất cả");
-                                            refDatabase.child(emailLogin).child("RSMByAdmin").child(managerEmail.replace(".",",")).addListenerForSingleValueEvent(new ValueEventListener() {
-                                                @Override
-                                                public void onDataChange(DataSnapshot dataSnapshot) {
-                                                    if(!dataSnapshot.hasChild("Group")){
-                                                        refDatabase.child(emailLogin).child("RSMByAdmin").child(managerEmail.replace(".",",")).child("Group").push().child("groupName").setValue("Tất cả");
-                                                    }
-                                                }
-
-                                                @Override
-                                                public void onCancelled(DatabaseError databaseError) {
-
-                                                }
-                                            });
+                                            refDatabase.child(emailLogin).child("RSMByAdmin").child(managerEmail.replace(".",",")).child("Group").push().child("groupName").setValue("Tất cả");
                                             Toast.makeText(getApplicationContext(), "Đã tạo TK thành công", Toast.LENGTH_LONG).show();
                                             refDatabase.child(emailLogin).child("RSMByAdmin").child(managerEmail.replace(".",",")).child("Tất cả").child(email.replace(".",",")).setValue(addEmployee);
                                         }

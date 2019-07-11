@@ -49,8 +49,13 @@ import com.google.firebase.database.ValueEventListener;
 
 import org.joda.time.DateTime;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,8 +74,10 @@ import a1a4w.onhandsme.model.Group;
 import a1a4w.onhandsme.model.MapModel;
 import a1a4w.onhandsme.model.OrderDetail;
 import a1a4w.onhandsme.model.Product;
+import a1a4w.onhandsme.model.Promotion;
 import a1a4w.onhandsme.model.VatModel;
 import a1a4w.onhandsme.order.PreviewOrderActivivity;
+import a1a4w.onhandsme.utils.AdapterOrder;
 import a1a4w.onhandsme.utils.Constants;
 import a1a4w.onhandsme.utils.MySpinerAdapter;
 import fr.ganfra.materialspinner.MaterialSpinner;
@@ -89,6 +96,7 @@ public class OrderManActivity extends AppCompatActivity {
     private FirebaseRecyclerAdapter<Employee, EmployeeViewHolder> adapterFirebaseEmployee;
     private FirebaseRecyclerAdapter<Client, ClientViewHolder> adapterFirebaseClient;
     FirebaseRecyclerAdapter<Group, GroupViewHolder> adapterFirebaseClientGroup;
+    private FirebaseRecyclerAdapter<OrderDetail, OrderViewHolderByTime> adapterFirebaseByTime;
 
     private LinearLayoutManager linearLayoutManager;
     private LinearLayout layoutApproved, layoutUnapproved, layoutDenied, boxApproved, boxUnApproved, boxCancelled;
@@ -223,6 +231,220 @@ public class OrderManActivity extends AppCompatActivity {
         });
 
         locationPreparation();
+        orderByTime();
+    }
+
+    private void orderByTime() {
+
+        final RecyclerView listByTime = findViewById(R.id.rv_order_list_by_time);
+        listByTime.setHasFixedSize(true);
+        linearLayoutManager = new LinearLayoutManager(getApplicationContext());
+        listByTime.setLayoutManager(linearLayoutManager);
+
+        final Button btnListMonth = findViewById(R.id.btn_order_month);
+        final Button btnYear = findViewById(R.id.btn_order_year);
+
+        btnListMonth.setBackground(getResources().getDrawable(R.drawable.border_drug_cat_accent));
+        btnYear.setBackground(getResources().getDrawable(R.drawable.border_drug_cat));
+
+
+        btnListMonth.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                v.startAnimation(buttonClick);
+
+                final List<OrderDetail> orders = new ArrayList<>();
+
+                btnListMonth.setBackground(getResources().getDrawable(R.drawable.border_drug_cat_accent));
+                btnYear.setBackground(getResources().getDrawable(R.drawable.border_drug_cat));
+
+                refDatabase.child(emailLogin).child("SaleOrder").child(userEmail).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        Iterable<DataSnapshot> snapOrder = dataSnapshot.getChildren();
+                        for(DataSnapshot itemOrder:snapOrder){
+                            final String orderKey = itemOrder.getKey();
+                            String timeStamp = itemOrder.getValue().toString();
+
+                            Date orderDate = (new Date(Long.parseLong(timeStamp)));
+
+                            DateTime dt = new DateTime();
+
+                            String year = dt.getYear()+"";
+                            String month = dt.getMonthOfYear() +"";
+
+                            String maxDay = dt.dayOfMonth().withMaximumValue().getDayOfMonth()+"";
+                            DateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+
+                            try {
+                                Date startMonthDate = sdf.parse("01/"+month+"/"+year);
+                                Date endMonthDate = sdf.parse(maxDay + "/"+month+"/"+year);
+
+                                if(orderDate.after(startMonthDate) && orderDate.before(endMonthDate)){
+                                    refDatabase.child(emailLogin).child("OrderList").child(orderKey).child("OtherInformation").addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                            OrderDetail orderDetail = dataSnapshot.getValue(OrderDetail.class);
+                                            OrderDetail  addOrder = new OrderDetail(orderDetail.getOrderName(),orderKey);
+                                            orders.add(addOrder);
+
+                                            listByTime.setVisibility(View.VISIBLE);
+
+                                            AdapterOrder adapterOrder = new AdapterOrder(getApplicationContext(),orders,emailLogin);
+                                            listByTime.setAdapter(adapterOrder);
+                                            adapterOrder.notifyDataSetChanged();
+                                        }
+
+                                        @Override
+                                        public void onCancelled(DatabaseError databaseError) {
+
+                                        }
+                                    });
+                                }
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+            }
+        });
+
+        btnYear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                v.startAnimation(buttonClick);
+                final List<OrderDetail> orders = new ArrayList<>();
+
+                btnYear.setBackground(getResources().getDrawable(R.drawable.border_drug_cat_accent));
+                btnListMonth.setBackground(getResources().getDrawable(R.drawable.border_drug_cat));
+
+                refDatabase.child(emailLogin).child("SaleOrder").child(userEmail).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        Iterable<DataSnapshot> snapOrder = dataSnapshot.getChildren();
+                        for(DataSnapshot itemOrder:snapOrder){
+                            final String orderKey = itemOrder.getKey();
+                            String timeStamp = itemOrder.getValue().toString();
+
+                            Date orderDate = (new Date(Long.parseLong(timeStamp)));
+
+                            DateTime dt = new DateTime();
+
+                            String year = dt.getYear()+"";
+                            String month = dt.getMonthOfYear() +"";
+
+                            String maxDay = dt.dayOfMonth().withMaximumValue().getDayOfMonth()+"";
+                            DateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+
+                            try {
+                                Date startMonthDate = sdf.parse("1/1/"+year);
+                                Date endMonthDate = sdf.parse("31/12/"+year);
+
+                                if(orderDate.after(startMonthDate) && orderDate.before(endMonthDate)){
+
+                                    refDatabase.child(emailLogin).child("OrderList").child(orderKey).child("OtherInformation").addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                            OrderDetail orderDetail = dataSnapshot.getValue(OrderDetail.class);
+                                            OrderDetail  addOrder = new OrderDetail(orderDetail.getOrderName(),orderKey);
+                                            orders.add(addOrder);
+
+                                            listByTime.setVisibility(View.VISIBLE);
+
+                                            AdapterOrder adapterOrder = new AdapterOrder(getApplicationContext(),orders,emailLogin);
+                                            listByTime.setAdapter(adapterOrder);
+                                            adapterOrder.notifyDataSetChanged();
+                                        }
+
+                                        @Override
+                                        public void onCancelled(DatabaseError databaseError) {
+
+                                        }
+                                    });
+
+                                }
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+            }
+        });
+
+        refDatabase.child(emailLogin).child("SaleOrder").child(userEmail).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Iterable<DataSnapshot> snapOrder = dataSnapshot.getChildren();
+
+                final List<OrderDetail> orders = new ArrayList<>();
+
+                for(DataSnapshot itemOrder:snapOrder){
+                    final String orderKey = itemOrder.getKey();
+                    String timeStamp = itemOrder.getValue().toString();
+
+                    Date orderDate = (new Date(Long.parseLong(timeStamp)));
+
+                    DateTime dt = new DateTime();
+
+                    String year = dt.getYear()+"";
+                    String month = dt.getMonthOfYear() +"";
+
+                    String maxDay = dt.dayOfMonth().withMaximumValue().getDayOfMonth()+"";
+                    DateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+
+                    try {
+                        Date startMonthDate = sdf.parse("01/"+month+"/"+year);
+                        Date endMonthDate = sdf.parse(maxDay + "/"+month+"/"+year);
+
+                        if(orderDate.after(startMonthDate) && orderDate.before(endMonthDate)){
+                            refDatabase.child(emailLogin).child("OrderList").child(orderKey).child("OtherInformation").addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    OrderDetail orderDetail = dataSnapshot.getValue(OrderDetail.class);
+                                    OrderDetail  addOrder = new OrderDetail(orderDetail.getOrderName(),orderKey);
+                                    orders.add(addOrder);
+
+                                    listByTime.setVisibility(View.VISIBLE);
+
+                                    AdapterOrder adapterOrder = new AdapterOrder(getApplicationContext(),orders,emailLogin);
+                                    listByTime.setAdapter(adapterOrder);
+                                    adapterOrder.notifyDataSetChanged();
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+
+                                }
+                            });
+                        }
+
+
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
     }
 
     private void locationPreparation() {
@@ -942,7 +1164,6 @@ public class OrderManActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 view.startAnimation(buttonClick);
-                addNewProductDialog();
             }
         });
 
@@ -977,47 +1198,6 @@ public class OrderManActivity extends AppCompatActivity {
         dialogProductList.show();
     }
 
-    private void addNewProductDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = this.getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.dialog_new_product, null);
-        builder.setView(dialogView);
-        builder.setMessage("Thêm sản phẩm mới");
-
-        final Dialog dialogProduct = builder.create();
-        dialogProduct.show();
-
-        final EditText edtAddProduct = (EditText) dialogView.findViewById(R.id.edt_dialog_add_product_name);
-        final EditText edtStorage = (EditText) dialogView.findViewById(R.id.edt_new_product_storage);
-
-        Button btnAdd = (Button) dialogView.findViewById(R.id.btn_dialog_add_product_ok);
-
-        btnAdd.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                v.startAnimation(Constants.buttonClick);
-                final String productName = edtAddProduct.getText().toString();
-                final String productStorage = edtStorage.getText().toString();
-
-                if (TextUtils.isEmpty(productName)) {
-                    Toast.makeText(getApplicationContext(), "Vui lòng nhập tên Sản phẩm", Toast.LENGTH_LONG).show();
-
-                } else if (TextUtils.isEmpty(productName)) {
-                    Toast.makeText(getApplicationContext(), "Vui lòng nhập lượng tồn kho ban đầu", Toast.LENGTH_LONG).show();
-
-                } else {
-                    Product product = new Product(productName, productStorage);
-                    Product newProduct = new Product(productName);
-                    refDatabase.child(emailLogin + "/Product").child(productName).setValue(newProduct);
-                    refDatabase.child(emailLogin).child("WarehouseMan/StorageMan").child(productName).setValue(product);
-                    dialogProduct.dismiss();
-                }
-
-
-            }
-        });
-
-    }
 
     private void employeeListDialog() {
 
@@ -1292,259 +1472,305 @@ public class OrderManActivity extends AppCompatActivity {
                                             refCompany.child("Order/Sale").child(orderKey).setValue(orderDetail);
                                             Constants.refDatabase.child(emailLogin).child("TimeOrder").child(orderKey).setValue(timeStamp);
 
-                                            refCompany.child("Order/Approved").child(orderKey).setValue(null).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            refCompany.child("Order/Approved").child(orderKey).setValue(null);
+
+                                            refCompany.child("TotalByClient").child(clientCode).addListenerForSingleValueEvent(new ValueEventListener() {
                                                 @Override
-                                                public void onComplete(@NonNull Task<Void> task) {
-                                                    refCompany.child("TotalByClient").child(clientCode).addListenerForSingleValueEvent(new ValueEventListener() {
-                                                        @Override
-                                                        public void onDataChange(DataSnapshot dataSnapshot) {
-                                                            if(dataSnapshot.hasChild(year+"-"+month+"-"+date)){
-                                                                refCompany.child("TotalByClient").child(clientCode).child(year+"-"+month+"-"+date).addListenerForSingleValueEvent(new ValueEventListener() {
-                                                                    @Override
-                                                                    public void onDataChange(DataSnapshot dataSnapshot) {
-                                                                        float currentSale = Float.parseFloat(dataSnapshot.getValue().toString());
-                                                                        float updateSale = currentSale + finalPayment;
+                                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                                    if(dataSnapshot.hasChild(year+"-"+month+"-"+date)){
+                                                        refCompany.child("TotalByClient").child(clientCode).child(year+"-"+month+"-"+date).addListenerForSingleValueEvent(new ValueEventListener() {
+                                                            @Override
+                                                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                                                float currentSale = Float.parseFloat(dataSnapshot.getValue().toString());
+                                                                float updateSale = currentSale + finalPayment;
 
-                                                                        refCompany.child("TotalByClient").child(clientCode).child(year+"-"+month+"-"+date).setValue(updateSale+"");
-                                                                    }
-
-                                                                    @Override
-                                                                    public void onCancelled(DatabaseError databaseError) {
-
-                                                                    }
-                                                                });
-
-                                                            }else{
-                                                                refCompany.child("TotalByClient").child(clientCode).child(year+"-"+month+"-"+date).setValue(finalPayment+"");
+                                                                refCompany.child("TotalByClient").child(clientCode).child(year+"-"+month+"-"+date).setValue(updateSale+"");
                                                             }
 
-                                                            if(dataSnapshot.hasChild(year+"-"+month)){
-                                                                refCompany.child("TotalByClient").child(clientCode).child(year+"-"+month).addListenerForSingleValueEvent(new ValueEventListener() {
-                                                                    @Override
-                                                                    public void onDataChange(DataSnapshot dataSnapshot) {
-                                                                        float currentSale = Float.parseFloat(dataSnapshot.getValue().toString());
-                                                                        float updateSale = currentSale + finalPayment;
-
-                                                                        refCompany.child("TotalByClient").child(clientCode).child(year+"-"+month).setValue(updateSale+"");
-                                                                    }
-
-                                                                    @Override
-                                                                    public void onCancelled(DatabaseError databaseError) {
-
-                                                                    }
-                                                                });
-
-                                                            }else{
-                                                                refCompany.child("TotalByClient").child(clientCode).child(year+"-"+month).setValue(finalPayment+"");
-                                                            }
-
-                                                            if(dataSnapshot.hasChild(year)){
-                                                                refCompany.child("TotalByClient").child(clientCode).child(year).addListenerForSingleValueEvent(new ValueEventListener() {
-                                                                    @Override
-                                                                    public void onDataChange(DataSnapshot dataSnapshot) {
-                                                                        float currentSale = Float.parseFloat(dataSnapshot.getValue().toString());
-                                                                        float updateSale = currentSale + finalPayment;
-
-                                                                        refCompany.child("TotalByClient").child(clientCode).child(year).setValue(updateSale+"");
-                                                                    }
-
-                                                                    @Override
-                                                                    public void onCancelled(DatabaseError databaseError) {
-
-                                                                    }
-                                                                });
-
-                                                            }else{
-                                                                refCompany.child("TotalByClient").child(clientCode).child(year).setValue(finalPayment+"");
-                                                            }
-
-                                                        }
-
-                                                        @Override
-                                                        public void onCancelled(DatabaseError databaseError) {
-
-                                                        }
-                                                    });
-                                                    refCompany.child("TotalBySale").child(saleEmail).addListenerForSingleValueEvent(new ValueEventListener() {
-                                                        @Override
-                                                        public void onDataChange(DataSnapshot dataSnapshot) {
-                                                            if(dataSnapshot.hasChild(year+"-"+month+"-"+date)){
-                                                                refCompany.child("TotalBySale").child(saleEmail).child(year+"-"+month+"-"+date).addListenerForSingleValueEvent(new ValueEventListener() {
-                                                                    @Override
-                                                                    public void onDataChange(DataSnapshot dataSnapshot) {
-                                                                        float currentSale = Float.parseFloat(dataSnapshot.getValue().toString());
-                                                                        float updateSale = currentSale + finalPayment;
-
-                                                                        refCompany.child("TotalBySale").child(saleEmail).child(year+"-"+month+"-"+date).setValue(updateSale+"");
-                                                                    }
-
-                                                                    @Override
-                                                                    public void onCancelled(DatabaseError databaseError) {
-
-                                                                    }
-                                                                });
-
-                                                            }else{
-                                                                refCompany.child("TotalBySale").child(saleEmail).child(year+"-"+month+"-"+date).setValue(finalPayment+"");
-                                                            }
-
-                                                            if(dataSnapshot.hasChild(year+"-"+month)){
-                                                                refCompany.child("TotalBySale").child(saleEmail).child(year+"-"+month).addListenerForSingleValueEvent(new ValueEventListener() {
-                                                                    @Override
-                                                                    public void onDataChange(DataSnapshot dataSnapshot) {
-                                                                        float currentSale = Float.parseFloat(dataSnapshot.getValue().toString());
-                                                                        float updateSale = currentSale + finalPayment;
-
-                                                                        refCompany.child("TotalBySale").child(saleEmail).child(year+"-"+month).setValue(updateSale+"");
-                                                                    }
-
-                                                                    @Override
-                                                                    public void onCancelled(DatabaseError databaseError) {
-
-                                                                    }
-                                                                });
-
-                                                            }else{
-                                                                refCompany.child("TotalBySale").child(saleEmail).child(year+"-"+month).setValue(finalPayment+"");
-                                                            }
-
-                                                            if(dataSnapshot.hasChild(year)){
-                                                                refCompany.child("TotalBySale").child(saleEmail).child(year).addListenerForSingleValueEvent(new ValueEventListener() {
-                                                                    @Override
-                                                                    public void onDataChange(DataSnapshot dataSnapshot) {
-                                                                        float currentSale = Float.parseFloat(dataSnapshot.getValue().toString());
-                                                                        float updateSale = currentSale + finalPayment;
-
-                                                                        refCompany.child("TotalBySale").child(saleEmail).child(year).setValue(updateSale+"");
-                                                                    }
-
-                                                                    @Override
-                                                                    public void onCancelled(DatabaseError databaseError) {
-
-                                                                    }
-                                                                });
-
-                                                            }else{
-                                                                refCompany.child("TotalBySale").child(saleEmail).child(year).setValue(finalPayment+"");
-                                                            }
-                                                        }
-
-                                                        @Override
-                                                        public void onCancelled(DatabaseError databaseError) {
-
-                                                        }
-                                                    });
-                                                    refCompany.child("OrderList").child(orderKey).child("ProductList").addListenerForSingleValueEvent(new ValueEventListener() {
-                                                        @Override
-                                                        public void onDataChange(DataSnapshot dataSnapshot) {
-                                                            Iterable<DataSnapshot> productSnap = dataSnapshot.getChildren();
-                                                            for(DataSnapshot itemProduct:productSnap){
-                                                                final Product product = itemProduct.getValue(Product.class);
-                                                                final String finalPayment = product.getFinalPayment();
-                                                                String productName = product.getProductName();
-                                                                final String productCode = product.getProductCode();
-                                                                
-                                                                refCompany.child("TotalProductBySale").child(saleEmail).child(productCode).addListenerForSingleValueEvent(new ValueEventListener() {
-                                                                    @Override
-                                                                    public void onDataChange(DataSnapshot dataSnapshot) {
-                                                                        if(dataSnapshot.hasChild(year+"-"+month+"-"+date)){
-                                                                            refCompany.child("TotalProductBySale").child(saleEmail).child(productCode).child(year+"-"+month+"-"+date).addListenerForSingleValueEvent(new ValueEventListener() {
-                                                                                @Override
-                                                                                public void onDataChange(DataSnapshot dataSnapshot) {
-                                                                                    float currentSale = Float.parseFloat(dataSnapshot.getValue().toString());
-                                                                                    float updateSale = currentSale + Float.parseFloat(finalPayment);
-
-                                                                                    refCompany.child("TotalProductBySale").child(saleEmail).child(productCode).child(year+"-"+month+"-"+date).setValue(updateSale+"");
-                                                                                }
-
-                                                                                @Override
-                                                                                public void onCancelled(DatabaseError databaseError) {
-
-                                                                                }
-                                                                            });
-
-                                                                        }else{
-                                                                            refCompany.child("TotalProductBySale").child(saleEmail).child(productCode).child(year+"-"+month+"-"+date).setValue(finalPayment+"");
-                                                                        }
-
-                                                                        if(dataSnapshot.hasChild(year+"-"+month)){
-                                                                            refCompany.child("TotalProductBySale").child(saleEmail).child(productCode).child(year+"-"+month).addListenerForSingleValueEvent(new ValueEventListener() {
-                                                                                @Override
-                                                                                public void onDataChange(DataSnapshot dataSnapshot) {
-                                                                                    float currentSale = Float.parseFloat(dataSnapshot.getValue().toString());
-                                                                                    float updateSale = currentSale + Float.parseFloat(finalPayment);
-
-                                                                                    refCompany.child("TotalProductBySale").child(saleEmail).child(productCode).child(year+"-"+month).setValue(updateSale+"");
-                                                                                }
-
-                                                                                @Override
-                                                                                public void onCancelled(DatabaseError databaseError) {
-
-                                                                                }
-                                                                            });
-
-                                                                        }else{
-                                                                            refCompany.child("TotalProductBySale").child(saleEmail).child(productCode).child(year+"-"+month).setValue(finalPayment+"");
-                                                                        }
-
-                                                                        if(dataSnapshot.hasChild(year)){
-                                                                            refCompany.child("TotalProductBySale").child(saleEmail).child(productCode).child(year).addListenerForSingleValueEvent(new ValueEventListener() {
-                                                                                @Override
-                                                                                public void onDataChange(DataSnapshot dataSnapshot) {
-                                                                                    float currentSale = Float.parseFloat(dataSnapshot.getValue().toString());
-                                                                                    float updateSale = currentSale + Float.parseFloat(finalPayment);
-
-                                                                                    refCompany.child("TotalProductBySale").child(saleEmail).child(productCode).child(year).setValue(updateSale+"");
-                                                                                }
-
-                                                                                @Override
-                                                                                public void onCancelled(DatabaseError databaseError) {
-
-                                                                                }
-                                                                            });
-
-                                                                        }else{
-                                                                            refCompany.child("TotalProductBySale").child(saleEmail).child(productCode).child(year).setValue(finalPayment+"");
-                                                                        }
-                                                                    }
-
-                                                                    @Override
-                                                                    public void onCancelled(DatabaseError databaseError) {
-
-                                                                    }
-                                                                });
-
-
+                                                            @Override
+                                                            public void onCancelled(DatabaseError databaseError) {
 
                                                             }
-                                                        }
+                                                        });
 
-                                                        @Override
-                                                        public void onCancelled(DatabaseError databaseError) {
+                                                    }else{
+                                                        refCompany.child("TotalByClient").child(clientCode).child(year+"-"+month+"-"+date).setValue(finalPayment+"");
+                                                    }
 
-                                                        }
-                                                    });
+                                                    if(dataSnapshot.hasChild(year+"-"+month)){
+                                                        refCompany.child("TotalByClient").child(clientCode).child(year+"-"+month).addListenerForSingleValueEvent(new ValueEventListener() {
+                                                            @Override
+                                                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                                                float currentSale = Float.parseFloat(dataSnapshot.getValue().toString());
+                                                                float updateSale = currentSale + finalPayment;
+
+                                                                refCompany.child("TotalByClient").child(clientCode).child(year+"-"+month).setValue(updateSale+"");
+                                                            }
+
+                                                            @Override
+                                                            public void onCancelled(DatabaseError databaseError) {
+
+                                                            }
+                                                        });
+
+                                                    }else{
+                                                        refCompany.child("TotalByClient").child(clientCode).child(year+"-"+month).setValue(finalPayment+"");
+                                                    }
+
+                                                    if(dataSnapshot.hasChild(year)){
+                                                        refCompany.child("TotalByClient").child(clientCode).child(year).addListenerForSingleValueEvent(new ValueEventListener() {
+                                                            @Override
+                                                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                                                float currentSale = Float.parseFloat(dataSnapshot.getValue().toString());
+                                                                float updateSale = currentSale + finalPayment;
+
+                                                                refCompany.child("TotalByClient").child(clientCode).child(year).setValue(updateSale+"");
+                                                            }
+
+                                                            @Override
+                                                            public void onCancelled(DatabaseError databaseError) {
+
+                                                            }
+                                                        });
+
+                                                    }else{
+                                                        refCompany.child("TotalByClient").child(clientCode).child(year).setValue(finalPayment+"");
+                                                    }
+
+                                                }
+
+                                                @Override
+                                                public void onCancelled(DatabaseError databaseError) {
 
                                                 }
                                             });
-
-                                            Constants.refDatabase.child(emailLogin+"/OrderList").child(orderKey).child("ProductList").addListenerForSingleValueEvent(new ValueEventListener() {
+                                            refCompany.child("TotalBySale").child(saleEmail).addListenerForSingleValueEvent(new ValueEventListener() {
                                                 @Override
                                                 public void onDataChange(DataSnapshot dataSnapshot) {
-                                                    final Iterable<DataSnapshot> productSnap = dataSnapshot.getChildren();
+                                                    if(dataSnapshot.hasChild(year+"-"+month+"-"+date)){
+                                                        refCompany.child("TotalBySale").child(saleEmail).child(year+"-"+month+"-"+date).addListenerForSingleValueEvent(new ValueEventListener() {
+                                                            @Override
+                                                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                                                float currentSale = Float.parseFloat(dataSnapshot.getValue().toString());
+                                                                float updateSale = currentSale + finalPayment;
+
+                                                                refCompany.child("TotalBySale").child(saleEmail).child(year+"-"+month+"-"+date).setValue(updateSale+"");
+                                                            }
+
+                                                            @Override
+                                                            public void onCancelled(DatabaseError databaseError) {
+
+                                                            }
+                                                        });
+
+                                                    }else{
+                                                        refCompany.child("TotalBySale").child(saleEmail).child(year+"-"+month+"-"+date).setValue(finalPayment+"");
+                                                    }
+
+                                                    if(dataSnapshot.hasChild(year+"-"+month)){
+                                                        refCompany.child("TotalBySale").child(saleEmail).child(year+"-"+month).addListenerForSingleValueEvent(new ValueEventListener() {
+                                                            @Override
+                                                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                                                float currentSale = Float.parseFloat(dataSnapshot.getValue().toString());
+                                                                float updateSale = currentSale + finalPayment;
+
+                                                                refCompany.child("TotalBySale").child(saleEmail).child(year+"-"+month).setValue(updateSale+"");
+                                                            }
+
+                                                            @Override
+                                                            public void onCancelled(DatabaseError databaseError) {
+
+                                                            }
+                                                        });
+
+                                                    }else{
+                                                        refCompany.child("TotalBySale").child(saleEmail).child(year+"-"+month).setValue(finalPayment+"");
+                                                    }
+
+                                                    if(dataSnapshot.hasChild(year)){
+                                                        refCompany.child("TotalBySale").child(saleEmail).child(year).addListenerForSingleValueEvent(new ValueEventListener() {
+                                                            @Override
+                                                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                                                float currentSale = Float.parseFloat(dataSnapshot.getValue().toString());
+                                                                float updateSale = currentSale + finalPayment;
+
+                                                                refCompany.child("TotalBySale").child(saleEmail).child(year).setValue(updateSale+"");
+                                                            }
+
+                                                            @Override
+                                                            public void onCancelled(DatabaseError databaseError) {
+
+                                                            }
+                                                        });
+
+                                                    }else{
+                                                        refCompany.child("TotalBySale").child(saleEmail).child(year).setValue(finalPayment+"");
+                                                    }
+                                                }
+
+                                                @Override
+                                                public void onCancelled(DatabaseError databaseError) {
+
+                                                }
+                                            });
+                                            refCompany.child("OrderList").child(orderKey).child("ProductList").addListenerForSingleValueEvent(new ValueEventListener() {
+                                                @Override
+                                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                                    Iterable<DataSnapshot> productSnap = dataSnapshot.getChildren();
                                                     long itemCount = dataSnapshot.getChildrenCount();
 
                                                     int i = 0;
-                                                    for (final DataSnapshot p:productSnap){
+                                                    for(DataSnapshot itemProduct:productSnap){
                                                         i++;
-                                                        final Product product = p.getValue(Product.class);
-                                                        assert product != null;
+                                                        final Product product = itemProduct.getValue(Product.class);
+                                                        final String finalPayment = product.getFinalPayment();
                                                         final String productName = product.getProductName();
                                                         final String productCode = product.getProductCode();
                                                         final float productQuantity = Float.parseFloat(product.getUnitQuantity());
 
+                                                        refCompany.child("TotalProduct").child(productCode).addListenerForSingleValueEvent(new ValueEventListener() {
+                                                            @Override
+                                                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                                                if(dataSnapshot.hasChild(year+"-"+month+"-"+date)){
+                                                                    refCompany.child("TotalProduct").child(productCode).child(year+"-"+month+"-"+date).addListenerForSingleValueEvent(new ValueEventListener() {
+                                                                        @Override
+                                                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                                                            float currentSale = Float.parseFloat(dataSnapshot.getValue().toString());
+                                                                            float updateSale = currentSale + Float.parseFloat(finalPayment);
+
+                                                                            refCompany.child("TotalProduct").child(productCode).child(year+"-"+month+"-"+date).setValue(updateSale+"");
+                                                                        }
+
+                                                                        @Override
+                                                                        public void onCancelled(DatabaseError databaseError) {
+
+                                                                        }
+                                                                    });
+
+                                                                }else{
+                                                                    refCompany.child("TotalProduct").child(productCode).child(year+"-"+month+"-"+date).setValue(finalPayment+"");
+                                                                }
+
+                                                                if(dataSnapshot.hasChild(year+"-"+month)){
+                                                                    refCompany.child("TotalProduct").child(productCode).child(year+"-"+month).addListenerForSingleValueEvent(new ValueEventListener() {
+                                                                        @Override
+                                                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                                                            float currentSale = Float.parseFloat(dataSnapshot.getValue().toString());
+                                                                            float updateSale = currentSale + Float.parseFloat(finalPayment);
+
+                                                                            refCompany.child("TotalProduct").child(productCode).child(year+"-"+month).setValue(updateSale+"");
+                                                                        }
+
+                                                                        @Override
+                                                                        public void onCancelled(DatabaseError databaseError) {
+
+                                                                        }
+                                                                    });
+
+                                                                }else{
+                                                                    refCompany.child("TotalProduct").child(productCode).child(year+"-"+month).setValue(finalPayment+"");
+                                                                }
+
+                                                                if(dataSnapshot.hasChild(year)){
+                                                                    refCompany.child("TotalProduct").child(productCode).child(year).addListenerForSingleValueEvent(new ValueEventListener() {
+                                                                        @Override
+                                                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                                                            float currentSale = Float.parseFloat(dataSnapshot.getValue().toString());
+                                                                            float updateSale = currentSale + Float.parseFloat(finalPayment);
+
+                                                                            refCompany.child("TotalProduct").child(productCode).child(year).setValue(updateSale+"");
+                                                                        }
+
+                                                                        @Override
+                                                                        public void onCancelled(DatabaseError databaseError) {
+
+                                                                        }
+                                                                    });
+
+                                                                }else{
+                                                                    refCompany.child("TotalProduct").child(productCode).child(year).setValue(finalPayment+"");
+                                                                }
+                                                            }
+
+                                                            @Override
+                                                            public void onCancelled(DatabaseError databaseError) {
+
+                                                            }
+                                                        });
+
+                                                        refCompany.child("TotalProductBySale").child(saleEmail).child(productCode).addListenerForSingleValueEvent(new ValueEventListener() {
+                                                            @Override
+                                                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                                                if(dataSnapshot.hasChild(year+"-"+month+"-"+date)){
+                                                                    refCompany.child("TotalProductBySale").child(saleEmail).child(productCode).child(year+"-"+month+"-"+date).addListenerForSingleValueEvent(new ValueEventListener() {
+                                                                        @Override
+                                                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                                                            float currentSale = Float.parseFloat(dataSnapshot.getValue().toString());
+                                                                            float updateSale = currentSale + Float.parseFloat(finalPayment);
+
+                                                                            refCompany.child("TotalProductBySale").child(saleEmail).child(productCode).child(year+"-"+month+"-"+date).setValue(updateSale+"");
+                                                                        }
+
+                                                                        @Override
+                                                                        public void onCancelled(DatabaseError databaseError) {
+
+                                                                        }
+                                                                    });
+
+                                                                }else{
+                                                                    refCompany.child("TotalProductBySale").child(saleEmail).child(productCode).child(year+"-"+month+"-"+date).setValue(finalPayment+"");
+                                                                }
+
+                                                                if(dataSnapshot.hasChild(year+"-"+month)){
+                                                                    refCompany.child("TotalProductBySale").child(saleEmail).child(productCode).child(year+"-"+month).addListenerForSingleValueEvent(new ValueEventListener() {
+                                                                        @Override
+                                                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                                                            float currentSale = Float.parseFloat(dataSnapshot.getValue().toString());
+                                                                            float updateSale = currentSale + Float.parseFloat(finalPayment);
+
+                                                                            refCompany.child("TotalProductBySale").child(saleEmail).child(productCode).child(year+"-"+month).setValue(updateSale+"");
+                                                                        }
+
+                                                                        @Override
+                                                                        public void onCancelled(DatabaseError databaseError) {
+
+                                                                        }
+                                                                    });
+
+                                                                }else{
+                                                                    refCompany.child("TotalProductBySale").child(saleEmail).child(productCode).child(year+"-"+month).setValue(finalPayment+"");
+                                                                }
+
+                                                                if(dataSnapshot.hasChild(year)){
+                                                                    refCompany.child("TotalProductBySale").child(saleEmail).child(productCode).child(year).addListenerForSingleValueEvent(new ValueEventListener() {
+                                                                        @Override
+                                                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                                                            float currentSale = Float.parseFloat(dataSnapshot.getValue().toString());
+                                                                            float updateSale = currentSale + Float.parseFloat(finalPayment);
+
+                                                                            refCompany.child("TotalProductBySale").child(saleEmail).child(productCode).child(year).setValue(updateSale+"");
+                                                                        }
+
+                                                                        @Override
+                                                                        public void onCancelled(DatabaseError databaseError) {
+
+                                                                        }
+                                                                    });
+
+                                                                }else{
+                                                                    refCompany.child("TotalProductBySale").child(saleEmail).child(productCode).child(year).setValue(finalPayment+"");
+                                                                }
+                                                            }
+
+                                                            @Override
+                                                            public void onCancelled(DatabaseError databaseError) {
+
+                                                            }
+                                                        });
+
                                                         if(i == itemCount){
                                                             if(productStock.containsKey(productName)){
+
                                                                 float currentValue = productStock.get(productName);
                                                                 float updateValue = currentValue + productQuantity;
                                                                 productStock.put(productCode,updateValue);
@@ -1556,72 +1782,31 @@ public class OrderManActivity extends AppCompatActivity {
                                                                             Constants.refDatabase.child(emailLogin+"/OrderList").child(orderKey).child("Promotion").addListenerForSingleValueEvent(new ValueEventListener() {
                                                                                 @Override
                                                                                 public void onDataChange(DataSnapshot dataSnapshot) {
-                                                                                    final Iterable<DataSnapshot> promotionSnap = dataSnapshot.getChildren();
-                                                                                    long itemCount = dataSnapshot.getChildrenCount();
+                                                                                    if(dataSnapshot.hasChild("BGM")){
+                                                                                        Constants.refDatabase.child(emailLogin+"/OrderList").child(orderKey).child("Promotion").child("BGM").addListenerForSingleValueEvent(new ValueEventListener() {
+                                                                                            @Override
+                                                                                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                                                                                Iterable<DataSnapshot> snapPro = dataSnapshot.getChildren();
+                                                                                                for(DataSnapshot itemPro:snapPro){
 
-                                                                                    int i = 0;
-                                                                                    for(DataSnapshot promotionItem:promotionSnap){
-                                                                                        i++;
-                                                                                        Product promotion = promotionItem.getValue(Product.class);
-                                                                                        assert promotion != null;
-                                                                                        final String promotionName = promotion.getProductName();
-                                                                                        final float promotionQuantity = Float.parseFloat(promotion.getUnitQuantity());
+                                                                                                    Promotion promotion = itemPro.getValue(Promotion.class);
+                                                                                                    String getName = promotion.getPromotionGetName();
 
-                                                                                        if(i==itemCount){
+                                                                                                    if(getName.equals(productName)){
+                                                                                                        final String getQuantity = promotion.getPromotionGetQuantity();
 
-                                                                                            if(productStock.containsKey(promotionName)){
-                                                                                                float currentValue = productStock.get(promotionName);
-                                                                                                float updateValue = currentValue + promotionQuantity;
-                                                                                                productStock.put(promotionName,updateValue);
-
-                                                                                                int y = 0;
-                                                                                                for(final Map.Entry<String,Float> entry:productStock.entrySet()){
-                                                                                                    y++;
-                                                                                                    int mapItemCount = productStock.size();
-
-                                                                                                    if(y == mapItemCount){
-                                                                                                        Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(entry.getKey()+"/unitQuantity").addListenerForSingleValueEvent(new ValueEventListener() {
+                                                                                                        Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(productName+"/unitQuantity").addListenerForSingleValueEvent(new ValueEventListener() {
                                                                                                             @Override
                                                                                                             public void onDataChange(DataSnapshot dataSnapshot) {
                                                                                                                 final String productStorage = dataSnapshot.getValue().toString();
-                                                                                                                final float updateStorage = Float.parseFloat(productStorage) - entry.getValue();
-                                                                                                                if(updateStorage<0){
-                                                                                                                    Toast.makeText(getApplicationContext(),entry.getKey()+ " không đủ hàng xuất kho",Toast.LENGTH_LONG).show();
-                                                                                                                }else{
-                                                                                                                    Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(entry.getKey()+"/unitQuantity")
-                                                                                                                            .setValue(updateStorage+"").addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                                                                                        @Override
-                                                                                                                        public void onComplete(@NonNull Task<Void> task) {
-                                                                                                                            hideProgressDialog();
-                                                                                                                            startActivity(new Intent(getApplicationContext(),MainActivity.class));
-                                                                                                                            Toast.makeText(getApplicationContext(),"Cập nhật thành công!",Toast.LENGTH_LONG).show();
-
-                                                                                                                        }
-                                                                                                                    });
-                                                                                                                }
-
-
-
-                                                                                                            }
-
-                                                                                                            @Override
-                                                                                                            public void onCancelled(DatabaseError databaseError) {
-
-                                                                                                            }
-                                                                                                        });
-
-                                                                                                    }else{
-                                                                                                        Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(entry.getKey()+"/unitQuantity").addListenerForSingleValueEvent(new ValueEventListener() {
-                                                                                                            @Override
-                                                                                                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                                                                                                final String productStorage = dataSnapshot.getValue().toString();
-                                                                                                                final float updateStorage = Float.parseFloat(productStorage) - entry.getValue();
+                                                                                                                final float updateStorage = Float.parseFloat(productStorage) - Float.parseFloat(getQuantity);
 
                                                                                                                 if(updateStorage<0){
-                                                                                                                    Toast.makeText(getApplicationContext(),entry.getKey()+" không đủ hàng xuất kho",Toast.LENGTH_LONG).show();
+                                                                                                                    Toast.makeText(getApplicationContext(),productName +" không đủ hàng xuất kho",Toast.LENGTH_LONG).show();
                                                                                                                 }else{
-                                                                                                                    Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(entry.getKey()+"/unitQuantity")
+                                                                                                                    Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(productName+"/unitQuantity")
                                                                                                                             .setValue(updateStorage+"");
+                                                                                                                    // hideProgressDialog();
 
                                                                                                                 }
 
@@ -1636,46 +1821,14 @@ public class OrderManActivity extends AppCompatActivity {
                                                                                                     }
                                                                                                 }
 
-                                                                                            }else{
-                                                                                                productStock.put(promotionName,promotionQuantity);
-
-                                                                                                for(final Map.Entry<String,Float> entry:productStock.entrySet()){
-                                                                                                    Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(entry.getKey()+"/unitQuantity").addListenerForSingleValueEvent(new ValueEventListener() {
-                                                                                                        @Override
-                                                                                                        public void onDataChange(DataSnapshot dataSnapshot) {
-                                                                                                            final String productStorage = dataSnapshot.getValue().toString();
-                                                                                                            final float updateStorage = Float.parseFloat(productStorage) - entry.getValue();
-
-                                                                                                            if(updateStorage<0){
-                                                                                                                Toast.makeText(getApplicationContext(),entry.getKey() +" không đủ hàng xuất kho",Toast.LENGTH_LONG).show();
-                                                                                                            }else{
-                                                                                                                Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(entry.getKey()+"/unitQuantity")
-                                                                                                                        .setValue(updateStorage+"");
-                                                                                                            }
-
-                                                                                                        }
-
-                                                                                                        @Override
-                                                                                                        public void onCancelled(DatabaseError databaseError) {
-
-                                                                                                        }
-                                                                                                    });
-                                                                                                }
-
                                                                                             }
 
-                                                                                        }else{
-                                                                                            if(productStock.containsKey(promotionName)){
-                                                                                                float currentValue = productStock.get(promotionName);
-                                                                                                float updateValue = currentValue + promotionQuantity;
-                                                                                                productStock.put(promotionName,updateValue);
-                                                                                            }else
-                                                                                                productStock.put(promotionName,promotionQuantity);
+                                                                                            @Override
+                                                                                            public void onCancelled(DatabaseError databaseError) {
 
-
-                                                                                        }
+                                                                                            }
+                                                                                        });
                                                                                     }
-
                                                                                 }
 
                                                                                 @Override
@@ -1683,6 +1836,68 @@ public class OrderManActivity extends AppCompatActivity {
 
                                                                                 }
                                                                             });
+
+                                                                            int y = 0;
+                                                                            for(final Map.Entry<String,Float> entry:productStock.entrySet()){
+                                                                                y++;
+                                                                                int mapItemCount = productStock.size();
+
+                                                                                if(y == mapItemCount){
+                                                                                    Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(entry.getKey()+"/unitQuantity").addListenerForSingleValueEvent(new ValueEventListener() {
+                                                                                        @Override
+                                                                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                                                                            final String productStorage = dataSnapshot.getValue().toString();
+                                                                                            final float updateStorage = Float.parseFloat(productStorage) - entry.getValue();
+
+                                                                                            if(updateStorage<0){
+                                                                                                Toast.makeText(getApplicationContext(),entry.getKey() +" không đủ hàng xuất kho",Toast.LENGTH_LONG).show();
+                                                                                            }else{
+
+                                                                                                Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(entry.getKey()+"/unitQuantity")
+                                                                                                        .setValue(updateStorage+"").addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                                                    @Override
+                                                                                                    public void onComplete(@NonNull Task<Void> task) {
+                                                                                                        hideProgressDialog();
+                                                                                                        Toast.makeText(getApplicationContext(),"Cập nhật thành công!",Toast.LENGTH_LONG).show();
+                                                                                                        //startActivity(new Intent(getApplicationContext(),MainActivity.class));
+                                                                                                    }
+                                                                                                });
+                                                                                            }
+
+                                                                                        }
+
+                                                                                        @Override
+                                                                                        public void onCancelled(DatabaseError databaseError) {
+
+                                                                                        }
+                                                                                    });
+
+                                                                                }else{
+                                                                                    Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(entry.getKey()+"/unitQuantity").addListenerForSingleValueEvent(new ValueEventListener() {
+                                                                                        @Override
+                                                                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                                                                            final String productStorage = dataSnapshot.getValue().toString();
+                                                                                            final float updateStorage = Float.parseFloat(productStorage) - entry.getValue();
+
+                                                                                            if(updateStorage<0){
+                                                                                                Toast.makeText(getApplicationContext(),entry.getKey() +" không đủ hàng xuất kho",Toast.LENGTH_LONG).show();
+                                                                                            }else{
+                                                                                                Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(entry.getKey()+"/unitQuantity")
+                                                                                                        .setValue(updateStorage+"");
+                                                                                                hideProgressDialog();
+
+                                                                                            }
+
+                                                                                        }
+
+                                                                                        @Override
+                                                                                        public void onCancelled(DatabaseError databaseError) {
+
+                                                                                        }
+                                                                                    });
+
+                                                                                }
+                                                                            }
                                                                         }else{
 
                                                                             int y = 0;
@@ -1700,13 +1915,16 @@ public class OrderManActivity extends AppCompatActivity {
                                                                                             if(updateStorage<0){
                                                                                                 Toast.makeText(getApplicationContext(),entry.getKey() +" không đủ hàng xuất kho",Toast.LENGTH_LONG).show();
                                                                                             }else{
+
+                                                                                                Toast.makeText(getApplicationContext(),"Cập nhật thành công 2!",Toast.LENGTH_LONG).show();
+
                                                                                                 Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(entry.getKey()+"/unitQuantity")
                                                                                                         .setValue(updateStorage+"").addOnCompleteListener(new OnCompleteListener<Void>() {
                                                                                                     @Override
                                                                                                     public void onComplete(@NonNull Task<Void> task) {
                                                                                                         hideProgressDialog();
                                                                                                         Toast.makeText(getApplicationContext(),"Cập nhật thành công!",Toast.LENGTH_LONG).show();
-                                                                                                        startActivity(new Intent(getApplicationContext(),MainActivity.class));
+                                                                                                        //startActivity(new Intent(getApplicationContext(),MainActivity.class));
                                                                                                     }
                                                                                                 });
                                                                                             }
@@ -1762,142 +1980,31 @@ public class OrderManActivity extends AppCompatActivity {
                                                                             Constants.refDatabase.child(emailLogin+"/OrderList").child(orderKey).child("Promotion").addListenerForSingleValueEvent(new ValueEventListener() {
                                                                                 @Override
                                                                                 public void onDataChange(DataSnapshot dataSnapshot) {
-                                                                                    final Iterable<DataSnapshot> promotionSnap = dataSnapshot.getChildren();
-                                                                                    long itemCount = dataSnapshot.getChildrenCount();
+                                                                                    if(dataSnapshot.hasChild("BGM")){
+                                                                                        Constants.refDatabase.child(emailLogin+"/OrderList").child(orderKey).child("Promotion").child("BGM").addListenerForSingleValueEvent(new ValueEventListener() {
+                                                                                            @Override
+                                                                                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                                                                                Iterable<DataSnapshot> snapPro = dataSnapshot.getChildren();
+                                                                                                for(DataSnapshot itemPro:snapPro){
 
-                                                                                    int i = 0;
-                                                                                    for(DataSnapshot promotionItem:promotionSnap){
-                                                                                        i++;
-                                                                                        Product promotion = promotionItem.getValue(Product.class);
-                                                                                        assert promotion != null;
-                                                                                        final String promotionName = promotion.getProductName();
-                                                                                        final String promotionCode = promotion.getProductCode();
-                                                                                        final float promotionQuantity = Float.parseFloat(promotion.getUnitQuantity());
+                                                                                                    Promotion promotion = itemPro.getValue(Promotion.class);
+                                                                                                    String getName = promotion.getPromotionGetName();
 
-                                                                                        if(i==itemCount){
+                                                                                                    if(getName.equals(productName)){
+                                                                                                        final String getQuantity = promotion.getPromotionGetQuantity();
 
-                                                                                            if(productStock.containsKey(promotionName)){
-                                                                                                float currentValue = productStock.get(promotionCode);
-                                                                                                float updateValue = currentValue + promotionQuantity;
-                                                                                                productStock.put(promotionCode,updateValue);
-
-                                                                                                int y = 0;
-                                                                                                for(final Map.Entry<String,Float> entry:productStock.entrySet()){
-                                                                                                    y++;
-                                                                                                    int mapItemCount = productStock.size();
-
-                                                                                                    if(y == mapItemCount){
-                                                                                                        final String timeStamp = Calendar.getInstance().getTime().getTime()+"";
-
-                                                                                                        Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(entry.getKey()+"/unitQuantity").addListenerForSingleValueEvent(new ValueEventListener() {
+                                                                                                        Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(productName+"/unitQuantity").addListenerForSingleValueEvent(new ValueEventListener() {
                                                                                                             @Override
                                                                                                             public void onDataChange(DataSnapshot dataSnapshot) {
                                                                                                                 final String productStorage = dataSnapshot.getValue().toString();
-                                                                                                                final float updateStorage = Float.parseFloat(productStorage) - entry.getValue();
+                                                                                                                final float updateStorage = Float.parseFloat(productStorage) - Float.parseFloat(getQuantity);
 
                                                                                                                 if(updateStorage<0){
-                                                                                                                    Toast.makeText(getApplicationContext(),entry.getKey() +" không đủ hàng xuất kho",Toast.LENGTH_LONG).show();
+                                                                                                                    Toast.makeText(getApplicationContext(),productName +" không đủ hàng xuất kho",Toast.LENGTH_LONG).show();
                                                                                                                 }else{
-                                                                                                                    Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(entry.getKey()+"/unitQuantity")
-                                                                                                                            .setValue(updateStorage+"").addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                                                                                        @Override
-                                                                                                                        public void onComplete(@NonNull Task<Void> task) {
-                                                                                                                            hideProgressDialog();
-                                                                                                                            Toast.makeText(getApplicationContext(),"Cập nhật thành công!",Toast.LENGTH_LONG).show();
-                                                                                                                            startActivity(new Intent(getApplicationContext(),MainActivity.class));
-                                                                                                                        }
-                                                                                                                    });
-                                                                                                                }
-
-                                                                                                            }
-
-                                                                                                            @Override
-                                                                                                            public void onCancelled(DatabaseError databaseError) {
-
-                                                                                                            }
-                                                                                                        });
-
-                                                                                                    }else{
-                                                                                                        final String timeStamp = Calendar.getInstance().getTime().getTime()+"";
-
-                                                                                                        Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(entry.getKey()+"/unitQuantity").addListenerForSingleValueEvent(new ValueEventListener() {
-                                                                                                            @Override
-                                                                                                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                                                                                                final String productStorage = dataSnapshot.getValue().toString();
-                                                                                                                final float updateStorage = Float.parseFloat(productStorage) - entry.getValue();
-
-                                                                                                                if(updateStorage<0){
-                                                                                                                    Toast.makeText(getApplicationContext(),entry.getKey() +" không đủ hàng xuất kho",Toast.LENGTH_LONG).show();
-                                                                                                                }else{
-                                                                                                                    Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(entry.getKey()+"/unitQuantity")
+                                                                                                                    Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(productName+"/unitQuantity")
                                                                                                                             .setValue(updateStorage+"");
-
-                                                                                                                }
-
-                                                                                                            }
-
-                                                                                                            @Override
-                                                                                                            public void onCancelled(DatabaseError databaseError) {
-
-                                                                                                            }
-                                                                                                        });
-
-                                                                                                    }
-                                                                                                }
-
-                                                                                            }else{
-                                                                                                productStock.put(promotionCode,promotionQuantity);
-
-                                                                                                int y = 0;
-                                                                                                for(final Map.Entry<String,Float> entry:productStock.entrySet()){
-                                                                                                    y++;
-                                                                                                    int mapItemCount = productStock.size();
-
-                                                                                                    if(y == mapItemCount){
-                                                                                                        final String timeStamp = Calendar.getInstance().getTime().getTime()+"";
-
-                                                                                                        Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(entry.getKey()+"/unitQuantity").addListenerForSingleValueEvent(new ValueEventListener() {
-                                                                                                            @Override
-                                                                                                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                                                                                                final String productStorage = dataSnapshot.getValue().toString();
-                                                                                                                final float updateStorage = Float.parseFloat(productStorage) - entry.getValue();
-
-                                                                                                                if(updateStorage<0){
-                                                                                                                    Toast.makeText(getApplicationContext(),entry.getKey() +" không đủ hàng xuất kho",Toast.LENGTH_LONG).show();
-                                                                                                                }else{
-                                                                                                                    Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(entry.getKey()+"/unitQuantity")
-                                                                                                                            .setValue(updateStorage+"").addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                                                                                        @Override
-                                                                                                                        public void onComplete(@NonNull Task<Void> task) {
-                                                                                                                            hideProgressDialog();
-                                                                                                                            Toast.makeText(getApplicationContext(),"Cập nhật thành công!",Toast.LENGTH_LONG).show();
-                                                                                                                            startActivity(new Intent(getApplicationContext(),MainActivity.class));
-                                                                                                                        }
-                                                                                                                    });
-                                                                                                                }
-
-                                                                                                            }
-
-                                                                                                            @Override
-                                                                                                            public void onCancelled(DatabaseError databaseError) {
-
-                                                                                                            }
-                                                                                                        });
-
-                                                                                                    }else{
-                                                                                                        final String timeStamp = Calendar.getInstance().getTime().getTime()+"";
-
-                                                                                                        Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(entry.getKey()+"/unitQuantity").addListenerForSingleValueEvent(new ValueEventListener() {
-                                                                                                            @Override
-                                                                                                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                                                                                                final String productStorage = dataSnapshot.getValue().toString();
-                                                                                                                final float updateStorage = Float.parseFloat(productStorage) - entry.getValue();
-
-                                                                                                                if(updateStorage<0){
-                                                                                                                    Toast.makeText(getApplicationContext(),entry.getKey() +" không đủ hàng xuất kho",Toast.LENGTH_LONG).show();
-                                                                                                                }else{
-                                                                                                                    Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(entry.getKey()+"/unitQuantity")
-                                                                                                                            .setValue(updateStorage+"");
+                                                                                                                    // hideProgressDialog();
 
                                                                                                                 }
 
@@ -1914,18 +2021,12 @@ public class OrderManActivity extends AppCompatActivity {
 
                                                                                             }
 
-                                                                                        }else{
-                                                                                            if(productStock.containsKey(promotionName)){
-                                                                                                float currentValue = productStock.get(promotionName);
-                                                                                                float updateValue = currentValue + promotionQuantity;
-                                                                                                productStock.put(promotionName,updateValue);
-                                                                                            }else
-                                                                                                productStock.put(promotionName,promotionQuantity);
+                                                                                            @Override
+                                                                                            public void onCancelled(DatabaseError databaseError) {
 
-
-                                                                                        }
+                                                                                            }
+                                                                                        });
                                                                                     }
-
                                                                                 }
 
                                                                                 @Override
@@ -1933,6 +2034,71 @@ public class OrderManActivity extends AppCompatActivity {
 
                                                                                 }
                                                                             });
+
+                                                                            int y = 0;
+                                                                            for(final Map.Entry<String,Float> entry:productStock.entrySet()){
+                                                                                y++;
+                                                                                int mapItemCount = productStock.size();
+
+                                                                                if(y == mapItemCount){
+                                                                                    Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(entry.getKey()+"/unitQuantity").addListenerForSingleValueEvent(new ValueEventListener() {
+                                                                                        @Override
+                                                                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                                                                            final String productStorage = dataSnapshot.getValue().toString();
+                                                                                            final float updateStorage = Float.parseFloat(productStorage) - entry.getValue();
+
+                                                                                            if(updateStorage<0){
+                                                                                                Toast.makeText(getApplicationContext(),entry.getKey() +" không đủ hàng xuất kho",Toast.LENGTH_LONG).show();
+                                                                                            }else{
+
+                                                                                                Toast.makeText(getApplicationContext(),"Cập nhật thành công 2!",Toast.LENGTH_LONG).show();
+
+                                                                                                Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(entry.getKey()+"/unitQuantity")
+                                                                                                        .setValue(updateStorage+"").addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                                                    @Override
+                                                                                                    public void onComplete(@NonNull Task<Void> task) {
+                                                                                                        hideProgressDialog();
+                                                                                                        Toast.makeText(getApplicationContext(),"Cập nhật thành công!",Toast.LENGTH_LONG).show();
+                                                                                                        //startActivity(new Intent(getApplicationContext(),MainActivity.class));
+                                                                                                    }
+                                                                                                });
+                                                                                            }
+
+                                                                                        }
+
+                                                                                        @Override
+                                                                                        public void onCancelled(DatabaseError databaseError) {
+
+                                                                                        }
+                                                                                    });
+
+                                                                                }else{
+                                                                                    Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(entry.getKey()+"/unitQuantity").addListenerForSingleValueEvent(new ValueEventListener() {
+                                                                                        @Override
+                                                                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                                                                            final String productStorage = dataSnapshot.getValue().toString();
+                                                                                            final float updateStorage = Float.parseFloat(productStorage) - entry.getValue();
+
+                                                                                            if(updateStorage<0){
+                                                                                                Toast.makeText(getApplicationContext(),entry.getKey() +" không đủ hàng xuất kho",Toast.LENGTH_LONG).show();
+                                                                                            }else{
+                                                                                                Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(entry.getKey()+"/unitQuantity")
+                                                                                                        .setValue(updateStorage+"");
+                                                                                                // hideProgressDialog();
+
+                                                                                            }
+
+                                                                                        }
+
+                                                                                        @Override
+                                                                                        public void onCancelled(DatabaseError databaseError) {
+
+                                                                                        }
+                                                                                    });
+
+                                                                                }
+                                                                            }
+
                                                                         }else{
                                                                             int y = 0;
                                                                             for(final Map.Entry<String,Float> entry:productStock.entrySet()){
@@ -1956,7 +2122,7 @@ public class OrderManActivity extends AppCompatActivity {
                                                                                                     public void onComplete(@NonNull Task<Void> task) {
                                                                                                         hideProgressDialog();
                                                                                                         Toast.makeText(getApplicationContext(),"Cập nhật thành công!",Toast.LENGTH_LONG).show();
-                                                                                                        startActivity(new Intent(getApplicationContext(),MainActivity.class));
+                                                                                                        //startActivity(new Intent(getApplicationContext(),MainActivity.class));
                                                                                                     }
                                                                                                 });
 
@@ -1994,7 +2160,6 @@ public class OrderManActivity extends AppCompatActivity {
 
                                                                                         }
                                                                                     });
-                                                                                    Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("ProductOut").child(entry.getKey()).child(timeStamp).setValue(product);
                                                                                 }
                                                                             }
                                                                         }
@@ -2019,6 +2184,7 @@ public class OrderManActivity extends AppCompatActivity {
                                                             }
 
                                                         }
+
                                                     }
                                                 }
 
@@ -2027,7 +2193,6 @@ public class OrderManActivity extends AppCompatActivity {
 
                                                 }
                                             });
-
 
                                         }
 
@@ -2170,7 +2335,14 @@ public class OrderManActivity extends AppCompatActivity {
                     AlertDialog.Builder builder = new AlertDialog.Builder(OrderManActivity.this);
                     builder.setMessage("Duyệt đơn hàng này?");
 
-                    builder.setNegativeButton("Không", new DialogInterface.OnClickListener() {
+                    builder.setNeutralButton("Chưa", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                        }
+                    });
+
+                    builder.setNegativeButton("Xoá", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             Constants.refDatabase.child(emailLogin+"/Order").child("OutRoute").child(orderPushKey).setValue(null);
@@ -2243,6 +2415,17 @@ public class OrderManActivity extends AppCompatActivity {
                     tvChooseProduct.setText(p.getProductName());
                 }
             });
+
+        }
+    }
+    public class OrderViewHolderByTime extends RecyclerView.ViewHolder {
+        TextView orderName;
+
+
+        public OrderViewHolderByTime(View itemView) {
+            super(itemView);
+            orderName = (TextView) itemView.findViewById(R.id.tv_order_name);
+
 
         }
     }

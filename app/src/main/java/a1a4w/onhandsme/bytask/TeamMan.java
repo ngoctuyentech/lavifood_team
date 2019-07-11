@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import a1a4w.onhandsme.MainActivity;
 import a1a4w.onhandsme.R;
 import a1a4w.onhandsme.model.Client;
 import a1a4w.onhandsme.model.Employee;
@@ -344,5 +345,9 @@ public class TeamMan extends AppCompatActivity implements OnMapReadyCallback {
         }
     }
 
-
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        startActivity(new Intent(this, MainActivity.class));
+    }
 }

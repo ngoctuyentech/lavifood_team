@@ -24,6 +24,7 @@ import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
 import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -43,9 +44,14 @@ import a1a4w.onhandsme.model.Client;
 import a1a4w.onhandsme.model.MapModel;
 import a1a4w.onhandsme.order.UpdateOrderActivity;
 import de.hdodenhof.circleimageview.CircleImageView;
+import im.delight.android.location.SimpleLocation;
 
+import static a1a4w.onhandsme.bytask.SaleRoute.btnIn;
+import static a1a4w.onhandsme.bytask.SaleRoute.btnNewOrder;
+import static a1a4w.onhandsme.bytask.SaleRoute.btnOut;
 import static a1a4w.onhandsme.bytask.SaleRoute.clientOnMapLat;
 import static a1a4w.onhandsme.bytask.SaleRoute.clientOnMapLong;
+import static a1a4w.onhandsme.bytask.SaleRoute.latitude;
 import static a1a4w.onhandsme.bytask.SaleRoute.mMap;
 import static a1a4w.onhandsme.utils.Constants.buttonClick;
 import static a1a4w.onhandsme.utils.Constants.refDatabase;
@@ -125,14 +131,34 @@ public class AdapterMeetClient extends RecyclerView.Adapter<AdapterMeetClient.Cl
                     Client client = items.get(choosenClient);
                     MapModel clientMap = client.getMap();
                     final String clientCode = client.getClientCode();
+                    String clientName = client.getClientName();
                     //SaleRoute.choosenClientCode = clientCode;
+
 
                     clientOnMapLat = Double.parseDouble(clientMap.getLatitude());
                     clientOnMapLong = Double.parseDouble(clientMap.getLongitude());
 
+
+                    SimpleLocation.Point agentPoint = new SimpleLocation.Point(clientOnMapLat, clientOnMapLong);
+                    SimpleLocation.Point salePoint = new SimpleLocation.Point(latitude,SaleRoute.longitude);
+                    double currentDistance = SimpleLocation.calculateDistance(agentPoint, salePoint);
+
+                    Toast.makeText(context, currentDistance+"", Toast.LENGTH_LONG).show();
+
+                    if(currentDistance>100){
+                        btnIn.setBackgroundColor(context.getResources().getColor(android.R.color.darker_gray));
+                        btnIn.setEnabled(false);
+                        btnOut.setBackgroundColor(context.getResources().getColor(android.R.color.darker_gray));
+                        btnOut.setEnabled(false);
+                        btnNewOrder.setBackgroundColor(context.getResources().getColor(android.R.color.darker_gray));
+                        btnNewOrder.setEnabled(false);
+                    }
+
+
                     LatLng onMapClient = new LatLng(clientOnMapLat, clientOnMapLong);
 
-                    mMap.addMarker(new MarkerOptions().position(onMapClient));
+                    mMap.addMarker(new MarkerOptions().position(onMapClient).icon(BitmapDescriptorFactory.fromResource(R.drawable.icon_client_map))
+                            .title(clientName));
 
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(onMapClient,16.0f));
 
@@ -296,7 +322,7 @@ public class AdapterMeetClient extends RecyclerView.Adapter<AdapterMeetClient.Cl
                             builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    MapModel updateMap = new MapModel(SaleRoute.latitude+"",SaleRoute.longitude+"");
+                                    MapModel updateMap = new MapModel(latitude+"",SaleRoute.longitude+"");
                                     refDatabase.child(emailLogin).child("Client").child(clientCode).child("map").setValue(updateMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {

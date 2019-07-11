@@ -29,7 +29,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
-                android:text="Thông tin đơn hàng"
+                android:text="Thông tin sản phẩm"
                 android:textStyle="bold|italic"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/constraintLayout5" />
@@ -49,28 +49,6 @@
                 app:layout_constraintTop_toBottomOf="@+id/textView198">
 
                 <TextView
-                    android:id="@+id/textView199"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginTop="8dp"
-                    android:text="Thanh toán"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/textView205" />
-
-                <Switch
-                    android:id="@+id/sw_order_payment"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:layout_marginEnd="4dp"
-                    android:text="Tiền mặt "
-                    android:textOff="Tiền mặt"
-                    android:textOn="Công nợ"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/spin_order_vat" />
-
-                <TextView
                     android:id="@+id/textView200"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -85,24 +63,26 @@
                     android:layout_width="wrap_content"
                     android:layout_height="30dp"
                     android:layout_marginTop="8dp"
-                    android:layout_marginEnd="4dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginBottom="8dp"
                     android:background="@drawable/border_drug_cat_accent"
                     android:paddingLeft="6dp"
                     android:paddingRight="6dp"
-                    android:text="Chọn sản phẩm"
+                    android:text="Thêm sản phẩm"
                     android:textColor="@android:color/white"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toBottomOf="@+id/tv_order_product_stock" />
 
                 <TextView
                     android:id="@+id/textView201"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="4dp"
                     android:text="Tồn kho"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/textView200" />
+                    app:layout_constraintTop_toBottomOf="@+id/rv_order_list_product" />
 
                 <TextView
                     android:id="@+id/tv_order_product_stock"
@@ -118,14 +98,13 @@
                     android:layout_width="120dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
-                    android:layout_marginTop="6dp"
                     android:background="@android:color/darker_gray"
                     android:ems="10"
                     android:hint="Giá"
                     android:inputType="number"
                     android:textColorHint="@android:color/white"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/textView201" />
+                    app:layout_constraintTop_toTopOf="@+id/edt_order_product_quantity" />
 
                 <EditText
                     android:id="@+id/edt_order_product_quantity"
@@ -137,72 +116,31 @@
                     android:hint="S.lượng"
                     android:inputType="number"
                     android:textColorHint="@android:color/white"
+                    app:layout_constraintBottom_toBottomOf="@+id/btn_order_choose_product"
                     app:layout_constraintStart_toEndOf="@+id/edt_order_product_price"
-                    app:layout_constraintTop_toTopOf="@+id/edt_order_product_price" />
+                    app:layout_constraintTop_toTopOf="@+id/btn_order_choose_product" />
 
-                <TextView
-                    android:id="@+id/textView205"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/rv_order_list_product"
+                    android:layout_width="0dp"
+                    android:layout_height="60dp"
+                    android:layout_marginStart="8dp"
                     android:layout_marginTop="6dp"
-                    android:text="VAT (%)"
+                    android:layout_marginEnd="8dp"
+                    android:visibility="gone"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.571"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/edt_order_product_price" />
+                    app:layout_constraintTop_toBottomOf="@+id/spin_order_product" />
 
                 <Spinner
-                    android:id="@+id/spin_order_vat"
-                    android:layout_width="120dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:layout_marginEnd="4dp"
-                    android:entries="@array/VAT_array"
-                    android:textAlignment="textEnd"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/edt_order_product_quantity" />
-
-                <EditText
-                    android:id="@+id/edt_order_date_delivery"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginEnd="8dp"
-                    android:background="@android:color/darker_gray"
-                    android:ems="10"
-                    android:hint="Ngày giao"
-                    android:inputType="date"
-                    android:textColorHint="@android:color/white"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/edt_order_product_quantity"
-                    app:layout_constraintTop_toTopOf="@+id/edt_order_product_quantity" />
-
-                <TextView
-                    android:id="@+id/tv_order_product_name"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/spin_order_product"
+                    android:layout_width="220dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:layout_marginEnd="4dp"
-                    android:text="TextView"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
-
-                <EditText
-                    android:id="@+id/edt_order_note"
-                    android:layout_width="0dp"
-                    android:layout_height="30dp"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="4dp"
-                    android:layout_marginBottom="16dp"
-                    android:background="@android:color/darker_gray"
-                    android:ems="10"
-                    android:inputType="textPersonName"
-                    android:text="Ghi chú"
-                    android:textColor="@android:color/white"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/sw_order_payment" />
 
             </android.support.constraint.ConstraintLayout>
 
@@ -218,29 +156,18 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <android.support.constraint.ConstraintLayout
+                android:id="@+id/constraintLayout13"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
 
+                android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
-                android:layout_marginBottom="32dp"
                 android:background="@drawable/border_white"
                 android:elevation="4dp"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textView207">
-
-                <TextView
-                    android:id="@+id/textView208"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="-1dp"
-                    android:layout_marginTop="8dp"
-                    android:text="Tên"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
 
                 <Button
                     android:id="@+id/btn_order_choose_promotion"
@@ -248,50 +175,28 @@
                     android:layout_height="30dp"
                     android:layout_marginTop="8dp"
                     android:layout_marginEnd="4dp"
+                    android:layout_marginBottom="8dp"
                     android:background="@drawable/border_drug_cat_accent"
                     android:paddingLeft="6dp"
                     android:paddingRight="6dp"
-                    android:text="Chọn chương trình"
+                    android:text="Thêm chương trình"
                     android:textColor="@android:color/white"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <EditText
-                    android:id="@+id/edt_order_special_discount"
-                    android:layout_width="100dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginEnd="4dp"
-                    android:layout_marginBottom="8dp"
-                    android:background="@android:color/darker_gray"
-                    android:ems="10"
-                    android:hint="Mức CK"
-                    android:inputType="number"
-                    android:textColorHint="@android:color/white"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/textView208" />
+                    app:layout_constraintTop_toBottomOf="@+id/rv_program_list" />
 
-                <TextView
-                    android:id="@+id/textView209"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginTop="16dp"
-                    android:text="Chương trình riêng (%)"
-                    app:layout_constraintBottom_toBottomOf="@+id/edt_order_special_discount"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/textView208" />
-
-                <TextView
-                    android:id="@+id/tv_order_promotion_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/rv_program_list"
+                    android:layout_width="0dp"
+                    android:layout_height="60dp"
+                    android:layout_marginStart="8dp"
                     android:layout_marginTop="8dp"
-                    android:layout_marginEnd="4dp"
-                    android:text="TextView"
+                    android:layout_marginEnd="8dp"
+                    android:visibility="gone"
                     app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
+
             </android.support.constraint.ConstraintLayout>
 
             <android.support.constraint.ConstraintLayout
@@ -413,8 +318,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
-                    android:layout_marginTop="6dp"
-                    android:text="DS tích lũy"
+                    android:text="DS năm"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/textView190" />
 
@@ -423,7 +327,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
-                    android:layout_marginTop="6dp"
                     android:layout_marginBottom="8dp"
                     android:text="Công nợ"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -435,7 +338,6 @@
                     android:id="@+id/tv_order_client_debt"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
                     android:layout_marginEnd="4dp"
                     android:text="TextView"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -445,7 +347,6 @@
                     android:id="@+id/tv_order_client_sale"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
                     android:layout_marginEnd="4dp"
                     android:text="TextView"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -462,6 +363,109 @@
                 android:textStyle="bold|italic"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/constraintLayout4" />
+
+            <android.support.constraint.ConstraintLayout
+                android:id="@+id/constraintLayout16"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="24dp"
+                android:background="@drawable/border_white"
+                android:elevation="4dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView238">
+
+                <Switch
+                    android:id="@+id/sw_order_payment"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:text="Tiền mặt "
+                    android:textOff="Tiền mặt"
+                    android:textOn="Công nợ"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/spin_order_vat" />
+
+                <Spinner
+                    android:id="@+id/spin_order_vat"
+                    android:layout_width="120dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:entries="@array/VAT_array"
+                    android:textAlignment="textEnd"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <EditText
+                    android:id="@+id/edt_order_date_delivery"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@android:color/darker_gray"
+                    android:ems="10"
+                    android:hint="Ngày giao"
+                    android:inputType="date"
+                    android:textColorHint="@android:color/white"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/sw_order_payment" />
+
+                <TextView
+                    android:id="@+id/textView205"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:text="VAT (%)"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/textView199"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:text="Thanh toán"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/textView205" />
+
+                <EditText
+                    android:id="@+id/edt_order_note"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:background="@android:color/darker_gray"
+                    android:ems="10"
+                    android:hint="Ghi chú"
+                    android:inputType="textPersonName"
+                    android:textColor="@android:color/white"
+                    android:textColorHint="@android:color/white"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.428"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/edt_order_date_delivery" />
+            </android.support.constraint.ConstraintLayout>
+
+            <TextView
+                android:id="@+id/textView238"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:text="Thông tin đơn hàng"
+                android:textStyle="bold|italic"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/constraintLayout13" />
 
         </android.support.constraint.ConstraintLayout>
 

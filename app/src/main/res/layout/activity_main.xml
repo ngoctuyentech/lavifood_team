@@ -27,7 +27,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="20dp"
         android:layout_marginEnd="8dp"
-        android:text="Đang đăng nhập...\n(Vui lòng kết nối Internet)"
+        android:text="Đang xử lý...\n(Vui lòng kết nối Internet)"
         android:textAlignment="center"
         android:textColor="@android:color/white"
         app:layout_constraintEnd_toEndOf="parent"

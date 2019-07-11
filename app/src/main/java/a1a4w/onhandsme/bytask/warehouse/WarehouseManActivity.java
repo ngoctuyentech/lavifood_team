@@ -33,8 +33,6 @@ import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -515,7 +513,6 @@ public class WarehouseManActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 view.startAnimation(buttonClick);
-                addNewProductDialog();
             }
         });
 
@@ -548,47 +545,6 @@ public class WarehouseManActivity extends AppCompatActivity {
         adapterFirebaseProduct.notifyDataSetChanged();
 
         dialogProductList.show();
-    }
-    private void addNewProductDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = this.getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.dialog_new_product,null);
-        builder.setView(dialogView);
-        builder.setMessage("Thêm sản phẩm mới");
-
-        final Dialog dialogProduct = builder.create();
-        dialogProduct.show();
-
-        final EditText edtAddProduct = (EditText)dialogView.findViewById(R.id.edt_dialog_add_product_name);
-        final EditText edtStorage = (EditText)dialogView.findViewById(R.id.edt_new_product_storage);
-
-        Button btnAdd = (Button) dialogView.findViewById(R.id.btn_dialog_add_product_ok);
-
-        btnAdd.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                v.startAnimation(Constants.buttonClick);
-                final String productName = edtAddProduct.getText().toString();
-                final String productStorage = edtStorage.getText().toString();
-
-                if(TextUtils.isEmpty(productName)){
-                    Toast.makeText(getApplicationContext(),"Vui lòng nhập tên Sản phẩm", Toast.LENGTH_LONG).show();
-
-                }else if(TextUtils.isEmpty(productName)){
-                    Toast.makeText(getApplicationContext(),"Vui lòng nhập lượng tồn kho ban đầu", Toast.LENGTH_LONG).show();
-
-                }else{
-                    Product product = new Product(productName,productStorage);
-                    Product newProduct = new Product(productName);
-                    refDatabase.child(emailLogin+"/Product").child(productName).setValue(newProduct);
-                    refDatabase.child(emailLogin).child("WarehouseMan/StorageMan").child(productName).setValue(product);
-                    dialogProduct.dismiss();
-                }
-
-
-            }
-        });
-
     }
 
     //Utils

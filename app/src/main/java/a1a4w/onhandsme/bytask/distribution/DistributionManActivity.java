@@ -29,6 +29,10 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
+
+import java.util.Arrays;
+import java.util.List;
+
 import a1a4w.onhandsme.LoginActivity;
 import a1a4w.onhandsme.MainActivity;
 import a1a4w.onhandsme.R;
@@ -39,10 +43,6 @@ import a1a4w.onhandsme.model.Product;
 import a1a4w.onhandsme.order.ViewOrderDetailActivity;
 import a1a4w.onhandsme.utils.Constants;
 import a1a4w.onhandsme.utils.MySpinerAdapter;
-
-import java.util.Arrays;
-import java.util.List;
-
 import fr.ganfra.materialspinner.MaterialSpinner;
 
 import static a1a4w.onhandsme.utils.Constants.buttonClick;
@@ -368,7 +368,6 @@ public class DistributionManActivity extends AppCompatActivity {
         }
 
         if(id == R.id.action_create_product){
-            addNewProductDialog();
         }
 
         if(id == R.id.action_view_meet_client){
@@ -724,7 +723,6 @@ public class DistributionManActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 view.startAnimation(buttonClick);
-                addNewProductDialog();
             }
         });
 
@@ -757,47 +755,6 @@ public class DistributionManActivity extends AppCompatActivity {
         adapterFirebaseProduct.notifyDataSetChanged();
 
         dialogProductList.show();
-    }
-    private void addNewProductDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = this.getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.dialog_new_product,null);
-        builder.setView(dialogView);
-        builder.setMessage("Thêm sản phẩm mới");
-
-        final Dialog dialogProduct = builder.create();
-        dialogProduct.show();
-
-        final EditText edtAddProduct = (EditText)dialogView.findViewById(R.id.edt_dialog_add_product_name);
-        final EditText edtStorage = (EditText)dialogView.findViewById(R.id.edt_new_product_storage);
-
-        Button btnAdd = (Button) dialogView.findViewById(R.id.btn_dialog_add_product_ok);
-
-        btnAdd.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                v.startAnimation(Constants.buttonClick);
-                final String productName = edtAddProduct.getText().toString();
-                final String productStorage = edtStorage.getText().toString();
-
-                if(TextUtils.isEmpty(productName)){
-                    Toast.makeText(getApplicationContext(),"Vui lòng nhập tên Sản phẩm", Toast.LENGTH_LONG).show();
-
-                }else if(TextUtils.isEmpty(productName)){
-                    Toast.makeText(getApplicationContext(),"Vui lòng nhập lượng tồn kho ban đầu", Toast.LENGTH_LONG).show();
-
-                }else{
-                    Product product = new Product(productName,productStorage);
-                    Product newProduct = new Product(productName);
-                    refDatabase.child(emailLogin+"/Product").child(productName).setValue(newProduct);
-                    refDatabase.child(emailLogin).child("WarehouseMan/StorageMan").child(productName).setValue(product);
-                    dialogProduct.dismiss();
-                }
-
-
-            }
-        });
-
     }
     private void employeeListDialog() {
 

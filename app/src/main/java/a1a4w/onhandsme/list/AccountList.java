@@ -21,6 +21,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.Iterator;
 
+import a1a4w.onhandsme.MainActivity;
 import a1a4w.onhandsme.R;
 import a1a4w.onhandsme.bytask.CreateAccount;
 import a1a4w.onhandsme.model.Employee;
@@ -492,5 +493,9 @@ public class AccountList extends AppCompatActivity {
 
         }
     }
-
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        startActivity(new Intent(this, MainActivity.class));
+    }
 }

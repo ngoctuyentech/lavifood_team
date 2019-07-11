@@ -17,6 +17,7 @@ public class Product {
     String productTotal;
     String nameNotViet;
     String productCode;
+    String productDiscount;
 
     public Product() {
     }
@@ -32,9 +33,9 @@ public class Product {
         this.productCode = productCode;
     }
 
-    public Product(String productName, String unitQuantity) {
+    public Product(String productName, String productDiscount) {
         this.productName = productName;
-        this.unitQuantity = unitQuantity;
+        this.productDiscount = productDiscount;
     }
 
     public Product(String productName, String unitQuantity, String nameNotViet) {
@@ -106,5 +107,9 @@ public class Product {
 
     public String getProductCode() {
         return productCode;
+    }
+
+    public String getProductDiscount() {
+        return productDiscount;
     }
 }
