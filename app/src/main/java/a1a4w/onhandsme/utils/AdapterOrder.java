@@ -1,5 +1,6 @@
 package a1a4w.onhandsme.utils;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
@@ -22,16 +23,18 @@ public class AdapterOrder extends RecyclerView.Adapter<AdapterOrder.OrderViewHol
     private List<OrderDetail> items;
     private OrderDetail order;
     private String emailLogin;
+    private Activity activity;
 
     public AdapterOrder() {
         super();
 
     }
 
-    public AdapterOrder(Context context, List<OrderDetail> items,String emailLogin) {
+    public AdapterOrder(Context context, List<OrderDetail> items,String emailLogin,Activity activity) {
         this.context = context;
         this.items = items;
         this.emailLogin = emailLogin;
+        this.activity = activity;
     }
 
     @Override
@@ -83,7 +86,7 @@ public class AdapterOrder extends RecyclerView.Adapter<AdapterOrder.OrderViewHol
                     intent1.putExtra("EmailLogin", emailLogin);
 
                     intent1.putExtra("ViewOnly",true);
-                    context.startActivity(intent1);
+                    activity.startActivity(intent1);
 
                 }
             });

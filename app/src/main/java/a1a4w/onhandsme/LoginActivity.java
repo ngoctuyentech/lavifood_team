@@ -2,6 +2,7 @@ package a1a4w.onhandsme;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -11,6 +12,7 @@ import android.view.animation.AlphaAnimation;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -52,6 +54,13 @@ public class LoginActivity extends AppCompatActivity {
 
         initializeScreen();
 
+        TextView tvtvLogo = findViewById(R.id.tv_login_logo);
+        Typeface font = Typeface.createFromAsset(getAssets(), "bitsumishi.ttf");
+        tvtvLogo.setTypeface(font);
+
+        TextView tvName = findViewById(R.id.tv_login_name);
+        Typeface fontName = Typeface.createFromAsset(getAssets(), "aurora.ttf");
+        tvName.setTypeface(fontName);
 
         refDatabase = FirebaseDatabase.getInstance().getReference();
         /*

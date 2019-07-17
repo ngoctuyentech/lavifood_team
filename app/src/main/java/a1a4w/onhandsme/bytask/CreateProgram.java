@@ -43,7 +43,7 @@ import static a1a4w.onhandsme.utils.Constants.refDatabase;
 
 public class CreateProgram extends AppCompatActivity {
     private boolean orderDis,productDis,bgm;
-    private String promotionKey,choosenProductDis,choosenProductBuy,choosenProductGet;
+    private String promotionKey,choosenProductDis,choosenProductBuy,choosenProductGet,choosenProductGetCode;
     private ArrayAdapter<String> adpProduct;
     private FirebaseRecyclerAdapter<Product, ProductViewHolder> adapterFirebaseProductDis;
     private FirebaseRecyclerAdapter<Promotion, ProductBGMHolder> adapterProductBGM;
@@ -188,8 +188,28 @@ public class CreateProgram extends AppCompatActivity {
         spinProductGet.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if(position != 0)
+                if(position != 0){
                     choosenProductGet = (String) parent.getItemAtPosition(position);
+                    refDatabase.child(emailLogin).child("Product").addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            Iterable<DataSnapshot> snapProduct = dataSnapshot.getChildren();
+                            for (DataSnapshot itemProduct:snapProduct) {
+                                Product p = itemProduct.getValue(Product.class);
+                                if(p.getProductName().equals(choosenProductGet)){
+                                    choosenProductGetCode = itemProduct.getKey();
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+
+                }
+
             }
 
             @Override
@@ -538,11 +558,11 @@ public class CreateProgram extends AppCompatActivity {
                 String buyQuantity = edtBuyQuantity.getText().toString();
                 String getQuantity = edtGetQuantity.getText().toString();
 
-                if(choosenProductBuy!=null && choosenProductGet!=null){
+                if(choosenProductBuy!=null && choosenProductGet!=null && choosenProductGetCode!=null){
                     if(TextUtils.isEmpty(buyQuantity) || TextUtils.isEmpty(getQuantity)){
                         Toast.makeText(getApplicationContext(), "Vui lòng nhập đủ số lượng mua và tặng",Toast.LENGTH_LONG).show();
                     }else{
-                        Promotion promotion = new Promotion(choosenProductBuy,choosenProductGet,buyQuantity,getQuantity);
+                        Promotion promotion = new Promotion(choosenProductBuy,choosenProductGet,buyQuantity,getQuantity,choosenProductGetCode);
                         refPromotionMan.child("BGM").push().setValue(promotion).addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {

@@ -17,6 +17,7 @@ public class Promotion {
     String promotionGetName;
     String promotionBuyQuantity;
     String promotionGetQuantity;
+    String promotionGetCode;
     String promotionCode;
 
     public Promotion() {
@@ -33,11 +34,12 @@ public class Promotion {
         this.promotionEndDate = promotionEndDate;
     }
 
-    public Promotion(String promotionBuyName, String promotionGetName, String promotionBuyQuantity, String promotionGetQuantity) {
+    public Promotion(String promotionBuyName, String promotionGetName, String promotionBuyQuantity, String promotionGetQuantity,String promotionGetCode) {
         this.promotionBuyName = promotionBuyName;
         this.promotionGetName = promotionGetName;
         this.promotionBuyQuantity = promotionBuyQuantity;
         this.promotionGetQuantity = promotionGetQuantity;
+        this.promotionGetCode = promotionGetCode;
     }
 
     public String getPromotionName() {
@@ -96,5 +98,9 @@ public class Promotion {
 
     public String getPromotionCode() {
         return promotionCode;
+    }
+
+    public String getPromotionGetCode() {
+        return promotionGetCode;
     }
 }

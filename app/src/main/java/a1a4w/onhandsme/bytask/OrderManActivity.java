@@ -232,6 +232,9 @@ public class OrderManActivity extends AppCompatActivity {
 
         locationPreparation();
         orderByTime();
+
+
+
     }
 
     private void orderByTime() {
@@ -290,7 +293,7 @@ public class OrderManActivity extends AppCompatActivity {
 
                                             listByTime.setVisibility(View.VISIBLE);
 
-                                            AdapterOrder adapterOrder = new AdapterOrder(getApplicationContext(),orders,emailLogin);
+                                            AdapterOrder adapterOrder = new AdapterOrder(getApplicationContext(),orders,emailLogin,OrderManActivity.this);
                                             listByTime.setAdapter(adapterOrder);
                                             adapterOrder.notifyDataSetChanged();
                                         }
@@ -358,7 +361,7 @@ public class OrderManActivity extends AppCompatActivity {
 
                                             listByTime.setVisibility(View.VISIBLE);
 
-                                            AdapterOrder adapterOrder = new AdapterOrder(getApplicationContext(),orders,emailLogin);
+                                            AdapterOrder adapterOrder = new AdapterOrder(getApplicationContext(),orders,emailLogin,OrderManActivity.this);
                                             listByTime.setAdapter(adapterOrder);
                                             adapterOrder.notifyDataSetChanged();
                                         }
@@ -420,7 +423,7 @@ public class OrderManActivity extends AppCompatActivity {
 
                                     listByTime.setVisibility(View.VISIBLE);
 
-                                    AdapterOrder adapterOrder = new AdapterOrder(getApplicationContext(),orders,emailLogin);
+                                    AdapterOrder adapterOrder = new AdapterOrder(getApplicationContext(),orders,emailLogin,OrderManActivity.this);
                                     listByTime.setAdapter(adapterOrder);
                                     adapterOrder.notifyDataSetChanged();
                                 }
@@ -1768,6 +1771,84 @@ public class OrderManActivity extends AppCompatActivity {
                                                             }
                                                         });
 
+                                                        refCompany.child("OrderList").child(orderKey).addListenerForSingleValueEvent(new ValueEventListener() {
+                                                            @Override
+                                                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                                                if(dataSnapshot.hasChild("Promotion")){
+                                                                    refCompany.child("OrderList").child(orderKey).child(orderKey).addListenerForSingleValueEvent(new ValueEventListener() {
+                                                                        @Override
+                                                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                                                            Iterable<DataSnapshot> snapPromotion = dataSnapshot.getChildren();
+                                                                            for (DataSnapshot itemPromotion:snapPromotion){
+                                                                                DatabaseReference refPromotion = itemPromotion.getRef();
+                                                                                refPromotion.addListenerForSingleValueEvent(new ValueEventListener() {
+                                                                                    @Override
+                                                                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                                                                        if(dataSnapshot.hasChild("BGM")){
+                                                                                            Iterable<DataSnapshot> snapBGM = dataSnapshot.getChildren();
+                                                                                            for (DataSnapshot itemBGM:snapBGM){
+                                                                                                Promotion pBGM = itemBGM.getValue(Promotion.class);
+                                                                                                if(pBGM.getPromotionBuyName().equals(productName)){
+                                                                                                    if(Float.parseFloat(pBGM.getPromotionBuyQuantity()) <= productQuantity){
+
+                                                                                                        float bgmGetQuantity = Float.parseFloat(pBGM.getPromotionGetQuantity());
+
+                                                                                                        int numberOfPart = (int) (productQuantity/Float.parseFloat(pBGM.getPromotionBuyQuantity()));
+
+                                                                                                        final float numberOfGet = numberOfPart * bgmGetQuantity;
+
+                                                                                                        refCompany.child("WarehouseMan/StorageMan").child(pBGM.getPromotionGetCode()).child("unitQuantity").addListenerForSingleValueEvent(new ValueEventListener() {
+                                                                                                            @Override
+                                                                                                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                                                                                                final String productStorage = dataSnapshot.getValue().toString();
+                                                                                                                final float updateStorage = Float.parseFloat(productStorage) - numberOfGet;
+                                                                                                                refCompany.child("WarehouseMan/StorageMan").child(productCode).child("unitQuantity").setValue(updateStorage+"");
+
+                                                                                                            }
+
+                                                                                                            @Override
+                                                                                                            public void onCancelled(DatabaseError databaseError) {
+
+                                                                                                            }
+                                                                                                        });
+                                                                                                    }
+                                                                                                }
+
+                                                                                            }
+                                                                                        }
+                                                                                    }
+
+                                                                                    @Override
+                                                                                    public void onCancelled(DatabaseError databaseError) {
+
+                                                                                    }
+                                                                                });
+                                                                            }
+                                                                        }
+
+                                                                        @Override
+                                                                        public void onCancelled(DatabaseError databaseError) {
+
+                                                                        }
+                                                                    });
+                                                                }
+                                                            }
+
+                                                            @Override
+                                                            public void onCancelled(DatabaseError databaseError) {
+
+                                                            }
+                                                        });
+
+                                                        if(productStock.containsKey(productCode)){
+                                                            float currentValue = productStock.get(productCode);
+                                                            float updateValue = currentValue + productQuantity;
+                                                            productStock.put(productCode,updateValue);
+
+                                                        }else{
+                                                            productStock.put(productCode,productQuantity);
+                                                        }
+
                                                         if(i == itemCount){
                                                             if(productStock.containsKey(productName)){
 
@@ -1775,414 +1856,135 @@ public class OrderManActivity extends AppCompatActivity {
                                                                 float updateValue = currentValue + productQuantity;
                                                                 productStock.put(productCode,updateValue);
 
-                                                                Constants.refDatabase.child(emailLogin+"/OrderList").child(orderKey).addListenerForSingleValueEvent(new ValueEventListener() {
-                                                                    @Override
-                                                                    public void onDataChange(DataSnapshot dataSnapshot) {
-                                                                        if(dataSnapshot.hasChild("Promotion")){
-                                                                            Constants.refDatabase.child(emailLogin+"/OrderList").child(orderKey).child("Promotion").addListenerForSingleValueEvent(new ValueEventListener() {
-                                                                                @Override
-                                                                                public void onDataChange(DataSnapshot dataSnapshot) {
-                                                                                    if(dataSnapshot.hasChild("BGM")){
-                                                                                        Constants.refDatabase.child(emailLogin+"/OrderList").child(orderKey).child("Promotion").child("BGM").addListenerForSingleValueEvent(new ValueEventListener() {
-                                                                                            @Override
-                                                                                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                                                                                Iterable<DataSnapshot> snapPro = dataSnapshot.getChildren();
-                                                                                                for(DataSnapshot itemPro:snapPro){
+                                                                int y = 0;
+                                                                for(final Map.Entry<String,Float> entry:productStock.entrySet()){
+                                                                    y++;
+                                                                    int mapItemCount = productStock.size();
 
-                                                                                                    Promotion promotion = itemPro.getValue(Promotion.class);
-                                                                                                    String getName = promotion.getPromotionGetName();
+                                                                    if(y == mapItemCount){
+                                                                        Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(entry.getKey()+"/unitQuantity").addListenerForSingleValueEvent(new ValueEventListener() {
+                                                                            @Override
+                                                                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                                                                final String productStorage = dataSnapshot.getValue().toString();
+                                                                                final float updateStorage = Float.parseFloat(productStorage) - entry.getValue();
 
-                                                                                                    if(getName.equals(productName)){
-                                                                                                        final String getQuantity = promotion.getPromotionGetQuantity();
-
-                                                                                                        Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(productName+"/unitQuantity").addListenerForSingleValueEvent(new ValueEventListener() {
-                                                                                                            @Override
-                                                                                                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                                                                                                final String productStorage = dataSnapshot.getValue().toString();
-                                                                                                                final float updateStorage = Float.parseFloat(productStorage) - Float.parseFloat(getQuantity);
-
-                                                                                                                if(updateStorage<0){
-                                                                                                                    Toast.makeText(getApplicationContext(),productName +" không đủ hàng xuất kho",Toast.LENGTH_LONG).show();
-                                                                                                                }else{
-                                                                                                                    Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(productName+"/unitQuantity")
-                                                                                                                            .setValue(updateStorage+"");
-                                                                                                                    // hideProgressDialog();
-
-                                                                                                                }
-
-                                                                                                            }
-
-                                                                                                            @Override
-                                                                                                            public void onCancelled(DatabaseError databaseError) {
-
-                                                                                                            }
-                                                                                                        });
-
-                                                                                                    }
-                                                                                                }
-
-                                                                                            }
-
-                                                                                            @Override
-                                                                                            public void onCancelled(DatabaseError databaseError) {
-
-                                                                                            }
-                                                                                        });
-                                                                                    }
-                                                                                }
-
-                                                                                @Override
-                                                                                public void onCancelled(DatabaseError databaseError) {
-
-                                                                                }
-                                                                            });
-
-                                                                            int y = 0;
-                                                                            for(final Map.Entry<String,Float> entry:productStock.entrySet()){
-                                                                                y++;
-                                                                                int mapItemCount = productStock.size();
-
-                                                                                if(y == mapItemCount){
-                                                                                    Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(entry.getKey()+"/unitQuantity").addListenerForSingleValueEvent(new ValueEventListener() {
-                                                                                        @Override
-                                                                                        public void onDataChange(DataSnapshot dataSnapshot) {
-                                                                                            final String productStorage = dataSnapshot.getValue().toString();
-                                                                                            final float updateStorage = Float.parseFloat(productStorage) - entry.getValue();
-
-                                                                                            if(updateStorage<0){
-                                                                                                Toast.makeText(getApplicationContext(),entry.getKey() +" không đủ hàng xuất kho",Toast.LENGTH_LONG).show();
-                                                                                            }else{
-
-                                                                                                Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(entry.getKey()+"/unitQuantity")
-                                                                                                        .setValue(updateStorage+"").addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                                                                    @Override
-                                                                                                    public void onComplete(@NonNull Task<Void> task) {
-                                                                                                        hideProgressDialog();
-                                                                                                        Toast.makeText(getApplicationContext(),"Cập nhật thành công!",Toast.LENGTH_LONG).show();
-                                                                                                        //startActivity(new Intent(getApplicationContext(),MainActivity.class));
-                                                                                                    }
-                                                                                                });
-                                                                                            }
-
-                                                                                        }
-
-                                                                                        @Override
-                                                                                        public void onCancelled(DatabaseError databaseError) {
-
-                                                                                        }
-                                                                                    });
-
+                                                                                if(updateStorage<0){
+                                                                                    Toast.makeText(getApplicationContext(),entry.getKey() +" không đủ hàng xuất kho",Toast.LENGTH_LONG).show();
                                                                                 }else{
-                                                                                    Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(entry.getKey()+"/unitQuantity").addListenerForSingleValueEvent(new ValueEventListener() {
+
+                                                                                    Toast.makeText(getApplicationContext(),"Cập nhật thành công 2!",Toast.LENGTH_LONG).show();
+
+                                                                                    Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(entry.getKey()+"/unitQuantity")
+                                                                                            .setValue(updateStorage+"").addOnCompleteListener(new OnCompleteListener<Void>() {
                                                                                         @Override
-                                                                                        public void onDataChange(DataSnapshot dataSnapshot) {
-                                                                                            final String productStorage = dataSnapshot.getValue().toString();
-                                                                                            final float updateStorage = Float.parseFloat(productStorage) - entry.getValue();
-
-                                                                                            if(updateStorage<0){
-                                                                                                Toast.makeText(getApplicationContext(),entry.getKey() +" không đủ hàng xuất kho",Toast.LENGTH_LONG).show();
-                                                                                            }else{
-                                                                                                Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(entry.getKey()+"/unitQuantity")
-                                                                                                        .setValue(updateStorage+"");
-                                                                                                hideProgressDialog();
-
-                                                                                            }
-
-                                                                                        }
-
-                                                                                        @Override
-                                                                                        public void onCancelled(DatabaseError databaseError) {
-
+                                                                                        public void onComplete(@NonNull Task<Void> task) {
+                                                                                            hideProgressDialog();
+                                                                                            Toast.makeText(getApplicationContext(),"Cập nhật thành công!",Toast.LENGTH_LONG).show();
+                                                                                            //startActivity(new Intent(getApplicationContext(),MainActivity.class));
                                                                                         }
                                                                                     });
-
                                                                                 }
+
                                                                             }
-                                                                        }else{
 
-                                                                            int y = 0;
-                                                                            for(final Map.Entry<String,Float> entry:productStock.entrySet()){
-                                                                                y++;
-                                                                                int mapItemCount = productStock.size();
+                                                                            @Override
+                                                                            public void onCancelled(DatabaseError databaseError) {
 
-                                                                                if(y == mapItemCount){
-                                                                                    Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(entry.getKey()+"/unitQuantity").addListenerForSingleValueEvent(new ValueEventListener() {
-                                                                                        @Override
-                                                                                        public void onDataChange(DataSnapshot dataSnapshot) {
-                                                                                            final String productStorage = dataSnapshot.getValue().toString();
-                                                                                            final float updateStorage = Float.parseFloat(productStorage) - entry.getValue();
+                                                                            }
+                                                                        });
 
-                                                                                            if(updateStorage<0){
-                                                                                                Toast.makeText(getApplicationContext(),entry.getKey() +" không đủ hàng xuất kho",Toast.LENGTH_LONG).show();
-                                                                                            }else{
+                                                                    }else{
+                                                                        Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(entry.getKey()+"/unitQuantity").addListenerForSingleValueEvent(new ValueEventListener() {
+                                                                            @Override
+                                                                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                                                                final String productStorage = dataSnapshot.getValue().toString();
+                                                                                final float updateStorage = Float.parseFloat(productStorage) - entry.getValue();
 
-                                                                                                Toast.makeText(getApplicationContext(),"Cập nhật thành công 2!",Toast.LENGTH_LONG).show();
-
-                                                                                                Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(entry.getKey()+"/unitQuantity")
-                                                                                                        .setValue(updateStorage+"").addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                                                                    @Override
-                                                                                                    public void onComplete(@NonNull Task<Void> task) {
-                                                                                                        hideProgressDialog();
-                                                                                                        Toast.makeText(getApplicationContext(),"Cập nhật thành công!",Toast.LENGTH_LONG).show();
-                                                                                                        //startActivity(new Intent(getApplicationContext(),MainActivity.class));
-                                                                                                    }
-                                                                                                });
-                                                                                            }
-
-                                                                                        }
-
-                                                                                        @Override
-                                                                                        public void onCancelled(DatabaseError databaseError) {
-
-                                                                                        }
-                                                                                    });
-
+                                                                                if(updateStorage<0){
+                                                                                    Toast.makeText(getApplicationContext(),entry.getKey() +" không đủ hàng xuất kho",Toast.LENGTH_LONG).show();
                                                                                 }else{
-                                                                                    Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(entry.getKey()+"/unitQuantity").addListenerForSingleValueEvent(new ValueEventListener() {
-                                                                                        @Override
-                                                                                        public void onDataChange(DataSnapshot dataSnapshot) {
-                                                                                            final String productStorage = dataSnapshot.getValue().toString();
-                                                                                            final float updateStorage = Float.parseFloat(productStorage) - entry.getValue();
-
-                                                                                            if(updateStorage<0){
-                                                                                                Toast.makeText(getApplicationContext(),entry.getKey() +" không đủ hàng xuất kho",Toast.LENGTH_LONG).show();
-                                                                                            }else{
-                                                                                                Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(entry.getKey()+"/unitQuantity")
-                                                                                                        .setValue(updateStorage+"");
-                                                                                            }
-
-                                                                                        }
-
-                                                                                        @Override
-                                                                                        public void onCancelled(DatabaseError databaseError) {
-
-                                                                                        }
-                                                                                    });
-
+                                                                                    Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(entry.getKey()+"/unitQuantity")
+                                                                                            .setValue(updateStorage+"");
                                                                                 }
-                                                                            }
-                                                                        }
-                                                                    }
 
-                                                                    @Override
-                                                                    public void onCancelled(DatabaseError databaseError) {
+                                                                            }
+
+                                                                            @Override
+                                                                            public void onCancelled(DatabaseError databaseError) {
+
+                                                                            }
+                                                                        });
 
                                                                     }
-                                                                });
+                                                                }
 
                                                             }else{
 
                                                                 productStock.put(productCode,productQuantity);
-                                                                Constants.refDatabase.child(emailLogin+"/OrderList").child(orderKey).addListenerForSingleValueEvent(new ValueEventListener() {
-                                                                    @Override
-                                                                    public void onDataChange(DataSnapshot dataSnapshot) {
-                                                                        if(dataSnapshot.hasChild("Promotion")){
-                                                                            Constants.refDatabase.child(emailLogin+"/OrderList").child(orderKey).child("Promotion").addListenerForSingleValueEvent(new ValueEventListener() {
-                                                                                @Override
-                                                                                public void onDataChange(DataSnapshot dataSnapshot) {
-                                                                                    if(dataSnapshot.hasChild("BGM")){
-                                                                                        Constants.refDatabase.child(emailLogin+"/OrderList").child(orderKey).child("Promotion").child("BGM").addListenerForSingleValueEvent(new ValueEventListener() {
-                                                                                            @Override
-                                                                                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                                                                                Iterable<DataSnapshot> snapPro = dataSnapshot.getChildren();
-                                                                                                for(DataSnapshot itemPro:snapPro){
+                                                                int y = 0;
+                                                                for(final Map.Entry<String,Float> entry:productStock.entrySet()){
+                                                                    y++;
+                                                                    int mapItemCount = productStock.size();
 
-                                                                                                    Promotion promotion = itemPro.getValue(Promotion.class);
-                                                                                                    String getName = promotion.getPromotionGetName();
+                                                                    if(y == mapItemCount){
 
-                                                                                                    if(getName.equals(productName)){
-                                                                                                        final String getQuantity = promotion.getPromotionGetQuantity();
-
-                                                                                                        Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(productName+"/unitQuantity").addListenerForSingleValueEvent(new ValueEventListener() {
-                                                                                                            @Override
-                                                                                                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                                                                                                final String productStorage = dataSnapshot.getValue().toString();
-                                                                                                                final float updateStorage = Float.parseFloat(productStorage) - Float.parseFloat(getQuantity);
-
-                                                                                                                if(updateStorage<0){
-                                                                                                                    Toast.makeText(getApplicationContext(),productName +" không đủ hàng xuất kho",Toast.LENGTH_LONG).show();
-                                                                                                                }else{
-                                                                                                                    Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(productName+"/unitQuantity")
-                                                                                                                            .setValue(updateStorage+"");
-                                                                                                                    // hideProgressDialog();
-
-                                                                                                                }
-
-                                                                                                            }
-
-                                                                                                            @Override
-                                                                                                            public void onCancelled(DatabaseError databaseError) {
-
-                                                                                                            }
-                                                                                                        });
-
-                                                                                                    }
-                                                                                                }
-
-                                                                                            }
-
-                                                                                            @Override
-                                                                                            public void onCancelled(DatabaseError databaseError) {
-
-                                                                                            }
-                                                                                        });
-                                                                                    }
-                                                                                }
-
-                                                                                @Override
-                                                                                public void onCancelled(DatabaseError databaseError) {
-
-                                                                                }
-                                                                            });
-
-                                                                            int y = 0;
-                                                                            for(final Map.Entry<String,Float> entry:productStock.entrySet()){
-                                                                                y++;
-                                                                                int mapItemCount = productStock.size();
-
-                                                                                if(y == mapItemCount){
-                                                                                    Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(entry.getKey()+"/unitQuantity").addListenerForSingleValueEvent(new ValueEventListener() {
-                                                                                        @Override
-                                                                                        public void onDataChange(DataSnapshot dataSnapshot) {
-                                                                                            final String productStorage = dataSnapshot.getValue().toString();
-                                                                                            final float updateStorage = Float.parseFloat(productStorage) - entry.getValue();
-
-                                                                                            if(updateStorage<0){
-                                                                                                Toast.makeText(getApplicationContext(),entry.getKey() +" không đủ hàng xuất kho",Toast.LENGTH_LONG).show();
-                                                                                            }else{
-
-                                                                                                Toast.makeText(getApplicationContext(),"Cập nhật thành công 2!",Toast.LENGTH_LONG).show();
-
-                                                                                                Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(entry.getKey()+"/unitQuantity")
-                                                                                                        .setValue(updateStorage+"").addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                                                                    @Override
-                                                                                                    public void onComplete(@NonNull Task<Void> task) {
-                                                                                                        hideProgressDialog();
-                                                                                                        Toast.makeText(getApplicationContext(),"Cập nhật thành công!",Toast.LENGTH_LONG).show();
-                                                                                                        //startActivity(new Intent(getApplicationContext(),MainActivity.class));
-                                                                                                    }
-                                                                                                });
-                                                                                            }
-
-                                                                                        }
-
-                                                                                        @Override
-                                                                                        public void onCancelled(DatabaseError databaseError) {
-
-                                                                                        }
-                                                                                    });
-
+                                                                        final String timeStamp = Calendar.getInstance().getTime().getTime()+"";
+                                                                        Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(entry.getKey()+"/unitQuantity").addListenerForSingleValueEvent(new ValueEventListener() {
+                                                                            @Override
+                                                                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                                                                final String productStorage = dataSnapshot.getValue().toString();
+                                                                                final float updateStorage = Float.parseFloat(productStorage) - entry.getValue();
+                                                                                if(updateStorage<0){
+                                                                                    Toast.makeText(getApplicationContext(),entry.getKey() +" không đủ hàng xuất kho",Toast.LENGTH_LONG).show();
                                                                                 }else{
-                                                                                    Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(entry.getKey()+"/unitQuantity").addListenerForSingleValueEvent(new ValueEventListener() {
+                                                                                    Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(entry.getKey()+"/unitQuantity")
+                                                                                            .setValue(updateStorage+"").addOnCompleteListener(new OnCompleteListener<Void>() {
                                                                                         @Override
-                                                                                        public void onDataChange(DataSnapshot dataSnapshot) {
-                                                                                            final String productStorage = dataSnapshot.getValue().toString();
-                                                                                            final float updateStorage = Float.parseFloat(productStorage) - entry.getValue();
-
-                                                                                            if(updateStorage<0){
-                                                                                                Toast.makeText(getApplicationContext(),entry.getKey() +" không đủ hàng xuất kho",Toast.LENGTH_LONG).show();
-                                                                                            }else{
-                                                                                                Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(entry.getKey()+"/unitQuantity")
-                                                                                                        .setValue(updateStorage+"");
-                                                                                                // hideProgressDialog();
-
-                                                                                            }
-
-                                                                                        }
-
-                                                                                        @Override
-                                                                                        public void onCancelled(DatabaseError databaseError) {
-
+                                                                                        public void onComplete(@NonNull Task<Void> task) {
+                                                                                            hideProgressDialog();
+                                                                                            Toast.makeText(getApplicationContext(),"Cập nhật thành công!",Toast.LENGTH_LONG).show();
+                                                                                            //startActivity(new Intent(getApplicationContext(),MainActivity.class));
                                                                                         }
                                                                                     });
 
+
                                                                                 }
+
                                                                             }
 
-                                                                        }else{
-                                                                            int y = 0;
-                                                                            for(final Map.Entry<String,Float> entry:productStock.entrySet()){
-                                                                                y++;
-                                                                                int mapItemCount = productStock.size();
+                                                                            @Override
+                                                                            public void onCancelled(DatabaseError databaseError) {
 
-                                                                                if(y == mapItemCount){
-
-                                                                                    final String timeStamp = Calendar.getInstance().getTime().getTime()+"";
-                                                                                    Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(entry.getKey()+"/unitQuantity").addListenerForSingleValueEvent(new ValueEventListener() {
-                                                                                        @Override
-                                                                                        public void onDataChange(DataSnapshot dataSnapshot) {
-                                                                                            final String productStorage = dataSnapshot.getValue().toString();
-                                                                                            final float updateStorage = Float.parseFloat(productStorage) - entry.getValue();
-                                                                                            if(updateStorage<0){
-                                                                                                Toast.makeText(getApplicationContext(),entry.getKey() +" không đủ hàng xuất kho",Toast.LENGTH_LONG).show();
-                                                                                            }else{
-                                                                                                Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(entry.getKey()+"/unitQuantity")
-                                                                                                        .setValue(updateStorage+"").addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                                                                    @Override
-                                                                                                    public void onComplete(@NonNull Task<Void> task) {
-                                                                                                        hideProgressDialog();
-                                                                                                        Toast.makeText(getApplicationContext(),"Cập nhật thành công!",Toast.LENGTH_LONG).show();
-                                                                                                        //startActivity(new Intent(getApplicationContext(),MainActivity.class));
-                                                                                                    }
-                                                                                                });
-
-
-                                                                                            }
-
-                                                                                        }
-
-                                                                                        @Override
-                                                                                        public void onCancelled(DatabaseError databaseError) {
-
-                                                                                        }
-                                                                                    });
-
-                                                                                }else{
-                                                                                    Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(entry.getKey()+"/unitQuantity").addListenerForSingleValueEvent(new ValueEventListener() {
-                                                                                        @Override
-                                                                                        public void onDataChange(DataSnapshot dataSnapshot) {
-                                                                                            final String productStorage = dataSnapshot.getValue().toString();
-                                                                                            final float updateStorage = Float.parseFloat(productStorage) - entry.getValue();
-
-                                                                                            if(updateStorage<0){
-                                                                                                Toast.makeText(getApplicationContext(),entry.getKey() +" không đủ hàng xuất kho",Toast.LENGTH_LONG).show();
-                                                                                            }else{
-                                                                                                Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(entry.getKey()+"/unitQuantity")
-                                                                                                        .setValue(updateStorage+"");
-
-
-                                                                                            }
-
-                                                                                        }
-
-                                                                                        @Override
-                                                                                        public void onCancelled(DatabaseError databaseError) {
-
-                                                                                        }
-                                                                                    });
-                                                                                }
                                                                             }
-                                                                        }
-                                                                    }
+                                                                        });
 
-                                                                    @Override
-                                                                    public void onCancelled(DatabaseError databaseError) {
+                                                                    }else{
+                                                                        Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(entry.getKey()+"/unitQuantity").addListenerForSingleValueEvent(new ValueEventListener() {
+                                                                            @Override
+                                                                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                                                                final String productStorage = dataSnapshot.getValue().toString();
+                                                                                final float updateStorage = Float.parseFloat(productStorage) - entry.getValue();
 
+                                                                                if(updateStorage<0){
+                                                                                    Toast.makeText(getApplicationContext(),entry.getKey() +" không đủ hàng xuất kho",Toast.LENGTH_LONG).show();
+                                                                                }else{
+                                                                                    Constants.refDatabase.child(emailLogin+"/WarehouseMan").child("StorageMan").child(entry.getKey()+"/unitQuantity")
+                                                                                            .setValue(updateStorage+"");
+
+
+                                                                                }
+
+                                                                            }
+
+                                                                            @Override
+                                                                            public void onCancelled(DatabaseError databaseError) {
+
+                                                                            }
+                                                                        });
                                                                     }
-                                                                });
+                                                                }
 
                                                             }
-                                                        }else{
-
-                                                            if(productStock.containsKey(productCode)){
-                                                                float currentValue = productStock.get(productCode);
-                                                                float updateValue = currentValue + productQuantity;
-                                                                productStock.put(productCode,updateValue);
-
-                                                            }else{
-                                                                productStock.put(productCode,productQuantity);
-                                                            }
-
                                                         }
 
                                                     }

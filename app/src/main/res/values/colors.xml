@@ -11,9 +11,10 @@
     <color name="colorReport">#03B5AE</color>
     <color name="colorSupervisor">#CDC411</color>
     <color name="colorSaleMan">#4EC510</color>
-    <color name="colorAccount">#0F3FBC</color>
-    <color name="colorProduct">#417505</color>
-    <color name="colorOrderAdmin">#07B28C</color>
-    <color name="colorPayroll">#C1BE0F</color>
+    <color name="colorAccount">#26B70D</color>
+    <color name="colorProduct">#288AE7</color>
+    <color name="colorOrderAdmin">#E9573F</color>
+    <color name="colorPayroll">#F22C5E</color>
+    <color name="colorAccent">#FF4081</color>
 
 </resources>

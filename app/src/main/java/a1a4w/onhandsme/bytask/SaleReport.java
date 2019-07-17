@@ -146,6 +146,9 @@ public class SaleReport extends AppCompatActivity {
                                         barEmployee.getXAxis().setGranularityEnabled(true);
                                         //barTime.getXAxis().setDrawLabels(false);
                                         barEmployee.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
+                                     //   barEmployee.getAxisLeft().setAxisMinimum(0);
+                                        //barEmployee.getAxisLeft().setAxisMaximum(5000000);
+                                       // barEmployee.getAxisLeft().setLabelCount(10);
 
                                         barEmployee.getXAxis().setValueFormatter(new IndexAxisValueFormatter() {
 
@@ -386,6 +389,7 @@ public class SaleReport extends AppCompatActivity {
                                                     barEmployee.getXAxis().setGranularityEnabled(true);
                                                     //barTime.getXAxis().setDrawLabels(false);
                                                     barEmployee.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
+
 
                                                     barEmployee.getXAxis().setValueFormatter(new IndexAxisValueFormatter() {
 

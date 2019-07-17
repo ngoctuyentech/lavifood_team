@@ -754,6 +754,8 @@ public class UpdateOrderActivity extends AppCompatActivity {
                                                                            final String productDiscount = p.getProductDiscount();
                                                                            final String promotionName = p.getProductName();
 
+
+
                                                                            if(promotionName.equals(productName)){
 
                                                                                finalPayment[0] = (float)Math.round(Math.round((finalPayment[0]
@@ -825,71 +827,74 @@ public class UpdateOrderActivity extends AppCompatActivity {
                                                                                }
 
 
-                                                                           }
-
-                                                                           if(dataSnapshotProman.hasChild("orderDiscount")){
-                                                                               refDatabase.child(emailLogin).child("PromotionMan").child(promotionKey).child("orderDiscount").addListenerForSingleValueEvent(new ValueEventListener() {
-                                                                                   @Override
-                                                                                   public void onDataChange(DataSnapshot dataSnapshot) {
-                                                                                       finalPayment[0] = Math.round(finalPayment[0]*(1-Float.parseFloat(dataSnapshot.getValue().toString())/100));
-                                                                                       VatModel vatModel = new VatModel(notVAT[0],VAT[0],finalPayment[0]);
-
-                                                                                       refDatabase.child(emailLogin).child("OrderList").child(orderPushKeyString).child("VAT").setValue(vatModel).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                                                           @Override
-                                                                                           public void onSuccess(Void aVoid) {
-                                                                                               hideProgressDialog();
-                                                                                               edtproductQuantity.setText("");
-                                                                                               edtproductPrice.setText("");
-                                                                                               edtdeliveryDate.setText("");
-
-                                                                                               Intent intent = new Intent(UpdateOrderActivity.this, PreviewOrderActivivity.class);
-
-                                                                                               intent.putExtra("EmailLogin", emailLogin);
-                                                                                               intent.putExtra("OrderPushKey", orderPushKeyString);
-                                                                                               intent.putExtra("OrderName", clientName);
-                                                                                               //intent.putExtra("OrderDiscount",orderDiscount);
-                                                                                               //intent.putExtra("DiscountTax",discountVAT);
-                                                                                               intent.putExtra("ClientCode",clientCode);
-                                                                                               intent.putExtra("OutRoute",outRoute);
-
-                                                                                               intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                                                                               startActivity(intent);
-                                                                                           }
-                                                                                       });
-                                                                                   }
-
-                                                                                   @Override
-                                                                                   public void onCancelled(DatabaseError databaseError) {
-
-                                                                                   }
-                                                                               });
-
                                                                            }else{
-                                                                               VatModel vatModel = new VatModel(notVAT[0],VAT[0],finalPayment[0]);
+                                                                               if(dataSnapshotProman.hasChild("orderDiscount")){
 
-                                                                               refDatabase.child(emailLogin).child("OrderList").child(orderPushKeyString).child("VAT").setValue(vatModel).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                                                   @Override
-                                                                                   public void onSuccess(Void aVoid) {
-                                                                                       hideProgressDialog();
-                                                                                       edtproductQuantity.setText("");
-                                                                                       edtproductPrice.setText("");
-                                                                                       edtdeliveryDate.setText("");
+                                                                                   refDatabase.child(emailLogin).child("PromotionMan").child(promotionKey).child("orderDiscount").addListenerForSingleValueEvent(new ValueEventListener() {
+                                                                                       @Override
+                                                                                       public void onDataChange(DataSnapshot dataSnapshot) {
+                                                                                           finalPayment[0] = Math.round(finalPayment[0]*(1-Float.parseFloat(dataSnapshot.getValue().toString())/100));
+                                                                                           VatModel vatModel = new VatModel(notVAT[0],VAT[0],finalPayment[0]);
 
-                                                                                       Intent intent = new Intent(UpdateOrderActivity.this, PreviewOrderActivivity.class);
+                                                                                           refDatabase.child(emailLogin).child("OrderList").child(orderPushKeyString).child("VAT").setValue(vatModel).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                                               @Override
+                                                                                               public void onSuccess(Void aVoid) {
+                                                                                                   hideProgressDialog();
+                                                                                                   edtproductQuantity.setText("");
+                                                                                                   edtproductPrice.setText("");
+                                                                                                   edtdeliveryDate.setText("");
 
-                                                                                       intent.putExtra("EmailLogin", emailLogin);
-                                                                                       intent.putExtra("OrderPushKey", orderPushKeyString);
-                                                                                       intent.putExtra("OrderName", clientName);
-                                                                                       //intent.putExtra("OrderDiscount",orderDiscount);
-                                                                                       //intent.putExtra("DiscountTax",discountVAT);
-                                                                                       intent.putExtra("ClientCode",clientCode);
-                                                                                       intent.putExtra("OutRoute",outRoute);
+                                                                                                   Intent intent = new Intent(UpdateOrderActivity.this, PreviewOrderActivivity.class);
 
-                                                                                       intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                                                                       startActivity(intent);
-                                                                                   }
-                                                                               });
+                                                                                                   intent.putExtra("EmailLogin", emailLogin);
+                                                                                                   intent.putExtra("OrderPushKey", orderPushKeyString);
+                                                                                                   intent.putExtra("OrderName", clientName);
+                                                                                                   //intent.putExtra("OrderDiscount",orderDiscount);
+                                                                                                   //intent.putExtra("DiscountTax",discountVAT);
+                                                                                                   intent.putExtra("ClientCode",clientCode);
+                                                                                                   intent.putExtra("OutRoute",outRoute);
+
+                                                                                                   intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                                                                                   startActivity(intent);
+                                                                                               }
+                                                                                           });
+                                                                                       }
+
+                                                                                       @Override
+                                                                                       public void onCancelled(DatabaseError databaseError) {
+
+                                                                                       }
+                                                                                   });
+
+                                                                               }else{
+                                                                                   VatModel vatModel = new VatModel(notVAT[0],VAT[0],finalPayment[0]);
+
+                                                                                   refDatabase.child(emailLogin).child("OrderList").child(orderPushKeyString).child("VAT").setValue(vatModel).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                                       @Override
+                                                                                       public void onSuccess(Void aVoid) {
+                                                                                           hideProgressDialog();
+                                                                                           edtproductQuantity.setText("");
+                                                                                           edtproductPrice.setText("");
+                                                                                           edtdeliveryDate.setText("");
+
+                                                                                           Intent intent = new Intent(UpdateOrderActivity.this, PreviewOrderActivivity.class);
+
+                                                                                           intent.putExtra("EmailLogin", emailLogin);
+                                                                                           intent.putExtra("OrderPushKey", orderPushKeyString);
+                                                                                           intent.putExtra("OrderName", clientName);
+                                                                                           //intent.putExtra("OrderDiscount",orderDiscount);
+                                                                                           //intent.putExtra("DiscountTax",discountVAT);
+                                                                                           intent.putExtra("ClientCode",clientCode);
+                                                                                           intent.putExtra("OutRoute",outRoute);
+
+                                                                                           intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                                                                           startActivity(intent);
+                                                                                       }
+                                                                                   });
+                                                                               }
                                                                            }
+
+
 
                                                                           // Toast.makeText(getApplicationContext(), finalPayment[0]+"",Toast.LENGTH_LONG).show();
 
@@ -902,8 +907,7 @@ public class UpdateOrderActivity extends AppCompatActivity {
                                                                    }
                                                                });
                                                            }
-
-                                                           if(dataSnapshotProman.hasChild("orderDiscount")){
+                                                            else if(dataSnapshotProman.hasChild("orderDiscount")){
                                                                refDatabase.child(emailLogin).child("PromotionMan").child(promotionKey).child("orderDiscount").addListenerForSingleValueEvent(new ValueEventListener() {
                                                                    @Override
                                                                    public void onDataChange(DataSnapshot dataSnapshot) {
@@ -987,6 +991,31 @@ public class UpdateOrderActivity extends AppCompatActivity {
                                            }
                                        });
 
+                                   }else{
+                                       VatModel vatModel = new VatModel(notVAT[0],VAT[0],finalPayment[0]);
+
+                                       refDatabase.child(emailLogin).child("OrderList").child(orderPushKeyString).child("VAT").setValue(vatModel).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                           @Override
+                                           public void onSuccess(Void aVoid) {
+                                               hideProgressDialog();
+                                               edtproductQuantity.setText("");
+                                               edtproductPrice.setText("");
+                                               edtdeliveryDate.setText("");
+
+                                               Intent intent = new Intent(UpdateOrderActivity.this, PreviewOrderActivivity.class);
+
+                                               intent.putExtra("EmailLogin", emailLogin);
+                                               intent.putExtra("OrderPushKey", orderPushKeyString);
+                                               intent.putExtra("OrderName", clientName);
+                                               //intent.putExtra("OrderDiscount",orderDiscount);
+                                               //intent.putExtra("DiscountTax",discountVAT);
+                                               intent.putExtra("ClientCode",clientCode);
+                                               intent.putExtra("OutRoute",outRoute);
+
+                                               intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                               startActivity(intent);
+                                           }
+                                       });
                                    }
 
 
@@ -1071,6 +1100,32 @@ public class UpdateOrderActivity extends AppCompatActivity {
                                            }
                                        });
 
+                                   }else{
+
+                                       VatModel vatModel = new VatModel(notVAT[0],VAT[0],finalPayment[0]);
+
+                                       refDatabase.child(emailLogin).child("OrderList").child(orderPushKeyString).child("VAT").setValue(vatModel).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                           @Override
+                                           public void onSuccess(Void aVoid) {
+                                               hideProgressDialog();
+                                               edtproductQuantity.setText("");
+                                               edtproductPrice.setText("");
+                                               edtdeliveryDate.setText("");
+
+                                               Intent intent = new Intent(UpdateOrderActivity.this, PreviewOrderActivivity.class);
+
+                                               intent.putExtra("EmailLogin", emailLogin);
+                                               intent.putExtra("OrderPushKey", orderPushKeyString);
+                                               intent.putExtra("OrderName", clientName);
+                                               //intent.putExtra("OrderDiscount",orderDiscount);
+                                               //intent.putExtra("DiscountTax",discountVAT);
+                                               intent.putExtra("ClientCode",clientCode);
+                                               intent.putExtra("OutRoute",outRoute);
+
+                                               intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                               startActivity(intent);
+                                           }
+                                       });
                                    }
                                }
 
