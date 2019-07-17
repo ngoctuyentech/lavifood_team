@@ -17,6 +17,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 
 import a1a4w.onhandsme.MainActivity;
 import a1a4w.onhandsme.R;
@@ -76,26 +79,78 @@ public class CreateProduct extends AppCompatActivity {
             public void onClick(View v) {
                 v.startAnimation(buttonClick);
 
-                String name = edtName.getText().toString();
-                String price = edtPrice.getText().toString();
-                String unit = edtUnit.getText().toString();
+                final String name = edtName.getText().toString();
+                final String price = edtPrice.getText().toString();
+                final String unit = edtUnit.getText().toString();
 
                 if(TextUtils.isEmpty(name) || TextUtils.isEmpty(price) ||TextUtils.isEmpty(unit) ){
                     Toast.makeText(getApplicationContext(), "Vui lòng nhập đầy đủ thông tin!", Toast.LENGTH_LONG).show();
 
               }else{
-                    String productCode = refDatabase.child(emailLogin).child("Product").push().getKey();
-                    Product product = new Product(name,price,unit,productCode);
-                    refDatabase.child(emailLogin).child("Product").child(productCode).setValue(product);
-
-                    AlertDialog.Builder builder = new AlertDialog.Builder(CreateProduct.this);
-                    builder.setMessage("Tạo sản phẩm thành công!");
-                    builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    refDatabase.child(emailLogin).child("Product").addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
-                        public void onClick(DialogInterface dialog, int which) {
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            Iterable<DataSnapshot> snapProduct = dataSnapshot.getChildren();
+                            long productCount = dataSnapshot.getChildrenCount();
+
+                            int i = 0;
+                            for(DataSnapshot itemProduct:snapProduct){
+                                i++;
+                                Product p = itemProduct.getValue(Product.class);
+
+                                if(name.equals(p.getProductName())){
+                                    AlertDialog.Builder builder = new AlertDialog.Builder(CreateProduct.this);
+                                    builder.setMessage("Bạn đã tạo sản phẩm này! Vui lòng chọn tên khác");
+                                    builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+
+                                        }
+                                    }).show();
+
+                                    break;
+                                }
+
+                                if( i == productCount){
+
+                                    if(name.equals(p.getProductName())){
+                                        AlertDialog.Builder builder = new AlertDialog.Builder(CreateProduct.this);
+                                        builder.setMessage("Bạn đã tạo sản phẩm này! Vui lòng chọn tên khác!");
+                                        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+
+                                            }
+                                        }).show();
+
+
+                                    }else{
+                                        String productCode = refDatabase.child(emailLogin).child("Product").push().getKey();
+                                        Product product = new Product(name,price,unit,productCode);
+                                        refDatabase.child(emailLogin).child("Product").child(productCode).setValue(product);
+
+                                        AlertDialog.Builder builder = new AlertDialog.Builder(CreateProduct.this);
+                                        builder.setMessage("Tạo sản phẩm thành công!");
+                                        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+
+                                            }
+                                        }).show();
+                                    }
+
+                                }
+
+
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
 
                         }
-                    }).show();
+                    });
+
                 }
             }
         });
