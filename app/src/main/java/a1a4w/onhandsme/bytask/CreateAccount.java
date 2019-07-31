@@ -218,7 +218,7 @@ public class CreateAccount extends AppCompatActivity {
                                     @Override
                                     public void onComplete(@NonNull Task<AuthResult> task) {
                                         if(task.isSuccessful()){
-                                            final Employee addEmployee = new Employee(name,address,phone,email.replace(".", ","),pass,managerEmail.replace(".",","));
+                                            final Employee addEmployee = new Employee(name,address,phone,email.replace(".", ","),accType,managerEmail.replace(".",","));
 
                                             refDatabase.child("1-System/Login").child(email.replace(".",",")).setValue(emailLogin);
                                             refDatabase.child("1-System/Role").child(emailLogin).child(email.replace(".",",")).setValue("SaleMan");
@@ -235,7 +235,6 @@ public class CreateAccount extends AppCompatActivity {
                                             refDatabase.child(emailLogin).child("ClientManBySale").child(email.replace(".",",")).child("Group").push().child("groupName").setValue("Tất cả");
 
                                             refDatabase.child(emailLogin).child("SaleManBySup").child(managerEmail.replace(".",",")).child("Tất cả").child(email.replace(".",",")).setValue(addEmployee);
-                                            refDatabase.child(emailLogin).child("SaleManBySup").child(managerEmail.replace(".",",")).child("Group").push().child("groupName").setValue("Tất cả");
 
 
                                             //FirebaseAuth.getInstance().signOut();
@@ -257,12 +256,11 @@ public class CreateAccount extends AppCompatActivity {
                                     @Override
                                     public void onComplete(@NonNull Task<AuthResult> task) {
                                         if(task.isSuccessful()){
-                                            final Employee addEmployee = new Employee(name,address,phone,email.replace(".", ","),pass,managerEmail.replace(".",","));
+                                            final Employee addEmployee = new Employee(name,address,phone,email.replace(".", ","),accType,managerEmail.replace(".",","));
 
                                             refDatabase.child("1-System/Login").child(email.replace(".",",")).setValue(emailLogin);
                                             refDatabase.child("1-System/Role").child(emailLogin).child(email.replace(".",",")).setValue("Supervisor");
                                             refDatabase.child(emailLogin).child("SaleManBySup").child(email.replace(".",",")).child("Group").push().setValue("Tất cả");
-                                            refDatabase.child(emailLogin).child("SupByASM").child(managerEmail.replace(".",",")).child("Group").push().child("groupName").setValue("Tất cả");
                                             refDatabase.child(emailLogin).child("ClientManBySup").child(email.replace(".",",")).child("Group").push().child("groupName").setValue("Tất cả");
 
                                             refDatabase.child(emailLogin).child("SupByASM").child(managerEmail.replace(".",",")).child("Tất cả").child(email.replace(".",",")).setValue(addEmployee);
@@ -275,7 +273,6 @@ public class CreateAccount extends AppCompatActivity {
                                                 }
                                             });
 
-                                            Toast.makeText(getApplicationContext(), "Đã tạo TK thành công", Toast.LENGTH_LONG).show();
 //FirebaseAuth.getInstance().signOut();
                                         }
                                     }
@@ -295,12 +292,14 @@ public class CreateAccount extends AppCompatActivity {
                                     @Override
                                     public void onComplete(@NonNull Task<AuthResult> task) {
                                         if(task.isSuccessful()){
-                                            final Employee addEmployee = new Employee(name,address,phone,email.replace(".", ","),pass,managerEmail.replace(".",","));
+                                            final Employee addEmployee = new Employee(name,address,phone,email.replace(".", ","),accType,managerEmail.replace(".",","));
 
                                             refDatabase.child("1-System/Login").child(email.replace(".",",")).setValue(emailLogin);
                                             refDatabase.child("1-System/Role").child(emailLogin).child(email.replace(".",",")).setValue("ASM");
                                             Toast.makeText(getApplicationContext(), "Đã tạo TK thành công", Toast.LENGTH_LONG).show();
                                             refDatabase.child(emailLogin).child("SupByASM").child(email.replace(".",",")).child("Group").push().setValue("Tất cả");
+                                            refDatabase.child(emailLogin).child("ASMByRSM").child(managerEmail.replace(".",",")).child("Tất cả").child(email.replace(".",",")).setValue(addEmployee);
+
                                             refDatabase.child(emailLogin).child("Employee").child(email.replace(".",",")).setValue(addEmployee).addOnSuccessListener(new OnSuccessListener<Void>() {
                                                 @Override
                                                 public void onSuccess(Void aVoid) {
@@ -309,9 +308,6 @@ public class CreateAccount extends AppCompatActivity {
 
                                                 }
                                             });
-                                            refDatabase.child(emailLogin).child("ASMByRSM").child(managerEmail.replace(".",",")).child("Tất cả").child(email.replace(".",",")).setValue(addEmployee);
-                                            refDatabase.child(emailLogin).child("Employee").child(email.replace(".",",")).setValue(addEmployee);
-                                            refDatabase.child(emailLogin).child("ASMByRSM").child(managerEmail.replace(".",",")).child("Group").push().child("groupName").setValue("Tất cả");
 
 //FirebaseAuth.getInstance().signOut();
                                         }
@@ -332,7 +328,7 @@ public class CreateAccount extends AppCompatActivity {
                                     @Override
                                     public void onComplete(@NonNull Task<AuthResult> task) {
                                         if(task.isSuccessful()){
-                                            final Employee addEmployee = new Employee(name,address,phone,email.replace(".", ","),pass,managerEmail.replace(".",","));
+                                            final Employee addEmployee = new Employee(name,address,phone,email.replace(".", ","),accType,managerEmail.replace(".",","));
 
                                             refDatabase.child("1-System/Login").child(email.replace(".",",")).setValue(emailLogin);
                                             refDatabase.child("1-System/Role").child(emailLogin).child(email.replace(".",",")).setValue("RSM");
@@ -345,8 +341,6 @@ public class CreateAccount extends AppCompatActivity {
                                                 }
                                             });
                                             refDatabase.child(emailLogin).child("ASMByRSM").child(email.replace(".",",")).child("Group").push().setValue("Tất cả");
-                                            refDatabase.child(emailLogin).child("RSMByAdmin").child(managerEmail.replace(".",",")).child("Group").push().child("groupName").setValue("Tất cả");
-                                            Toast.makeText(getApplicationContext(), "Đã tạo TK thành công", Toast.LENGTH_LONG).show();
                                             refDatabase.child(emailLogin).child("RSMByAdmin").child(managerEmail.replace(".",",")).child("Tất cả").child(email.replace(".",",")).setValue(addEmployee);
                                         }
                                     }

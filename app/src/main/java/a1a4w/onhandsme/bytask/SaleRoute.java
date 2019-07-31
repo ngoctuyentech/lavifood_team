@@ -491,13 +491,22 @@ public class SaleRoute extends AppCompatActivity implements OnMapReadyCallback {
         });
     }
 
-    private void listOfVisit(final String currentDay) {
+    private void listOfVisit(final String choosenDay) {
+
+        if(choosenDay != currentDay){
+            btnIn.setBackgroundColor(getResources().getColor(android.R.color.darker_gray));
+            btnIn.setEnabled(false);
+            btnOut.setBackgroundColor(getResources().getColor(android.R.color.darker_gray));
+            btnOut.setEnabled(false);
+            btnNewOrder.setBackgroundColor(getResources().getColor(android.R.color.darker_gray));
+            btnNewOrder.setEnabled(false);
+        }
 
         listVisits = new ArrayList<>();
         if (distanceMap != null) distanceMap.clear();
         if (sortTopProduct != null) sortTopProduct.clear();
 
-        refDatabase.child(emailLogin).child("SaleRoute").child(userEmail).child(currentDay).addListenerForSingleValueEvent(new ValueEventListener() {
+        refDatabase.child(emailLogin).child("SaleRoute").child(userEmail).child(choosenDay).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Iterable<DataSnapshot> snapClient = dataSnapshot.getChildren();
@@ -524,79 +533,57 @@ public class SaleRoute extends AppCompatActivity implements OnMapReadyCallback {
                         distanceMap.put(clientCode, currentDistance);
                         sortTopProduct = Utils.sortIncreaseByValues(distanceMap);
 
-                        if (i == itemCount) {
-                            Set set = sortTopProduct.entrySet();
+                        Set set = sortTopProduct.entrySet();
 
-                            Iterator iterator = set.iterator();
-                            Map.Entry me = (Map.Entry) iterator.next();
+                        Iterator iterator = set.iterator();
+                        Map.Entry me = (Map.Entry) iterator.next();
 
-                            final double minDis = Double.parseDouble(me.getValue().toString());
+                        final double minDis = Double.parseDouble(me.getValue().toString());
 
-                            //Toast.makeText(getApplicationContext(),minDis+"", Toast.LENGTH_LONG).show();
+                        //Toast.makeText(getApplicationContext(),minDis+"", Toast.LENGTH_LONG).show();
 
-                            for (Map.Entry<String, Double> entry : distanceMap.entrySet()) {
-                                String key = entry.getKey();
-                                double value = entry.getValue();
+                        for (Map.Entry<String, Double> entry : distanceMap.entrySet()) {
+                            String key = entry.getKey();
+                            double value = entry.getValue();
 
-                                if (value == minDis) {
+                            if (value == minDis) {
 
-                                    refDatabase.child(emailLogin).child("SaleRoute").child(userEmail).child(currentDay).child(key).addListenerForSingleValueEvent(new ValueEventListener() {
-                                        @Override
-                                        public void onDataChange(DataSnapshot dataSnapshot) {
-                                            Client addListClient = dataSnapshot.getValue(Client.class);
-                                            assert addListClient != null;
-                                            MapModel clientMap = addListClient.getMap();
-                                            String nearestBuyDay = addListClient.getNearestBuyDay();
-                                            String monthSale = addListClient.getMonthSale();
-                                            choosenClientName = addListClient.getClientName();
-                                            choosenClientCode = addListClient.getClientCode();
-                                            //tvMonthSale.setText(Utils.convertNumber(monthSale));
-                                            //tvNearestBuy.setText(nearestBuyDay);
-
-                                            if (minDis > 100) {
-                                                btnIn.setBackgroundColor(getResources().getColor(android.R.color.darker_gray));
-                                                btnIn.setEnabled(false);
-                                                btnOut.setBackgroundColor(getResources().getColor(android.R.color.darker_gray));
-                                                btnOut.setEnabled(false);
-                                                btnNewOrder.setBackgroundColor(getResources().getColor(android.R.color.darker_gray));
-                                                btnNewOrder.setEnabled(false);
-                                            }
-
-
-                                            clientOnMapLat = Double.parseDouble(clientMap.getLatitude());
-                                            clientOnMapLong = Double.parseDouble(clientMap.getLongitude());
-
-                                            LatLng onMapClient = new LatLng(clientOnMapLat, clientOnMapLong);
-                                            LatLng saleLoc = new LatLng(latitude, longitude);
-
-                                            mMap.addMarker(new MarkerOptions().position(onMapClient).icon(BitmapDescriptorFactory.fromResource(R.drawable.icon_client_map))
-                                                    .title(clientName));
-                                            mMap.addMarker(new MarkerOptions().position(saleLoc).icon(BitmapDescriptorFactory.fromResource(R.drawable.icon_sale_map))
-                                                    .title(clientName));
-
-                                            route(onMapClient, saleLoc, "driving");
-                                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(onMapClient, 16.0f));
-                                        }
-
-                                        @Override
-                                        public void onCancelled(DatabaseError databaseError) {
-
-                                        }
-                                    });
-
-                                }
-
-                                refDatabase.child(emailLogin).child("SaleRoute").child(userEmail).child(currentDay).child(key).addListenerForSingleValueEvent(new ValueEventListener() {
+                                refDatabase.child(emailLogin).child("SaleRoute").child(userEmail).child(choosenDay).child(key).addListenerForSingleValueEvent(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(DataSnapshot dataSnapshot) {
                                         Client addListClient = dataSnapshot.getValue(Client.class);
                                         assert addListClient != null;
+                                        MapModel clientMap = addListClient.getMap();
+                                        String nearestBuyDay = addListClient.getNearestBuyDay();
+                                        String monthSale = addListClient.getMonthSale();
+                                        choosenClientName = addListClient.getClientName();
+                                        choosenClientCode = addListClient.getClientCode();
+                                        //tvMonthSale.setText(Utils.convertNumber(monthSale));
+                                        //tvNearestBuy.setText(nearestBuyDay);
 
-                                        listVisits.add(addListClient);
+                                        if (minDis > 100) {
+                                            btnIn.setBackgroundColor(getResources().getColor(android.R.color.darker_gray));
+                                            btnIn.setEnabled(false);
+                                            btnOut.setBackgroundColor(getResources().getColor(android.R.color.darker_gray));
+                                            btnOut.setEnabled(false);
+                                            btnNewOrder.setBackgroundColor(getResources().getColor(android.R.color.darker_gray));
+                                            btnNewOrder.setEnabled(false);
+                                        }
 
-                                        AdapterMeetClient adapterMeetClient = new AdapterMeetClient(getApplicationContext(), listVisits, SaleRoute.this, emailLogin);
-                                        rvClientList.setAdapter(adapterMeetClient);
-                                        adapterMeetClient.notifyDataSetChanged();
+
+                                        clientOnMapLat = Double.parseDouble(clientMap.getLatitude());
+                                        clientOnMapLong = Double.parseDouble(clientMap.getLongitude());
+
+                                        LatLng onMapClient = new LatLng(clientOnMapLat, clientOnMapLong);
+                                        LatLng saleLoc = new LatLng(latitude, longitude);
+
+                                        mMap.addMarker(new MarkerOptions().position(onMapClient).icon(BitmapDescriptorFactory.fromResource(R.drawable.icon_client_map))
+                                                .title(clientName));
+                                        mMap.addMarker(new MarkerOptions().position(saleLoc).icon(BitmapDescriptorFactory.fromResource(R.drawable.icon_sale_map))
+                                                .title(clientName));
+
+                                        route(onMapClient, saleLoc, "driving");
+                                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(onMapClient, 16.0f));
                                     }
 
                                     @Override
@@ -606,6 +593,25 @@ public class SaleRoute extends AppCompatActivity implements OnMapReadyCallback {
                                 });
 
                             }
+
+                            refDatabase.child(emailLogin).child("SaleRoute").child(userEmail).child(choosenDay).child(key).addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    Client addListClient = dataSnapshot.getValue(Client.class);
+                                    assert addListClient != null;
+
+                                    listVisits.add(addListClient);
+
+                                    AdapterMeetClient adapterMeetClient = new AdapterMeetClient(getApplicationContext(), listVisits, SaleRoute.this, emailLogin);
+                                    rvClientList.setAdapter(adapterMeetClient);
+                                    adapterMeetClient.notifyDataSetChanged();
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+
+                                }
+                            });
 
                         }
 

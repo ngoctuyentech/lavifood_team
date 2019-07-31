@@ -33,12 +33,12 @@ public class Employee {
         this.employeeEmail = employeeEmail;
     }
 
-    public Employee(String employeeName, String employeeAddress, String employeePhone, String employeeEmail, String employeePass, String managedBy) {
+    public Employee(String employeeName, String employeeAddress, String employeePhone, String employeeEmail, String employeeRole, String managedBy) {
         this.employeeName = employeeName;
         this.employeeAddress = employeeAddress;
         this.employeePhone = employeePhone;
         this.employeeEmail = employeeEmail;
-        this.employeePass = employeePass;
+        this.employeeRole = employeeRole;
         this.managedBy = managedBy;
     }
 

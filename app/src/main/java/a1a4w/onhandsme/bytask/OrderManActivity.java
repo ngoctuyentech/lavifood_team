@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -149,6 +150,11 @@ public class OrderManActivity extends AppCompatActivity {
         recyclerViewDenied = (RecyclerView) findViewById(R.id.order_denied_recyclerview);
         recyclerViewUnApproved = (RecyclerView) findViewById(R.id.order_unapproved_recyclerview);
 
+        ConstraintLayout csSuccess = findViewById(R.id.cs_orderman_success);
+
+        if(admin)
+            csSuccess.setVisibility(View.GONE);
+
         boxUnApproved.setBackgroundColor(Color.WHITE);
         recyclerViewUnApproved.setVisibility(View.VISIBLE);
         tvUnapproved.setTextColor(getResources().getColor(R.color.colorAccent));
@@ -233,9 +239,45 @@ public class OrderManActivity extends AppCompatActivity {
         locationPreparation();
         orderByTime();
 
-
+        //getTotalByTime();
 
     }
+
+    private void getTotalByTime() {
+        final Map<String,Float> totalSales = new HashMap<>();
+        refCompany.child("TotalByClient").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Iterable<DataSnapshot> snapClient = dataSnapshot.getChildren();
+                for(final DataSnapshot itemClient:snapClient){
+                    Iterable<DataSnapshot> snapSale = itemClient.getChildren();
+                    for(final DataSnapshot itemSale:snapSale){
+                        final String timeKey = itemSale.getKey();
+                        final float timeSale = Float.parseFloat(itemSale.getValue().toString());
+
+                        if(totalSales.containsKey(timeKey)){
+                            float currentSale = totalSales.get(timeKey);
+                            float updateSale = timeSale + currentSale;
+                            totalSales.put(timeKey,updateSale);
+                        }else{
+                            totalSales.put(timeKey,timeSale);
+                        }
+
+                        for(Map.Entry<String,Float> entry:totalSales.entrySet()){
+                            refCompany.child("TotalByTime").child(entry.getKey()).setValue(entry.getValue()+"");
+                        }
+                    }
+
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
 
     private void orderByTime() {
 
@@ -1476,6 +1518,76 @@ public class OrderManActivity extends AppCompatActivity {
                                             Constants.refDatabase.child(emailLogin).child("TimeOrder").child(orderKey).setValue(timeStamp);
 
                                             refCompany.child("Order/Approved").child(orderKey).setValue(null);
+                                            refCompany.child("TotalByT").child(clientCode).addListenerForSingleValueEvent(new ValueEventListener() {
+                                                @Override
+                                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                                    if(dataSnapshot.hasChild(year+"-"+month+"-"+date)){
+                                                        refCompany.child("TotalByTime").child(clientCode).child(year+"-"+month+"-"+date).addListenerForSingleValueEvent(new ValueEventListener() {
+                                                            @Override
+                                                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                                                float currentSale = Float.parseFloat(dataSnapshot.getValue().toString());
+                                                                float updateSale = currentSale + finalPayment;
+
+                                                                refCompany.child("TotalByTime").child(clientCode).child(year+"-"+month+"-"+date).setValue(updateSale+"");
+                                                            }
+
+                                                            @Override
+                                                            public void onCancelled(DatabaseError databaseError) {
+
+                                                            }
+                                                        });
+
+                                                    }else{
+                                                        refCompany.child("TotalByTime").child(clientCode).child(year+"-"+month+"-"+date).setValue(finalPayment+"");
+                                                    }
+
+                                                    if(dataSnapshot.hasChild(year+"-"+month)){
+                                                        refCompany.child("TotalByTime").child(clientCode).child(year+"-"+month).addListenerForSingleValueEvent(new ValueEventListener() {
+                                                            @Override
+                                                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                                                float currentSale = Float.parseFloat(dataSnapshot.getValue().toString());
+                                                                float updateSale = currentSale + finalPayment;
+
+                                                                refCompany.child("TotalByTime").child(clientCode).child(year+"-"+month).setValue(updateSale+"");
+                                                            }
+
+                                                            @Override
+                                                            public void onCancelled(DatabaseError databaseError) {
+
+                                                            }
+                                                        });
+
+                                                    }else{
+                                                        refCompany.child("TotalByTime").child(clientCode).child(year+"-"+month).setValue(finalPayment+"");
+                                                    }
+
+                                                    if(dataSnapshot.hasChild(year)){
+                                                        refCompany.child("TotalByTime").child(clientCode).child(year).addListenerForSingleValueEvent(new ValueEventListener() {
+                                                            @Override
+                                                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                                                float currentSale = Float.parseFloat(dataSnapshot.getValue().toString());
+                                                                float updateSale = currentSale + finalPayment;
+
+                                                                refCompany.child("TotalByTime").child(clientCode).child(year).setValue(updateSale+"");
+                                                            }
+
+                                                            @Override
+                                                            public void onCancelled(DatabaseError databaseError) {
+
+                                                            }
+                                                        });
+
+                                                    }else{
+                                                        refCompany.child("TotalByTime").child(clientCode).child(year).setValue(finalPayment+"");
+                                                    }
+
+                                                }
+
+                                                @Override
+                                                public void onCancelled(DatabaseError databaseError) {
+
+                                                }
+                                            });
 
                                             refCompany.child("TotalByClient").child(clientCode).addListenerForSingleValueEvent(new ValueEventListener() {
                                                 @Override
