@@ -18,7 +18,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".bytask.CreateProgram"></activity>
+        <activity android:name=".bytask.AnnounceList"></activity>
+        <activity android:name=".bytask.CreateProgram" />
         <activity android:name=".list.AccountList" />
         <activity android:name=".bytask.CreateProduct" />
         <activity android:name=".bytask.CreateAccount" />

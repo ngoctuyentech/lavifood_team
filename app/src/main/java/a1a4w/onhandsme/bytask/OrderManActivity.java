@@ -152,7 +152,7 @@ public class OrderManActivity extends AppCompatActivity {
 
         ConstraintLayout csSuccess = findViewById(R.id.cs_orderman_success);
 
-        if(admin)
+        if(admin || supervisor)
             csSuccess.setVisibility(View.GONE);
 
         boxUnApproved.setBackgroundColor(Color.WHITE);
@@ -188,8 +188,8 @@ public class OrderManActivity extends AppCompatActivity {
                 boxCancelled.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
 
                 recyclerViewApproved.setVisibility(View.VISIBLE);
-                recyclerViewUnApproved.setVisibility(View.INVISIBLE);
-                recyclerViewDenied.setVisibility(View.INVISIBLE);
+                recyclerViewUnApproved.setVisibility(View.GONE);
+                recyclerViewDenied.setVisibility(View.GONE);
 
                 tvApproved.setTextColor(getResources().getColor(R.color.colorAccent));
                 tvUnapproved.setTextColor(getResources().getColor(android.R.color.white));
@@ -207,9 +207,9 @@ public class OrderManActivity extends AppCompatActivity {
                 boxApproved.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
                 boxCancelled.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
 
-                recyclerViewApproved.setVisibility(View.INVISIBLE);
+                recyclerViewApproved.setVisibility(View.GONE);
                 recyclerViewUnApproved.setVisibility(View.VISIBLE);
-                recyclerViewDenied.setVisibility(View.INVISIBLE);
+                recyclerViewDenied.setVisibility(View.GONE);
 
                 tvUnapproved.setTextColor(getResources().getColor(R.color.colorAccent));
                 tvApproved.setTextColor(getResources().getColor(android.R.color.white));
@@ -226,8 +226,8 @@ public class OrderManActivity extends AppCompatActivity {
                 boxApproved.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
                 boxUnApproved.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
 
-                recyclerViewApproved.setVisibility(View.INVISIBLE);
-                recyclerViewUnApproved.setVisibility(View.INVISIBLE);
+                recyclerViewApproved.setVisibility(View.GONE);
+                recyclerViewUnApproved.setVisibility(View.GONE);
                 recyclerViewDenied.setVisibility(View.VISIBLE);
 
                 tvDenied.setTextColor(getResources().getColor(R.color.colorAccent));
@@ -1403,6 +1403,9 @@ public class OrderManActivity extends AppCompatActivity {
                                 public void onComplete(@NonNull Task<Void> task) {
                                     Constants.refDatabase.child(emailLogin+"/Order").child("UnApproved").child(orderPushKey).setValue(null);
                                     refCompany.child("Order/OrderBySale").child(userEmail).child("UnApproved").child(orderPushKey).setValue(null);
+                                    adapterFirebaseApproved.notifyDataSetChanged();
+                                    adapterFirebaseUnapproved.notifyDataSetChanged();
+                                    adapterFirebaseDenied.notifyDataSetChanged();
 
                                 }
                             });

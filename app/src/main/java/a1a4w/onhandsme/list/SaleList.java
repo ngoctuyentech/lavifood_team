@@ -1007,6 +1007,8 @@ public class SaleList extends AppCompatActivity {
                             final EditText edtNew = dialogView.findViewById(R.id.edt_set_kpi_new);
                             final TextView tvThisMonthSaleKPI = dialogView.findViewById(R.id.tv_set_kpi_thismonth);
 
+                            edtSale.addTextChangedListener(new Utils.NumberTextWatcherForThousand(edtSale));
+
                             refCompany.child("KPI").child(saleEmail).addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
@@ -1051,7 +1053,7 @@ public class SaleList extends AppCompatActivity {
                                 public void onClick(View v) {
                                     v.startAnimation(buttonClick);
 
-                                    final String sale = edtSale.getText().toString();
+                                    final String sale = edtSale.getText().toString().replace(",","");
                                     final String newClient = edtNew.getText().toString();
 
                                     if(TextUtils.isEmpty(sale) || TextUtils.isEmpty(newClient)){
@@ -1719,6 +1721,8 @@ public class SaleList extends AppCompatActivity {
                             final EditText edtNew = dialogView.findViewById(R.id.edt_set_kpi_new);
                             final TextView tvThisMonthSaleKPI = dialogView.findViewById(R.id.tv_set_kpi_thismonth);
 
+                            edtSale.addTextChangedListener(new Utils.NumberTextWatcherForThousand(edtSale));
+
                             refCompany.child("KPI").child(saleEmail).addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
@@ -1763,7 +1767,7 @@ public class SaleList extends AppCompatActivity {
                                 public void onClick(View v) {
                                     v.startAnimation(buttonClick);
 
-                                    final String sale = edtSale.getText().toString();
+                                    final String sale = edtSale.getText().toString().replace(",","");
                                     final String newClient = edtNew.getText().toString();
 
                                     if(TextUtils.isEmpty(sale) || TextUtils.isEmpty(newClient)){

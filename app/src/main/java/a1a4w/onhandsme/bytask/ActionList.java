@@ -7,11 +7,9 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.LinearSnapHelper;
 import android.support.v7.widget.PagerSnapHelper;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SnapHelper;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -157,7 +155,7 @@ public class ActionList extends AppCompatActivity {
             rvAction.setHasFixedSize(true);
             final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(ActionList.this,LinearLayoutManager.HORIZONTAL,false);
             rvAction.setLayoutManager(linearLayoutManager);
-            final SnapHelper snapHelper = new LinearSnapHelper();
+            final SnapHelper snapHelper = new PagerSnapHelper();
             if (rvAction.getOnFlingListener() == null)
                 snapHelper.attachToRecyclerView(rvAction);
 
@@ -168,39 +166,40 @@ public class ActionList extends AppCompatActivity {
                     super.onScrollStateChanged(recyclerView, newState);
                     if(newState == RecyclerView.SCROLL_STATE_IDLE) {
                         View centerView = snapHelper.findSnapView(linearLayoutManager);
-                        assert centerView != null;
-                        pos = linearLayoutManager.getPosition(centerView);
-                   Log.e("Snapped Item Position:",""+pos);
-                       // editor.putInt("LayoutPosition",pos).apply();
+                        if(centerView != null){
+                            pos = linearLayoutManager.getPosition(centerView);
 
-                      if(pos == 0){
-                            ivOrder.setBackgroundColor(getResources().getColor(R.color.colorOrder));
-                            ivClient.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            ivPromotion.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            ivAnnouncement.setBackgroundColor(getResources().getColor(R.color.transparent));
 
+                            if(pos == 0){
+                                ivOrder.setBackgroundColor(getResources().getColor(R.color.colorOrder));
+                                ivClient.setBackgroundColor(getResources().getColor(R.color.transparent));
+                                ivPromotion.setBackgroundColor(getResources().getColor(R.color.transparent));
+                                ivAnnouncement.setBackgroundColor(getResources().getColor(R.color.transparent));
+
+                            }
+
+                            if(pos == 1){
+                                ivClient.setBackgroundColor(getResources().getColor(R.color.colorClient));
+                                ivOrder.setBackgroundColor(getResources().getColor(R.color.transparent));
+                                ivPromotion.setBackgroundColor(getResources().getColor(R.color.transparent));
+                                ivAnnouncement.setBackgroundColor(getResources().getColor(R.color.transparent));
+                            }
+
+                            if(pos == 2){
+                                ivPromotion.setBackgroundColor(getResources().getColor(R.color.colorPromotion));
+                                ivClient.setBackgroundColor(getResources().getColor(R.color.transparent));
+                                ivOrder.setBackgroundColor(getResources().getColor(R.color.transparent));
+                                ivAnnouncement.setBackgroundColor(getResources().getColor(R.color.transparent));
+                            }
+
+                            if(pos == 3){
+                                ivAnnouncement.setBackgroundColor(getResources().getColor(R.color.colorAnnouncement));
+                                ivPromotion.setBackgroundColor(getResources().getColor(R.color.transparent));
+                                ivClient.setBackgroundColor(getResources().getColor(R.color.transparent));
+                                ivOrder.setBackgroundColor(getResources().getColor(R.color.transparent));
+                            }
                         }
 
-                        if(pos == 1){
-                            ivClient.setBackgroundColor(getResources().getColor(R.color.colorClient));
-                            ivOrder.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            ivPromotion.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            ivAnnouncement.setBackgroundColor(getResources().getColor(R.color.transparent));
-                        }
-
-                        if(pos == 2){
-                            ivPromotion.setBackgroundColor(getResources().getColor(R.color.colorPromotion));
-                            ivClient.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            ivOrder.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            ivAnnouncement.setBackgroundColor(getResources().getColor(R.color.transparent));
-                        }
-
-                        if(pos == 3){
-                            ivAnnouncement.setBackgroundColor(getResources().getColor(R.color.colorAnnouncement));
-                            ivPromotion.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            ivClient.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            ivOrder.setBackgroundColor(getResources().getColor(R.color.transparent));
-                        }
                     }
                 }
             });
@@ -232,7 +231,9 @@ public class ActionList extends AppCompatActivity {
         }
 
         if(supervisor){
+
             getSupSale();
+
             lnSup.setVisibility(View.VISIBLE);
             lnSaleMan.setVisibility(View.GONE);
             lnASM.setVisibility(View.GONE);
@@ -255,55 +256,57 @@ public class ActionList extends AppCompatActivity {
                     super.onScrollStateChanged(recyclerView, newState);
                     if(newState == RecyclerView.SCROLL_STATE_IDLE) {
                         View centerView = snapHelper.findSnapView(linearLayoutManager);
-                        assert centerView != null;
-                        pos = linearLayoutManager.getPosition(centerView);
-                        //editor.putInt("LayoutPosition", pos).apply();
+                        if(centerView != null){
+                            pos = linearLayoutManager.getPosition(centerView);
+                            //editor.putInt("LayoutPosition", pos).apply();
 
-                        //Toast.makeText(getApplicationContext(), pos+"", Toast.LENGTH_LONG).show();
-                        if(pos == 0){
-                            ivTeam.setBackgroundColor(getResources().getColor(R.color.colorGroup));
-                            ivOrderSup.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            ivClientSup.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            ivPromotionSup.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            ivAnnoucementSup.setBackgroundColor(getResources().getColor(R.color.transparent));
+                            //Toast.makeText(getApplicationContext(), pos+"", Toast.LENGTH_LONG).show();
+                            if(pos == 0){
+                                ivTeam.setBackgroundColor(getResources().getColor(R.color.colorGroup));
+                                ivOrderSup.setBackgroundColor(getResources().getColor(R.color.transparent));
+                                ivClientSup.setBackgroundColor(getResources().getColor(R.color.transparent));
+                                ivPromotionSup.setBackgroundColor(getResources().getColor(R.color.transparent));
+                                ivAnnoucementSup.setBackgroundColor(getResources().getColor(R.color.transparent));
 
+                            }
+
+                            if(pos == 1){
+                                ivTeam.setBackgroundColor(getResources().getColor(R.color.transparent));
+
+                                ivClientSup.setBackgroundColor(getResources().getColor(R.color.colorClient));
+                                ivOrderSup.setBackgroundColor(getResources().getColor(R.color.transparent));
+                                ivPromotionSup.setBackgroundColor(getResources().getColor(R.color.transparent));
+                                ivAnnoucementSup.setBackgroundColor(getResources().getColor(R.color.transparent));
+                            }
+
+                            if(pos == 2){
+                                ivTeam.setBackgroundColor(getResources().getColor(R.color.transparent));
+
+                                ivPromotionSup.setBackgroundColor(getResources().getColor(R.color.transparent));
+                                ivClientSup.setBackgroundColor(getResources().getColor(R.color.transparent));
+                                ivOrderSup.setBackgroundColor(getResources().getColor(R.color.colorOrder));
+                                ivAnnoucementSup.setBackgroundColor(getResources().getColor(R.color.transparent));
+                            }
+
+                            if(pos == 3){
+                                ivTeam.setBackgroundColor(getResources().getColor(R.color.transparent));
+
+                                ivAnnoucementSup.setBackgroundColor(getResources().getColor(R.color.transparent));
+                                ivPromotionSup.setBackgroundColor(getResources().getColor(R.color.colorPromotion));
+                                ivClientSup.setBackgroundColor(getResources().getColor(R.color.transparent));
+                                ivOrderSup.setBackgroundColor(getResources().getColor(R.color.transparent));
+                            }
+
+                            if(pos == 4){
+                                ivTeam.setBackgroundColor(getResources().getColor(R.color.transparent));
+
+                                ivAnnoucementSup.setBackgroundColor(getResources().getColor(R.color.colorAnnouncement));
+                                ivPromotionSup.setBackgroundColor(getResources().getColor(R.color.transparent));
+                                ivClientSup.setBackgroundColor(getResources().getColor(R.color.transparent));
+                                ivOrderSup.setBackgroundColor(getResources().getColor(R.color.transparent));
+                            }
                         }
 
-                        if(pos == 1){
-                            ivTeam.setBackgroundColor(getResources().getColor(R.color.transparent));
-
-                            ivClientSup.setBackgroundColor(getResources().getColor(R.color.colorClient));
-                            ivOrderSup.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            ivPromotionSup.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            ivAnnoucementSup.setBackgroundColor(getResources().getColor(R.color.transparent));
-                        }
-
-                        if(pos == 2){
-                            ivTeam.setBackgroundColor(getResources().getColor(R.color.transparent));
-
-                            ivPromotionSup.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            ivClientSup.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            ivOrderSup.setBackgroundColor(getResources().getColor(R.color.colorOrder));
-                            ivAnnoucementSup.setBackgroundColor(getResources().getColor(R.color.transparent));
-                        }
-
-                        if(pos == 3){
-                            ivTeam.setBackgroundColor(getResources().getColor(R.color.transparent));
-
-                            ivAnnoucementSup.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            ivPromotionSup.setBackgroundColor(getResources().getColor(R.color.colorPromotion));
-                            ivClientSup.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            ivOrderSup.setBackgroundColor(getResources().getColor(R.color.transparent));
-                        }
-
-                        if(pos == 4){
-                            ivTeam.setBackgroundColor(getResources().getColor(R.color.transparent));
-
-                            ivAnnoucementSup.setBackgroundColor(getResources().getColor(R.color.colorAnnouncement));
-                            ivPromotionSup.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            ivClientSup.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            ivOrderSup.setBackgroundColor(getResources().getColor(R.color.transparent));
-                        }
                     }
                 }
             });
@@ -335,7 +338,9 @@ public class ActionList extends AppCompatActivity {
         }
 
         if(asm){
+
             getASMSale();
+
             lnSup.setVisibility(View.GONE);
             lnSaleMan.setVisibility(View.GONE);
             lnASM.setVisibility(View.VISIBLE);
@@ -346,9 +351,11 @@ public class ActionList extends AppCompatActivity {
             final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(ActionList.this,LinearLayoutManager.HORIZONTAL,false);
             rvAction.setLayoutManager(linearLayoutManager);
             final SnapHelper snapHelper = new PagerSnapHelper();
-            snapHelper.attachToRecyclerView(rvAction);
+
             if (rvAction.getOnFlingListener() == null)
-                ivSupASM.setBackgroundColor(getResources().getColor(R.color.colorSupervisor));
+                snapHelper.attachToRecyclerView(rvAction);
+
+            ivSupASM.setBackgroundColor(getResources().getColor(R.color.colorSupervisor));
 
             rvAction.addOnScrollListener(new RecyclerView.OnScrollListener() {
 
@@ -357,42 +364,43 @@ public class ActionList extends AppCompatActivity {
                     super.onScrollStateChanged(recyclerView, newState);
                     if(newState == RecyclerView.SCROLL_STATE_IDLE) {
                         View centerView = snapHelper.findSnapView(linearLayoutManager);
-                        assert centerView != null;
-                        int pos = linearLayoutManager.getPosition(centerView);
+                        if(centerView != null){
+                            int pos = linearLayoutManager.getPosition(centerView);
 
-                        //Toast.makeText(getApplicationContext(), pos+"", Toast.LENGTH_LONG).show();
-                        if(pos == 0){
-                            ivSupASM.setBackgroundColor(getResources().getColor(R.color.colorSupervisor));
-                            ivReportASM.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            ivPromotionASM.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            ivAnnouncementASM.setBackgroundColor(getResources().getColor(R.color.transparent));
+                            //Toast.makeText(getApplicationContext(), pos+"", Toast.LENGTH_LONG).show();
+                            if(pos == 0){
+                                ivSupASM.setBackgroundColor(getResources().getColor(R.color.colorSupervisor));
+                                ivReportASM.setBackgroundColor(getResources().getColor(R.color.transparent));
+                                ivPromotionASM.setBackgroundColor(getResources().getColor(R.color.transparent));
+                                ivAnnouncementASM.setBackgroundColor(getResources().getColor(R.color.transparent));
+
+                            }
+
+                            if(pos == 1){
+                                ivSupASM.setBackgroundColor(getResources().getColor(R.color.transparent));
+
+                                ivReportASM.setBackgroundColor(getResources().getColor(R.color.transparent));
+                                ivPromotionASM.setBackgroundColor(getResources().getColor(R.color.colorPromotion));
+                                ivAnnouncementASM.setBackgroundColor(getResources().getColor(R.color.transparent));
+                            }
+
+                            if(pos == 2){
+                                ivSupASM.setBackgroundColor(getResources().getColor(R.color.transparent));
+
+                                ivPromotionASM.setBackgroundColor(getResources().getColor(R.color.transparent));
+                                ivReportASM.setBackgroundColor(getResources().getColor(R.color.colorReport));
+                                ivAnnouncementASM.setBackgroundColor(getResources().getColor(R.color.transparent));
+                            }
+
+                            if(pos == 3){
+                                ivSupASM.setBackgroundColor(getResources().getColor(R.color.transparent));
+
+                                ivAnnouncementASM.setBackgroundColor(getResources().getColor(R.color.colorAnnouncement));
+                                ivPromotionASM.setBackgroundColor(getResources().getColor(R.color.transparent));
+                                ivReportASM.setBackgroundColor(getResources().getColor(R.color.transparent));
+                            }
 
                         }
-
-                        if(pos == 1){
-                            ivSupASM.setBackgroundColor(getResources().getColor(R.color.transparent));
-
-                            ivReportASM.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            ivPromotionASM.setBackgroundColor(getResources().getColor(R.color.colorPromotion));
-                            ivAnnouncementASM.setBackgroundColor(getResources().getColor(R.color.transparent));
-                        }
-
-                        if(pos == 2){
-                            ivSupASM.setBackgroundColor(getResources().getColor(R.color.transparent));
-
-                            ivPromotionASM.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            ivReportASM.setBackgroundColor(getResources().getColor(R.color.colorReport));
-                            ivAnnouncementASM.setBackgroundColor(getResources().getColor(R.color.transparent));
-                        }
-
-                        if(pos == 3){
-                            ivSupASM.setBackgroundColor(getResources().getColor(R.color.transparent));
-
-                            ivAnnouncementASM.setBackgroundColor(getResources().getColor(R.color.colorAnnouncement));
-                            ivPromotionASM.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            ivReportASM.setBackgroundColor(getResources().getColor(R.color.transparent));
-                        }
-
 
                     }
                 }
@@ -425,7 +433,9 @@ public class ActionList extends AppCompatActivity {
         }
 
         if(rsm){
+
             getASMSale();
+            
             lnSup.setVisibility(View.GONE);
             lnSaleMan.setVisibility(View.GONE);
             lnASM.setVisibility(View.VISIBLE);
@@ -447,41 +457,48 @@ public class ActionList extends AppCompatActivity {
                     super.onScrollStateChanged(recyclerView, newState);
                     if(newState == RecyclerView.SCROLL_STATE_IDLE) {
                         View centerView = snapHelper.findSnapView(linearLayoutManager);
-                        int pos = linearLayoutManager.getPosition(centerView);
+
+                        if(centerView != null){
+                            int pos = linearLayoutManager.getPosition(centerView);
+
+                            if(pos == 0){
+                                ivSupASM.setBackgroundColor(getResources().getColor(R.color.colorSupervisor));
+                                ivReportASM.setBackgroundColor(getResources().getColor(R.color.transparent));
+                                ivPromotionASM.setBackgroundColor(getResources().getColor(R.color.transparent));
+                                ivAnnouncementASM.setBackgroundColor(getResources().getColor(R.color.transparent));
+
+                            }
+
+                            if(pos == 1){
+                                ivSupASM.setBackgroundColor(getResources().getColor(R.color.transparent));
+
+                                ivReportASM.setBackgroundColor(getResources().getColor(R.color.transparent));
+                                ivPromotionASM.setBackgroundColor(getResources().getColor(R.color.colorPromotion));
+                                ivAnnouncementASM.setBackgroundColor(getResources().getColor(R.color.transparent));
+                            }
+
+                            if(pos == 2){
+                                ivSupASM.setBackgroundColor(getResources().getColor(R.color.transparent));
+
+                                ivPromotionASM.setBackgroundColor(getResources().getColor(R.color.transparent));
+                                ivReportASM.setBackgroundColor(getResources().getColor(R.color.colorReport));
+                                ivAnnouncementASM.setBackgroundColor(getResources().getColor(R.color.transparent));
+                            }
+
+                            if(pos == 3){
+                                ivSupASM.setBackgroundColor(getResources().getColor(R.color.transparent));
+
+                                ivAnnouncementASM.setBackgroundColor(getResources().getColor(R.color.colorAnnouncement));
+                                ivPromotionASM.setBackgroundColor(getResources().getColor(R.color.transparent));
+                                ivReportASM.setBackgroundColor(getResources().getColor(R.color.transparent));
+                            }
+
+
+                        }
+
+
 
                         //Toast.makeText(getApplicationContext(), pos+"", Toast.LENGTH_LONG).show();
-                        if(pos == 0){
-                            ivSupASM.setBackgroundColor(getResources().getColor(R.color.colorSupervisor));
-                            ivReportASM.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            ivPromotionASM.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            ivAnnouncementASM.setBackgroundColor(getResources().getColor(R.color.transparent));
-
-                        }
-
-                        if(pos == 1){
-                            ivSupASM.setBackgroundColor(getResources().getColor(R.color.transparent));
-
-                            ivReportASM.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            ivPromotionASM.setBackgroundColor(getResources().getColor(R.color.colorPromotion));
-                            ivAnnouncementASM.setBackgroundColor(getResources().getColor(R.color.transparent));
-                        }
-
-                        if(pos == 2){
-                            ivSupASM.setBackgroundColor(getResources().getColor(R.color.transparent));
-
-                            ivPromotionASM.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            ivReportASM.setBackgroundColor(getResources().getColor(R.color.colorReport));
-                            ivAnnouncementASM.setBackgroundColor(getResources().getColor(R.color.transparent));
-                        }
-
-                        if(pos == 3){
-                            ivSupASM.setBackgroundColor(getResources().getColor(R.color.transparent));
-
-                            ivAnnouncementASM.setBackgroundColor(getResources().getColor(R.color.colorAnnouncement));
-                            ivPromotionASM.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            ivReportASM.setBackgroundColor(getResources().getColor(R.color.transparent));
-                        }
-
 
                     }
                 }
@@ -535,54 +552,60 @@ public class ActionList extends AppCompatActivity {
                     super.onScrollStateChanged(recyclerView, newState);
                     if(newState == RecyclerView.SCROLL_STATE_IDLE) {
                         View centerView = snapHelper.findSnapView(linearLayoutManager);
-                        assert centerView != null;
-                        int pos = linearLayoutManager.getPosition(centerView);
+
+                        if( centerView!= null) {
+                            int pos = linearLayoutManager.getPosition(centerView);
+
+                            if(pos == 0){
+                                ivAdminOrder.setBackgroundColor(getResources().getColor(R.color.colorOrderAdmin));
+                                ivCreateAcc.setBackgroundColor(getResources().getColor(R.color.transparent));
+                                ivAdminProduct.setBackgroundColor(getResources().getColor(R.color.transparent));
+                                ivAdminPayroll.setBackgroundColor(getResources().getColor(R.color.transparent));
+                                ivAdminPromotion.setBackgroundColor(getResources().getColor(R.color.transparent));
+
+
+                            }
+                            if(pos == 1){
+                                ivAdminOrder.setBackgroundColor(getResources().getColor(R.color.transparent));
+                                ivCreateAcc.setBackgroundColor(getResources().getColor(R.color.transparent));
+                                ivAdminProduct.setBackgroundColor(getResources().getColor(R.color.transparent));
+                                ivAdminPayroll.setBackgroundColor(getResources().getColor(R.color.transparent));
+                                ivAdminPromotion.setBackgroundColor(getResources().getColor(R.color.colorPromotion));
+
+                            }
+
+
+                            if(pos == 2){
+                                ivAdminOrder.setBackgroundColor(getResources().getColor(R.color.transparent));
+                                ivCreateAcc.setBackgroundColor(getResources().getColor(R.color.colorAccount));
+                                ivAdminProduct.setBackgroundColor(getResources().getColor(R.color.transparent));
+                                ivAdminPayroll.setBackgroundColor(getResources().getColor(R.color.transparent));
+                                ivAdminPromotion.setBackgroundColor(getResources().getColor(R.color.transparent));
+
+                            }
+
+                            if(pos == 3){
+                                ivAdminOrder.setBackgroundColor(getResources().getColor(R.color.transparent));
+                                ivCreateAcc.setBackgroundColor(getResources().getColor(R.color.transparent));
+                                ivAdminProduct.setBackgroundColor(getResources().getColor(R.color.colorProduct));
+                                ivAdminPayroll.setBackgroundColor(getResources().getColor(R.color.transparent));
+                                ivAdminPromotion.setBackgroundColor(getResources().getColor(R.color.transparent));
+
+                            }
+                            if(pos == 4){
+                                ivAdminOrder.setBackgroundColor(getResources().getColor(R.color.transparent));
+                                ivCreateAcc.setBackgroundColor(getResources().getColor(R.color.transparent));
+                                ivAdminProduct.setBackgroundColor(getResources().getColor(R.color.transparent));
+                                ivAdminPayroll.setBackgroundColor(getResources().getColor(R.color.colorPayroll));
+                                ivAdminPromotion.setBackgroundColor(getResources().getColor(R.color.transparent));
+
+                            }
+
+
+                        }
 
                         //Toast.makeText(getApplicationContext(), pos+"", Toast.LENGTH_LONG).show();
-                        if(pos == 0){
-                            ivAdminOrder.setBackgroundColor(getResources().getColor(R.color.colorOrderAdmin));
-                            ivCreateAcc.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            ivAdminProduct.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            ivAdminPayroll.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            ivAdminPromotion.setBackgroundColor(getResources().getColor(R.color.transparent));
 
-
-                        }
-                        if(pos == 1){
-                            ivAdminOrder.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            ivCreateAcc.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            ivAdminProduct.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            ivAdminPayroll.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            ivAdminPromotion.setBackgroundColor(getResources().getColor(R.color.colorPromotion));
-
-                        }
-
-
-                        if(pos == 2){
-                            ivAdminOrder.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            ivCreateAcc.setBackgroundColor(getResources().getColor(R.color.colorAccount));
-                            ivAdminProduct.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            ivAdminPayroll.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            ivAdminPromotion.setBackgroundColor(getResources().getColor(R.color.transparent));
-
-                        }
-
-                        if(pos == 3){
-                            ivAdminOrder.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            ivCreateAcc.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            ivAdminProduct.setBackgroundColor(getResources().getColor(R.color.colorProduct));
-                            ivAdminPayroll.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            ivAdminPromotion.setBackgroundColor(getResources().getColor(R.color.transparent));
-
-                        }
-                        if(pos == 4){
-                            ivAdminOrder.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            ivCreateAcc.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            ivAdminProduct.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            ivAdminPayroll.setBackgroundColor(getResources().getColor(R.color.colorPayroll));
-                            ivAdminPromotion.setBackgroundColor(getResources().getColor(R.color.transparent));
-
-                        }
 
                     }
                 }
@@ -836,7 +859,9 @@ public class ActionList extends AppCompatActivity {
         ivAnnouncementASM.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                Intent it = new Intent(getApplicationContext(), AnnounceList.class);
+                it.putExtra("EmailLogin",emailLogin);
+                startActivity(it);
             }
         });
 
@@ -955,7 +980,9 @@ public class ActionList extends AppCompatActivity {
         ivAnnoucementSup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                Intent it = new Intent(getApplicationContext(), AnnounceList.class);
+                it.putExtra("EmailLogin",emailLogin);
+                startActivity(it);
             }
         });
 
@@ -1010,7 +1037,9 @@ public class ActionList extends AppCompatActivity {
         ivAnnouncement.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                Intent it = new Intent(getApplicationContext(), AnnounceList.class);
+                it.putExtra("EmailLogin",emailLogin);
+                startActivity(it);
             }
         });
 

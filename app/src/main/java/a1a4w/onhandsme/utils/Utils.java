@@ -3,7 +3,6 @@ package a1a4w.onhandsme.utils;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.AssetManager;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -42,11 +41,9 @@ import com.itextpdf.text.Font;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.PageSize;
 import com.itextpdf.text.Paragraph;
-import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.PdfWriter;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileDescriptor;
@@ -54,7 +51,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.channels.FileChannel;
 import java.text.DateFormat;
@@ -389,126 +385,6 @@ public class Utils {
         }
     }
 
-    public static File createTextPDFForPrint(String string){
-        File fontFile = new File(Environment.getExternalStorageDirectory(),"resources/fonts/vuArial.ttf");
-
-        File pdfDir = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_DOCUMENTS), "FreshLife");
-        if (!pdfDir.exists()){
-            //noinspection ResultOfMethodCallIgnored
-            pdfDir.mkdir();
-        }
-
-        // fix
-        //noinspection ResultOfMethodCallIgnored
-        pdfDir.setExecutable(true);
-        //noinspection ResultOfMethodCallIgnored
-        pdfDir.setReadable(true);
-        //noinspection ResultOfMethodCallIgnored
-        pdfDir.setWritable(true);
-
-        // MediaScannerConnection.scanFile(context, new String[] {pdfDir.toString()}, null, null);
-        String timeStampString = (Calendar.getInstance().getTime().getTime())+"";
-
-        //Now create the name of your PDF file that you will generate
-        final File pdfFile = new File(pdfDir, timeStampString+"TextPDF.pdf");
-
-        try {
-            Document document = new Document();
-
-            PdfWriter.getInstance(document, new FileOutputStream(pdfFile));
-            document.open();
-
-            BaseFont bf = BaseFont.createFont(fontFile.getAbsolutePath(), BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
-            Font font = new Font(bf,22);
-            Paragraph p = new Paragraph(string, font);
-            p.setAlignment(Element.ALIGN_CENTER);
-            document.add(p);
-            document.close();
-
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
-        return pdfFile;
-    }
-
-
-    public void createPdfPageSize(String dest) throws IOException, DocumentException {
-        Document document = new Document();
-        PdfWriter.getInstance(document, new FileOutputStream(dest));
-        Rectangle one = new Rectangle(70,140);
-        Rectangle two = new Rectangle(700,400);
-        document.setPageSize(one);
-        document.setMargins(2, 2, 2, 2);
-        document.open();
-        Paragraph p = new Paragraph("Hi");
-        document.add(p);
-        document.setPageSize(two);
-        document.setMargins(20, 20, 20, 20);
-        document.newPage();
-        document.add(p);
-        document.close();
-    }
-
-    public static void createFile(final String outputFile,
-                                  final Context context, final Integer[] inputRawResources)
-            throws IOException {
-
-        final OutputStream outputStream = new FileOutputStream(outputFile);
-
-        final Resources resources = context.getResources();
-        final byte[] largeBuffer = new byte[1024 * 4];
-        int totalBytes = 0;
-        int bytesRead = 0;
-
-        for (Integer resource : inputRawResources) {
-            final InputStream inputStream = resources.openRawResource(resource
-                    .intValue());
-            while ((bytesRead = inputStream.read(largeBuffer)) > 0) {
-                if (largeBuffer.length == bytesRead) {
-                    outputStream.write(largeBuffer);
-                } else {
-                    final byte[] shortBuffer = new byte[bytesRead];
-                    System.arraycopy(largeBuffer, 0, shortBuffer, 0, bytesRead);
-                    outputStream.write(shortBuffer);
-                }
-                totalBytes += bytesRead;
-            }
-            inputStream.close();
-        }
-
-        outputStream.flush();
-        outputStream.close();
-    }
-
-    public static  String getStringFromInputStream(InputStream is) {
-
-        BufferedReader br = null;
-        StringBuilder sb = new StringBuilder();
-
-        String line;
-        try {
-
-            br = new BufferedReader(new InputStreamReader(is));
-            while ((line = br.readLine()) != null) {
-                sb.append(line);
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (br != null) {
-                try {
-                    br.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        return sb.toString();
-    }
 
     public static Bitmap getImageFromAssetsFile(Context ctx, String fileName) {
         Bitmap image = null;

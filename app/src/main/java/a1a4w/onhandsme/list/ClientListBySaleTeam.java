@@ -109,6 +109,7 @@ public class ClientListBySaleTeam extends AppCompatActivity {
     private ProgressBar barKPISale, barKPINewClient;
     private ArrayAdapter<String> adpProduct;
     private RecyclerView rvListSale;
+    private Dialog dialogSaleRoute;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -770,14 +771,18 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                             builder.setView(dialogView);
 
 
-                            final Dialog dialog = builder.create();
-                            dialog.show();
+                            dialogSaleRoute = builder.create();
+                            dialogSaleRoute.show();
 
                             final TextView tvManageBy = dialogView.findViewById(R.id.tv_dialog_route_man_manageBy);
+                            final TextView tvClientName = dialogView.findViewById(R.id.tv_sale_route_clientname);
 
                             refDatabase.child(emailLogin).child("Client").child(choosenClientCode).addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
+                                    Client client = dataSnapshot.getValue(Client.class);
+                                    tvClientName.setText(client.getClientName());
+
                                     if(dataSnapshot.hasChild("managedBy")){
 
                                         refDatabase.child(emailLogin).child("Client").child(choosenClientCode).child("managedBy").addListenerForSingleValueEvent(new ValueEventListener() {
@@ -1040,7 +1045,7 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                                         refDatabase.child(emailLogin).child("SaleRoute").child(choosenEmployeeEmail).child("f_Thứ bảy").child(clientCode).setValue(null);
                                     }
 
-                                    dialog.dismiss();
+                                    dialogSaleRoute.dismiss();
 
                                 }
                             });
@@ -2283,6 +2288,8 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                                             }).setPositiveButton("Có", new DialogInterface.OnClickListener() {
                                                 @Override
                                                 public void onClick(DialogInterface dialog, int which) {
+                                                    dialogSaleRoute.dismiss();
+
                                                     //adapterEmployee.notifyDataSetChanged();
                                                     refDatabase.child(emailLogin).child("Client").child(choosenClientCode).child("managedBy").setValue(employee);
                                                     refDatabase.child(emailLogin).child("ClientManBySale").child(currentEmployee.getEmployeeEmail()).child("Tất cả").child(choosenClientCode).setValue(null);

@@ -738,7 +738,8 @@ public class SaleListByASM extends AppCompatActivity {
                     });
 
                     ImageView phone = dialogView.findViewById(R.id.iv_sale_detail_phone);
-                    ImageView grouping = dialogView.findViewById(R.id.iv_sale_detail_grouping);             ImageView ivRoute = dialogView.findViewById(R.id.iv_sale_detail_route);
+                    ImageView grouping = dialogView.findViewById(R.id.iv_sale_detail_grouping);
+                    ImageView ivRoute = dialogView.findViewById(R.id.iv_sale_detail_route);
                     ImageView ivKPI = dialogView.findViewById(R.id.iv_sale_detail_kpi);
                     ImageView ivTeam = dialogView.findViewById(R.id.iv_sale_detail_team);
                     ivTeam.setVisibility(View.VISIBLE);

@@ -503,6 +503,7 @@ public class SaleRoute extends AppCompatActivity implements OnMapReadyCallback {
         }
 
         listVisits = new ArrayList<>();
+        //listVisits.clear();
         if (distanceMap != null) distanceMap.clear();
         if (sortTopProduct != null) sortTopProduct.clear();
 
@@ -514,13 +515,17 @@ public class SaleRoute extends AppCompatActivity implements OnMapReadyCallback {
 
                 int i = 0;
                 for (DataSnapshot itemClient : snapClient) {
-                    i++;
+
                     Client client = itemClient.getValue(Client.class);
                     assert client != null;
 
                     boolean isMet = client.isMet();
 
                     if (!isMet) {
+
+                        i++;
+
+                        listVisits.add(client);
 
                         MapModel mapModel = client.getMap();
                         String clientCode = client.getClientCode();
@@ -541,6 +546,12 @@ public class SaleRoute extends AppCompatActivity implements OnMapReadyCallback {
                         final double minDis = Double.parseDouble(me.getValue().toString());
 
                         //Toast.makeText(getApplicationContext(),minDis+"", Toast.LENGTH_LONG).show();
+
+                        if(i == sortTopProduct.size()){
+                            AdapterMeetClient adapterMeetClient = new AdapterMeetClient(getApplicationContext(), listVisits, SaleRoute.this, emailLogin);
+                            rvClientList.setAdapter(adapterMeetClient);
+                            adapterMeetClient.notifyDataSetChanged();
+                        }
 
                         for (Map.Entry<String, Double> entry : distanceMap.entrySet()) {
                             String key = entry.getKey();
@@ -594,24 +605,6 @@ public class SaleRoute extends AppCompatActivity implements OnMapReadyCallback {
 
                             }
 
-                            refDatabase.child(emailLogin).child("SaleRoute").child(userEmail).child(choosenDay).child(key).addListenerForSingleValueEvent(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(DataSnapshot dataSnapshot) {
-                                    Client addListClient = dataSnapshot.getValue(Client.class);
-                                    assert addListClient != null;
-
-                                    listVisits.add(addListClient);
-
-                                    AdapterMeetClient adapterMeetClient = new AdapterMeetClient(getApplicationContext(), listVisits, SaleRoute.this, emailLogin);
-                                    rvClientList.setAdapter(adapterMeetClient);
-                                    adapterMeetClient.notifyDataSetChanged();
-                                }
-
-                                @Override
-                                public void onCancelled(DatabaseError databaseError) {
-
-                                }
-                            });
 
                         }
 

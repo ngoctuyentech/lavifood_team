@@ -21,7 +21,7 @@ public class Client {
     MapModel map;
     String timeStamp;
     String clientUrl;
-    boolean isMet;
+    boolean met;
     String monthSale;
     String nearestBuyDay;
     String createBy;
@@ -135,7 +135,7 @@ public class Client {
     }
 
     public boolean isMet() {
-        return isMet;
+        return met;
     }
 
     public String getMonthSale() {
