@@ -1,39 +1,45 @@
 {
   "project_info": {
-    "project_number": "891112506564",
-    "firebase_url": "https://onhandsme.firebaseio.com",
-    "project_id": "onhandsme",
-    "storage_bucket": "onhandsme.appspot.com"
+    "project_number": "261543878537",
+    "firebase_url": "https://lavifoodteam.firebaseio.com",
+    "project_id": "lavifoodteam",
+    "storage_bucket": "lavifoodteam.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:891112506564:android:48dec8d9a5dad5d7",
+        "mobilesdk_app_id": "1:261543878537:android:ea51f593298dc814e74b58",
         "android_client_info": {
-          "package_name": "a1a4w.onhandsme"
+          "package_name": "vn.techlifegroup.wesell"
         }
       },
       "oauth_client": [
         {
-          "client_id": "891112506564-d9p8vg9dp853jcu1cjiu6khhtcsvevhf.apps.googleusercontent.com",
+          "client_id": "261543878537-qmfmu1ccdfj6pts90bsqfr6bo5n0t24h.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "vn.techlifegroup.wesell",
+            "certificate_hash": "660053d6714027a0a487885398b3da4acd62ec37"
+          }
+        },
+        {
+          "client_id": "261543878537-rp5fk93fdq8sbt55ccblrhinbanej985.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCG8xmbOYmCSKFkBjAJJGybNpGKEH59KkE"
+          "current_key": "AIzaSyBu_xbOowJ6Xa53pnXv1gwEcjMbWjDyIMY"
         }
       ],
       "services": {
-        "analytics_service": {
-          "status": 1
-        },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
-        },
-        "ads_service": {
-          "status": 2
+          "other_platform_oauth_client": [
+            {
+              "client_id": "261543878537-rp5fk93fdq8sbt55ccblrhinbanej985.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

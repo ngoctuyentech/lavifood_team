@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">CloudBiz DMS</string>
+    <string name="app_name">We Sell</string>
     <string name="hint_enter_password">Nhập mật mã</string>
     <string name="loading">Đang tải dữ liệu...</string>
     <string name="minimum_password">Mật mã ít nhất 6 ký  tự</string>
