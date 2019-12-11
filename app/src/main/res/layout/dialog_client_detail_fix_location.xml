@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="250dp"
+    android:layout_height="180dp"
+    android:layout_gravity="center"
+    android:background="@drawable/box_white_dialog"
+    android:orientation="vertical">
+
+    <Button
+        android:id="@+id/btn_dialog_client_detail_fix_location_ok"
+        android:layout_width="0dp"
+        android:layout_height="30dp"
+        android:background="@color/transparent"
+        android:fontFamily="@font/utm_dax"
+        android:text="OK"
+        android:textSize="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/btn_dialog_client_detail_scan_qr_close" />
+
+    <Button
+        android:id="@+id/btn_dialog_client_detail_fix_location_close"
+        android:layout_width="0dp"
+        android:layout_height="30dp"
+        android:background="@color/transparent"
+        android:fontFamily="@font/utm_dax"
+        android:text="HỦY"
+        android:textSize="16dp"
+        app:layout_constraintBottom_toBottomOf="@+id/btn_dialog_client_detail_fix_location_ok"
+        app:layout_constraintEnd_toStartOf="@+id/btn_dialog_client_detail_fix_location_ok"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/btn_dialog_client_detail_fix_location_ok" />
+
+    <TextView
+        android:id="@+id/textView22"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/utm_dax"
+        android:text="@string/fix_location"
+        android:textSize="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/view6" />
+
+    <TextView
+        android:id="@+id/textView21"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:fontFamily="@font/utm_dax"
+        android:text="Cập nhật tọa độ khách hàng"
+        android:textSize="18dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:id="@+id/view6"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_marginTop="4dp"
+        android:background="@color/black"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView21" />
+
+    <View
+        android:id="@+id/view7"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_marginBottom="4dp"
+        android:background="@color/black"
+        app:layout_constraintBottom_toTopOf="@+id/btn_dialog_client_detail_fix_location_ok"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent" />
+
+</android.support.constraint.ConstraintLayout>

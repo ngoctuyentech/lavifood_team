@@ -3,13 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="vn.techlifegroup.wesell">
 
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.BLUETOOTH" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.CALL_PHONE" />
-
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -18,7 +11,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".bytask.AnnounceList"></activity>
+        <activity android:name=".list.HistoryChatActivity"
+            android:label="" />
+        <activity android:name=".bytask.AnnounceList" />
         <activity android:name=".bytask.CreateProgram" />
         <activity android:name=".list.AccountList" />
         <activity android:name=".bytask.CreateProduct" />
@@ -27,9 +22,11 @@
         <activity android:name=".bytask.SaleReport" />
         <activity android:name=".list.AddSale" />
         <activity android:name=".list.SaleList" />
+        <activity android:name=".bytask.MainChatActivity"
+            android:label="" />
         <activity
             android:name=".bytask.PromotionList"
-            android:label="Chương trình" />
+            android:label="" />
         <activity android:name=".bytask.TeamMan" />
         <activity android:name=".bytask.SaleRoute" />
         <activity android:name=".list.ClientListBySaleTeam" />
@@ -46,7 +43,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".bytask.OrderManActivity" />
+        <activity
+            android:name=".bytask.OrderManActivity"
+            android:label="" />
         <activity android:name=".bytask.warehouse.WarehouseManActivity" />
         <activity android:name=".bytask.distribution.DistributionManActivity" />
         <activity android:name=".bytask.debt.DebtManActivity" />
@@ -54,7 +53,7 @@
         <activity android:name=".list.ClientListActivity" />
         <activity
             android:name=".order.UpdateOrderActivity"
-            android:label="Đơn hàng mới" />
+            android:label="" />
         <activity android:name=".list.AddClientActivity" />
         <activity
             android:name=".order.ViewOrderDetailActivity"
@@ -98,31 +97,38 @@
         <activity android:name=".pos.AddEmployeeActivity" />
         <activity android:name=".pos.AddShopActivity" />
 
-        <service
-            android:name=".utils.EmployeeTracker"
-            android:enabled="true"
-            android:exported="true" />
-        <service
-            android:name=".utils.BluetoothService"
-            android:enabled="true"
-            android:exported="true" />
-
         <activity android:name=".utils.DeviceListActivity" />
         <activity android:name=".pos.ShopManagerActivity" />
-        <activity android:name=".ScanCodeActivity" />
 
+        <activity android:name=".ScanCodeActivity" />
+        <activity android:name=".bytask.distribution.MeetClientReportActivity" />
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="ada9f176623e9716ef8a4200857b0232b2c302d1"
             tools:replace="android:value" />
+
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyBj6LOWkIk_OjXEVTf9P9hJfWlfBgiEYwM" />
+        <service
+            android:name=".utils.EmployeeTracker"
+            android:enabled="true"
+            android:exported="true" />
 
-        <activity android:name=".bytask.distribution.MeetClientReportActivity" />
+        <service
+            android:name=".utils.BluetoothService"
+            android:enabled="true"
+            android:exported="true" />
     </application>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
 </manifest>

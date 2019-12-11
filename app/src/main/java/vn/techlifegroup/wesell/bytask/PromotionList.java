@@ -12,6 +12,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -19,6 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -37,11 +39,13 @@ import static vn.techlifegroup.wesell.utils.Constants.buttonClick;
 import static vn.techlifegroup.wesell.utils.Constants.refDatabase;
 
 public class PromotionList extends AppCompatActivity {
-    private String emailLogin;
+    //private String emailLogin;
     private FirebaseRecyclerAdapter<Promotion, PromotionViewHolder> adapterFirebasePromotion;
     private boolean admin;
     private FirebaseRecyclerAdapter<Product, CreateProgram.ProductViewHolder> adapterFirebaseProductDis;
     private FirebaseRecyclerAdapter<Promotion, CreateProgram.ProductBGMHolder> adapterProductBGM;
+
+    private String userEmail = FirebaseAuth.getInstance().getCurrentUser().getEmail().replace(".", ",");
 
     @SuppressLint("RestrictedApi")
     @Override
@@ -49,11 +53,12 @@ public class PromotionList extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_promotion_list);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_promotion);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_product_promotion);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         Intent intent = this.getIntent();
-        emailLogin = intent.getStringExtra("EmailLogin");
+        //emailLogin = intent.getStringExtra("EmailLogin");
         admin = intent.getBooleanExtra("Admin", false);
 
         FloatingActionButton fabAddPromotion = findViewById(R.id.fab_add_promotion);
@@ -64,7 +69,7 @@ public class PromotionList extends AppCompatActivity {
             public void onClick(View v) {
                 v.startAnimation(buttonClick);
                 Intent it = new Intent(getApplicationContext(),CreateProgram.class);
-                it.putExtra("EmailLogin",emailLogin);
+                //it.putExtra("EmailLogin",emailLogin);
                 it.putExtra("Admin",true);
                 startActivity(it);
                 //dialogAddPromotion();
@@ -80,7 +85,7 @@ public class PromotionList extends AppCompatActivity {
         //StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         recyclerViewPromotion.setLayoutManager(linearLayoutManager);
 
-        DatabaseReference refPromotion = refDatabase.child(emailLogin).child("PromotionMan");
+        DatabaseReference refPromotion = refDatabase.child("PromotionMan");
 
         adapterFirebasePromotion = new FirebaseRecyclerAdapter<Promotion, PromotionViewHolder>(
                 Promotion.class,
@@ -146,7 +151,7 @@ public class PromotionList extends AppCompatActivity {
                                 Toast.makeText(getApplicationContext(), "Chương trình vẫn còn hiệu lực, vui lòng giữ lại để theo dõi!", Toast.LENGTH_LONG).show();
                             }else{
                                 refPromotionMan.setValue(null);
-                                refDatabase.child(emailLogin).child("PromotionHistory").child(promotionKey).setValue(p);
+                                refDatabase.child("PromotionHistory").child(promotionKey).setValue(p);
                             }
                         }
                     }).setNegativeButton("Không", new DialogInterface.OnClickListener() {
@@ -266,5 +271,17 @@ public class PromotionList extends AppCompatActivity {
     public void onBackPressed() {
         super.onBackPressed();
         startActivity(new Intent(this, MainActivity.class));
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == android.R.id.home) {
+            onBackPressed();
+        }
+
+        return super.onOptionsItemSelected(item);
+
     }
 }

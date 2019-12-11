@@ -53,17 +53,22 @@ import vn.techlifegroup.wesell.utils.Constants;
 import vn.techlifegroup.wesell.utils.Utils;
 
 import static vn.techlifegroup.wesell.utils.Constants.refDatabase;
+import static vn.techlifegroup.wesell.utils.Constants.refEmployee;
+import static vn.techlifegroup.wesell.utils.Constants.refOrder;
 import static vn.techlifegroup.wesell.utils.Constants.refOrderList;
+import static vn.techlifegroup.wesell.utils.Constants.refProductListByGroup;
+import static vn.techlifegroup.wesell.utils.Constants.refUsers;
 
 public class UpdateOrderActivity extends AppCompatActivity {
 
-    private Spinner spinSales, spinPayment,spinUnitName,spinProduct,spinVAT;
+    private Spinner spinSales, spinPayment,spinUnitName,spinGroup, spinProduct,spinVAT;
     private ImageButton addPromotion;
     private Bundle b = new Bundle();
-    private EditText edtproductPrice, edtproductQuantity, edtdeliveryDate,edtSpecialDiscount, edtDialogProductQuantity, edtOrderDiscount, edtOrderNote;
+    private EditText edtproductQuantity, edtdeliveryDate,edtSpecialDiscount, edtDialogProductQuantity, edtOrderDiscount, edtOrderNote;
     private TextView currentStorage,tvClientName, tvClientSale, clientDebt,tvEmployeeName,tvProductName,tvEmployeeMonthSale,tvPromotionName;
     private String orderDiscount, orderPushKeyString, clientCode,paymentType,promotionName,productStock,
-            clientType, employeeName,productName,choosenVAT,emailLogin,clientName,saleManEmail,productCode;
+            clientType, employeeName,productName,choosenVAT,clientName,saleManEmail,productCode;
+    private TextView edtproductPrice;
     private Switch switchPayment;
     private Button btnChooseEmployee,btnChooseProduct,btnChoosePromotion,btnPreview;
     private DatabaseReference orderPushKey;
@@ -83,7 +88,16 @@ public class UpdateOrderActivity extends AppCompatActivity {
     private Dialog dialogProductList,dialogProgramList,dialogEmployeeList;
     private String year,month,day;
     private RecyclerView rvProductList;
+
+    private ArrayAdapter<String> adpGroup;
     private ArrayAdapter<String> adpProduct;
+
+    private String groupChoose, productChoose,chosenProductPrice,finalPayment,discount;
+
+    private String managedBy;
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,16 +107,37 @@ public class UpdateOrderActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_order);
         setSupportActionBar(toolbar);
 
-        orderPushKeyString = refOrderList.push().getKey();
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+
        // b.putString("OrderPushKey",orderPushKeyString);
         saleManEmail =FirebaseAuth.getInstance().getCurrentUser().getEmail().replace(".",",");
 
         Intent intent = this.getIntent();
         clientCode = intent.getStringExtra("ClientCode");
-        emailLogin = intent.getStringExtra("EmailLogin");
+        //emailLogin = intent.getStringExtra("EmailLogin");
         saleMan = intent.getBooleanExtra("SaleMan",false);
         outRoute = intent.getBooleanExtra("OutRoute",false);
        // employeeName = intent.getStringExtra("EmployeeName");
+
+        refEmployee.child(saleManEmail).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                Employee employee = dataSnapshot.getValue(Employee.class);
+                managedBy = employee.getManagedBy();
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+        //keyOrderTemp = refUsers.child(clientCode).child("OrderTemp").push().getKey();
+
+        orderPushKeyString = refOrderList.push().getKey();
 
         DateTime dt = new DateTime();
         month = dt.getMonthOfYear()+"";
@@ -149,17 +184,14 @@ public class UpdateOrderActivity extends AppCompatActivity {
 
     private void addProductToList() {
         final String productQuantity = edtproductQuantity.getText().toString();
-        final String productPrice = edtproductPrice.getText().toString().replace(",","");
+        //final String productPrice = edtproductPrice.getText().toString().replace(",","");
 
 
-        if(TextUtils.isEmpty(productPrice)){
-            Toast.makeText(getApplicationContext(),"Vui lòng nhập giá sản phẩm",Toast.LENGTH_LONG).show();
-
-        }else if(TextUtils.isEmpty(productQuantity)){
+        if(TextUtils.isEmpty(productQuantity)){
             Toast.makeText(getApplicationContext(),"Vui lòng nhập số lượng sản phẩm",Toast.LENGTH_LONG).show();
 
         }
-        else if(productName == null){
+        else if(productChoose == null){
             Toast.makeText(getApplicationContext(),"Vui lòng chọn sản phẩm",Toast.LENGTH_LONG).show();
 
         }
@@ -170,23 +202,25 @@ public class UpdateOrderActivity extends AppCompatActivity {
         }
         else {
 
-            rvProductList.setVisibility(View.VISIBLE);
+            //rvProductList.setVisibility(View.VISIBLE);
 
-            edtproductQuantity.setText("");
-            edtproductPrice.setText("");
+            spinProduct.setSelection(0);
+            edtproductPrice.setText(null);
+            edtproductQuantity.setText(null);
+            currentStorage.setText(null);
 
-            float finalProductPayment = Float.parseFloat(productPrice)*Float.parseFloat(productQuantity);
+            float finalProductPayment = Float.parseFloat(chosenProductPrice)*Float.parseFloat(productQuantity);
 
-            final Product currentProduct = new Product(productName,productPrice,productQuantity,productCode,finalProductPayment+"");
+            final Product currentProduct = new Product(productChoose,chosenProductPrice,productQuantity,productCode,finalProductPayment+"");
 
-            refDatabase.child(emailLogin+"/OrderList").child(orderPushKeyString).child("ProductList").push().setValue(currentProduct);
+            refDatabase.child("OrderList").child(orderPushKeyString).child("ProductList").push().setValue(currentProduct);
 
         }
     }
 
     private void getClientDebt() {
         //Get Client debt
-        refDatabase.child(emailLogin+"/Client").child(clientCode).addValueEventListener(new ValueEventListener() {
+        refDatabase.child("Client").child(clientCode).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Client client = dataSnapshot.getValue(Client.class);
@@ -197,15 +231,15 @@ public class UpdateOrderActivity extends AppCompatActivity {
                 //tvClientSale.setText(Utils.convertNumber(clientSale));
                 clientDebt.setText(Utils.convertNumber(clientDebtData));
 
-                refDatabase.child(emailLogin).child("TotalByClient").child(clientCode).addListenerForSingleValueEvent(new ValueEventListener() {
+                refDatabase.child("TotalByClient").child(clientCode).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if(dataSnapshot.hasChild(year+"-"+month)){
-                            refDatabase.child(emailLogin).child("TotalByClient").child(clientCode).addListenerForSingleValueEvent(new ValueEventListener() {
+                            refDatabase.child("TotalByClient").child(clientCode).addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     if(dataSnapshot.hasChild(year)){
-                                        refDatabase.child(emailLogin).child("TotalByClient").child(clientCode).child(year).addListenerForSingleValueEvent(new ValueEventListener() {
+                                        refDatabase.child("TotalByClient").child(clientCode).child(year).addListenerForSingleValueEvent(new ValueEventListener() {
                                             @Override
                                             public void onDataChange(DataSnapshot dataSnapshot) {
                                                 tvClientSale.setText(Utils.convertNumber(dataSnapshot.getValue().toString()));
@@ -252,7 +286,7 @@ public class UpdateOrderActivity extends AppCompatActivity {
         //Toast.makeText(getApplicationContext(), year+"-"+month, Toast.LENGTH_LONG).show();
 
         spinVAT = (Spinner)findViewById(R.id.spin_order_vat);
-        edtproductPrice = (EditText) findViewById(R.id.edt_order_product_price);
+        edtproductPrice = (TextView) findViewById(R.id.tv_order_product_price);
         edtproductQuantity = (EditText) findViewById(R.id.edt_order_product_quantity);
         edtdeliveryDate = (EditText) findViewById(R.id.edt_order_date_delivery);
         //edtSpecialDiscount = (EditText) findViewById(R.id.edt_order_special_discount);
@@ -272,12 +306,215 @@ public class UpdateOrderActivity extends AppCompatActivity {
         btnChooseProduct = findViewById(R.id.btn_order_choose_product);
         btnChoosePromotion = findViewById(R.id.btn_order_choose_promotion);
 
+        spinGroup   = findViewById(R.id.spin_order_group);
         spinProduct = findViewById(R.id.spin_order_product);
+
+        final List<String> listGroup = new ArrayList<String>();
+        listGroup.add("Chọn nhóm");
+
+        refProductListByGroup.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(dataSnapshot.hasChildren()){
+                    Iterable<DataSnapshot> catSnap = dataSnapshot.getChildren();
+                    for(DataSnapshot itemCat:catSnap){
+                        String storeGroupName = itemCat.getKey();
+                        listGroup.add(storeGroupName);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+        //add listGroup
+
+        adpGroup = new ArrayAdapter<String>(getApplicationContext(),
+                android.R.layout.simple_list_item_1, listGroup);
+        adpGroup.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinGroup.setAdapter(adpGroup);
+
+        spinGroup.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+                groupChoose = (String) parent.getItemAtPosition(position);
+
+                final List<String> listProduct = new ArrayList<String>();
+
+                final List<String> listProductContains = new ArrayList<String>();
+
+                listProduct.clear();
+                listProduct.add("Chọn sản phẩm");
+
+                refProductListByGroup.child(groupChoose).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if(dataSnapshot.hasChildren()){
+                            Iterable<DataSnapshot> catSnap = dataSnapshot.getChildren();
+                            for(DataSnapshot itemCat:catSnap){
+                                String storeName = itemCat.getKey();
+                                listProduct.add(storeName);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+                //add listProduct
+
+                adpProduct = new ArrayAdapter<String>(getApplicationContext(),
+                        android.R.layout.simple_list_item_1, listProduct);
+                adpProduct.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                spinProduct.setAdapter(adpProduct);
+
+                spinProduct.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                        ((TextView) spinProduct.getSelectedView()).setTextColor(getResources().getColor(android.R.color.black));
+
+                        edtproductQuantity.setText(null);
+                        currentStorage.setText(null);
+
+                        productChoose = (String) parent.getItemAtPosition(position);
+
+                        refDatabase.child("OrderList").child(orderPushKeyString).child("ProductList")
+                                .addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        if (dataSnapshot.hasChildren()) {
+                                            Iterable<DataSnapshot> orderSnap = dataSnapshot.getChildren();
+                                            for (DataSnapshot itemOrder : orderSnap) {
+
+                                                Product productContains = itemOrder.getValue(Product.class);
+
+                                                final String productName = productContains.getProductName();
+                                                listProductContains.add(productName);
+
+                                            }
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+
+                                    }
+                                });
+                        //add listProductContains
+
+                        if(position != 0){
+
+                            if (listProductContains.contains(productChoose)) {
+
+                                Toast.makeText(getApplicationContext(), "Sản phẩm đã có", Toast.LENGTH_SHORT).show();
+
+                                spinProduct.setSelection(0);
+                                edtproductPrice.setText(null);
+                                edtproductQuantity.setText(null);
+                                currentStorage.setText(null);
+
+
+                            }
+                            else{
+
+                                refDatabase.child("ProductList").child(productChoose).child("productPrice").addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        chosenProductPrice = dataSnapshot.getValue().toString();
+                                        edtproductPrice.setText(Utils.convertNumber(chosenProductPrice));
+
+                                    }
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+                                    }
+                                });
+
+                                refDatabase.child("WarehouseMan/StorageMan").child(productChoose).child("unitQuantity").addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        productStock = dataSnapshot.getValue().toString();
+                                        currentStorage.setText(productStock);
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+
+                                    }
+                                });
+
+                            }
+                        }else{
+                            edtproductPrice.setText(null);
+                            edtproductQuantity.setText(null);
+                            currentStorage.setText(null);
+                        }
+/*
+                        if (position != 0){
+                            productName = (String) parent.getItemAtPosition(position);
+                            refDatabase.child("Product").addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    Iterable<DataSnapshot> snapProduct = dataSnapshot.getChildren();
+                                    for(DataSnapshot itemProduct:snapProduct){
+                                        Product p = itemProduct.getValue(Product.class);
+                                        final String itemCode = p.getProductCode();
+                                        String itemName = p.getProductName();
+                                        final String itemPrice = p.getUnitPrice();
+                                        if(itemName.equals(productName)){
+                                            refDatabase.child("WarehouseMan/StorageMan").child(itemCode).child("unitQuantity").addListenerForSingleValueEvent(new ValueEventListener() {
+                                                @Override
+                                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                                    productStock = dataSnapshot.getValue().toString();
+                                                    currentStorage.setText(productStock);
+                                                    edtproductPrice.setText(Utils.convertNumber(itemPrice));
+                                                    edtproductPrice.setEnabled(false);
+                                                    productCode = itemCode;
+                                                }
+
+                                                @Override
+                                                public void onCancelled(DatabaseError databaseError) {
+
+                                                }
+                                            });
+
+                                        }
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+
+                                }
+                            });
+
+                        }
+
+ */
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+
+                    }
+                });
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+
+/*
         final List<String> products = new ArrayList<>();
 
         products.add("Chọn sản phẩm");
 
-        refDatabase.child(emailLogin).child("Product").addListenerForSingleValueEvent(new ValueEventListener() {
+        refDatabase.child("Product").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Iterable<DataSnapshot> snapProduct = dataSnapshot.getChildren();
@@ -295,6 +532,8 @@ public class UpdateOrderActivity extends AppCompatActivity {
             }
         });
 
+ */
+/*
         adpProduct = new ArrayAdapter<String>(getApplicationContext(),
                 android.R.layout.simple_list_item_1, products);
         adpProduct.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -308,7 +547,7 @@ public class UpdateOrderActivity extends AppCompatActivity {
 
                 if (position != 0){
                     productName = (String) parent.getItemAtPosition(position);
-                    refDatabase.child(emailLogin).child("Product").addListenerForSingleValueEvent(new ValueEventListener() {
+                    refDatabase.child("Product").addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             Iterable<DataSnapshot> snapProduct = dataSnapshot.getChildren();
@@ -318,7 +557,7 @@ public class UpdateOrderActivity extends AppCompatActivity {
                                 String itemName = p.getProductName();
                                 final String itemPrice = p.getUnitPrice();
                                 if(itemName.equals(productName)){
-                                    refDatabase.child(emailLogin+"/WarehouseMan/StorageMan").child(itemCode).child("unitQuantity").addListenerForSingleValueEvent(new ValueEventListener() {
+                                    refDatabase.child("WarehouseMan/StorageMan").child(itemCode).child("unitQuantity").addListenerForSingleValueEvent(new ValueEventListener() {
                                         @Override
                                         public void onDataChange(DataSnapshot dataSnapshot) {
                                             productStock = dataSnapshot.getValue().toString();
@@ -353,13 +592,15 @@ public class UpdateOrderActivity extends AppCompatActivity {
             }
         });
 
+ */
+
         rvProductList = findViewById(R.id.rv_order_list_product);
 
         rvProductList.setHasFixedSize(true);
         linearLayoutManager = new LinearLayoutManager(getApplicationContext());
         rvProductList.setLayoutManager(linearLayoutManager);
 
-        DatabaseReference refProduct = refDatabase.child(emailLogin+"/OrderList").child(orderPushKeyString).child("ProductList");
+        DatabaseReference refProduct = refDatabase.child("OrderList").child(orderPushKeyString).child("ProductList");
 
         adapterProductOrder = new FirebaseRecyclerAdapter<Product, ProductOrderViewHolder>(
                 Product.class,
@@ -395,7 +636,7 @@ public class UpdateOrderActivity extends AppCompatActivity {
                 Promotion.class,
                 R.layout.item_promotion,
                 PromotionViewHolder.class,
-                refDatabase.child(emailLogin).child("OrderList").child(orderPushKeyString).child("Promotion")
+                refDatabase.child("OrderList").child(orderPushKeyString).child("Promotion")
         ) {
             @Override
             public PromotionViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -418,7 +659,7 @@ public class UpdateOrderActivity extends AppCompatActivity {
 
     if(saleMan){
             btnChooseEmployee.setVisibility(View.GONE);
-            refDatabase.child(emailLogin).child("Employee").child(saleManEmail).child("employeeName").addListenerForSingleValueEvent(new ValueEventListener() {
+            refDatabase.child("Employee").child(saleManEmail).child("employeeName").addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     employeeName  = dataSnapshot.getValue().toString();
@@ -432,11 +673,11 @@ public class UpdateOrderActivity extends AppCompatActivity {
                 }
             });
 
-            refDatabase.child(emailLogin).child("TotalBySale").child(saleManEmail).addListenerForSingleValueEvent(new ValueEventListener() {
+            refDatabase.child("TotalBySale").child(saleManEmail).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     if(dataSnapshot.hasChild(year+"-"+month)){
-                        refDatabase.child(emailLogin).child("TotalBySale").child(saleManEmail).child(year+"-"+month).addListenerForSingleValueEvent(new ValueEventListener() {
+                        refDatabase.child("TotalBySale").child(saleManEmail).child(year+"-"+month).addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
                                 tvEmployeeMonthSale.setText(Utils.convertNumber(Math.round(Float.parseFloat(dataSnapshot.getValue().toString())*10d)/10d+""));
@@ -459,11 +700,11 @@ public class UpdateOrderActivity extends AppCompatActivity {
                 }
             });
 
-            refDatabase.child(emailLogin).child("TotalBySale").child(saleManEmail).addListenerForSingleValueEvent(new ValueEventListener() {
+            refDatabase.child("TotalBySale").child(saleManEmail).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     if(dataSnapshot.hasChild(year+"-"+month)){
-                        refDatabase.child(emailLogin).child("TotalBySale").child(saleManEmail).child(year+"-"+month).addListenerForSingleValueEvent(new ValueEventListener() {
+                        refDatabase.child("TotalBySale").child(saleManEmail).child(year+"-"+month).addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
                                 tvEmployeeMonthSale.setText(Utils.convertNumber(dataSnapshot.getValue().toString()));
@@ -553,7 +794,7 @@ public class UpdateOrderActivity extends AppCompatActivity {
                 Product.class,
                 R.id.item_product_pos,
                 ProductViewHolder.class,
-                refDatabase.child(emailLogin+"/Product")
+                refDatabase.child("Product")
         ) {
             @Override
             public ProductViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -596,7 +837,7 @@ public class UpdateOrderActivity extends AppCompatActivity {
                 Employee.class,
                 R.id.item_client,
                 EmployeeViewHolder.class,
-                refDatabase.child(emailLogin).child("Employee")
+                refDatabase.child("Employee")
         ) {
             @Override
             public EmployeeViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -636,7 +877,7 @@ public class UpdateOrderActivity extends AppCompatActivity {
                 Promotion.class,
                 R.layout.item_promotion,
                 PromotionViewHolder.class,
-                refDatabase.child(emailLogin).child("PromotionMan")
+                refDatabase.child("PromotionMan")
         ) {
             @Override
             public PromotionViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -657,38 +898,20 @@ public class UpdateOrderActivity extends AppCompatActivity {
 
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        myMenu = menu;
-        getMenuInflater().inflate(R.menu.menu_update_order,menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if(id == R.id.action_preview){
-
-            sendForPreview();
-
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
     private void sendForPreview() {
 
         //myMenu.findItem(R.id.action_preview).setVisible(false);
 
 
         final String deliveryDate = edtdeliveryDate.getText().toString();
-        final String orderNote = edtOrderNote.getText().toString();
+        final String orderNote    = edtOrderNote.getText().toString();
 
        if(employeeName == null){
             Toast.makeText(getApplicationContext(),"Vui lòng chọn nhân viên",Toast.LENGTH_LONG).show();
 
         }else if(TextUtils.isEmpty(deliveryDate)){
            Toast.makeText(getApplicationContext(), "Vui lòng nhập ngày giao hàng", Toast.LENGTH_LONG).show();
-       }else if(productName== null){
+       }else if(productChoose== null){
            Toast.makeText(getApplicationContext(), "Vui lòng chọn sản phẩm!", Toast.LENGTH_LONG).show();
        }
        else {
@@ -696,9 +919,9 @@ public class UpdateOrderActivity extends AppCompatActivity {
            // showProgressDialog();
 
            OrderDetail orderDetail = new OrderDetail(clientCode,clientName,employeeName,switchPayment.getText().toString(),deliveryDate,saleManEmail,orderNote);
-           refDatabase.child(emailLogin+"/OrderList").child(orderPushKeyString).child("OtherInformation").setValue(orderDetail);
+           refDatabase.child("OrderList").child(orderPushKeyString).child("OtherInformation").setValue(orderDetail);
 
-           refDatabase.child(emailLogin).child("OrderList").child(orderPushKeyString).child("ProductList").addListenerForSingleValueEvent(new ValueEventListener() {
+           refDatabase.child("OrderList").child(orderPushKeyString).child("ProductList").addListenerForSingleValueEvent(new ValueEventListener() {
                @Override
                public void onDataChange(DataSnapshot dataSnapshot) {
                    final Iterable<DataSnapshot> snapProduct = dataSnapshot.getChildren();
@@ -723,11 +946,11 @@ public class UpdateOrderActivity extends AppCompatActivity {
 
                            finalPayment[0] += (float) (Math.round((Float.parseFloat(productPrice)*Float.parseFloat(productQuantity)*(1+choosenVATLong)*10d)/10d));
 
-                           refDatabase.child(emailLogin).child("OrderList").child(orderPushKeyString).addListenerForSingleValueEvent(new ValueEventListener() {
+                           refDatabase.child("OrderList").child(orderPushKeyString).addListenerForSingleValueEvent(new ValueEventListener() {
                                @Override
                                public void onDataChange(DataSnapshot dataSnapshot) {
                                    if(dataSnapshot.hasChild("Promotion")){
-                                       refDatabase.child(emailLogin).child("OrderList").child(orderPushKeyString).child("Promotion").addListenerForSingleValueEvent(new ValueEventListener() {
+                                       refDatabase.child("OrderList").child(orderPushKeyString).child("Promotion").addListenerForSingleValueEvent(new ValueEventListener() {
                                            @Override
                                            public void onDataChange(DataSnapshot dataSnapshot) {
                                                Iterable<DataSnapshot> snapPromotion = dataSnapshot.getChildren();
@@ -737,13 +960,13 @@ public class UpdateOrderActivity extends AppCompatActivity {
 
                                                    Promotion promotion = itemPromotion.getValue(Promotion.class);
                                                    final String promotionKey = promotion.getPromotionCode();
-                                                   refDatabase.child(emailLogin).child("PromotionMan").child(promotionKey).addListenerForSingleValueEvent(new ValueEventListener() {
+                                                   refDatabase.child("PromotionMan").child(promotionKey).addListenerForSingleValueEvent(new ValueEventListener() {
                                                        @Override
                                                        public void onDataChange(final DataSnapshot dataSnapshotProman) {
 
                                                            if(dataSnapshotProman.hasChild("ProductDiscount")){
 
-                                                               refDatabase.child(emailLogin).child("PromotionMan").child(promotionKey).child("ProductDiscount").addListenerForSingleValueEvent(new ValueEventListener() {
+                                                               refDatabase.child("PromotionMan").child(promotionKey).child("ProductDiscount").addListenerForSingleValueEvent(new ValueEventListener() {
                                                                    @Override
                                                                    public void onDataChange(DataSnapshot dataSnapshot) {
                                                                        Iterable<DataSnapshot> productSnap = dataSnapshot.getChildren();
@@ -763,13 +986,13 @@ public class UpdateOrderActivity extends AppCompatActivity {
                                                                                //Toast.makeText(getApplicationContext(), finalPayment[0]+"",Toast.LENGTH_LONG).show();
 
                                                                                if(dataSnapshotProman.hasChild("orderDiscount")){
-                                                                                   refDatabase.child(emailLogin).child("PromotionMan").child(promotionKey).child("orderDiscount").addListenerForSingleValueEvent(new ValueEventListener() {
+                                                                                   refDatabase.child("PromotionMan").child(promotionKey).child("orderDiscount").addListenerForSingleValueEvent(new ValueEventListener() {
                                                                                        @Override
                                                                                        public void onDataChange(DataSnapshot dataSnapshot) {
                                                                                            finalPayment[0] = Math.round(finalPayment[0]*(1-Float.parseFloat(dataSnapshot.getValue().toString())/100));
                                                                                            VatModel vatModel = new VatModel(notVAT[0],VAT[0],finalPayment[0]);
 
-                                                                                           refDatabase.child(emailLogin).child("OrderList").child(orderPushKeyString).child("VAT").setValue(vatModel).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                                           refDatabase.child("OrderList").child(orderPushKeyString).child("VAT").setValue(vatModel).addOnSuccessListener(new OnSuccessListener<Void>() {
                                                                                                @Override
                                                                                                public void onSuccess(Void aVoid) {
                                                                                                    hideProgressDialog();
@@ -779,7 +1002,7 @@ public class UpdateOrderActivity extends AppCompatActivity {
 
                                                                                                    Intent intent = new Intent(UpdateOrderActivity.this, PreviewOrderActivivity.class);
 
-                                                                                                   intent.putExtra("EmailLogin", emailLogin);
+                                                                                                   //intent.putExtra("EmailLogin", emailLogin);
                                                                                                    intent.putExtra("OrderPushKey", orderPushKeyString);
                                                                                                    intent.putExtra("OrderName", clientName);
                                                                                                    //intent.putExtra("OrderDiscount",orderDiscount);
@@ -802,7 +1025,7 @@ public class UpdateOrderActivity extends AppCompatActivity {
                                                                                }else{
                                                                                    VatModel vatModel = new VatModel(notVAT[0],VAT[0],finalPayment[0]);
 
-                                                                                   refDatabase.child(emailLogin).child("OrderList").child(orderPushKeyString).child("VAT").setValue(vatModel).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                                   refDatabase.child("OrderList").child(orderPushKeyString).child("VAT").setValue(vatModel).addOnSuccessListener(new OnSuccessListener<Void>() {
                                                                                        @Override
                                                                                        public void onSuccess(Void aVoid) {
                                                                                            hideProgressDialog();
@@ -812,7 +1035,7 @@ public class UpdateOrderActivity extends AppCompatActivity {
 
                                                                                            Intent intent = new Intent(UpdateOrderActivity.this, PreviewOrderActivivity.class);
 
-                                                                                           intent.putExtra("EmailLogin", emailLogin);
+                                                                                           //intent.putExtra("EmailLogin", emailLogin);
                                                                                            intent.putExtra("OrderPushKey", orderPushKeyString);
                                                                                            intent.putExtra("OrderName", clientName);
                                                                                            //intent.putExtra("OrderDiscount",orderDiscount);
@@ -830,13 +1053,13 @@ public class UpdateOrderActivity extends AppCompatActivity {
                                                                            }else{
                                                                                if(dataSnapshotProman.hasChild("orderDiscount")){
 
-                                                                                   refDatabase.child(emailLogin).child("PromotionMan").child(promotionKey).child("orderDiscount").addListenerForSingleValueEvent(new ValueEventListener() {
+                                                                                   refDatabase.child("PromotionMan").child(promotionKey).child("orderDiscount").addListenerForSingleValueEvent(new ValueEventListener() {
                                                                                        @Override
                                                                                        public void onDataChange(DataSnapshot dataSnapshot) {
                                                                                            finalPayment[0] = Math.round(finalPayment[0]*(1-Float.parseFloat(dataSnapshot.getValue().toString())/100));
                                                                                            VatModel vatModel = new VatModel(notVAT[0],VAT[0],finalPayment[0]);
 
-                                                                                           refDatabase.child(emailLogin).child("OrderList").child(orderPushKeyString).child("VAT").setValue(vatModel).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                                           refDatabase.child("OrderList").child(orderPushKeyString).child("VAT").setValue(vatModel).addOnSuccessListener(new OnSuccessListener<Void>() {
                                                                                                @Override
                                                                                                public void onSuccess(Void aVoid) {
                                                                                                    hideProgressDialog();
@@ -846,7 +1069,7 @@ public class UpdateOrderActivity extends AppCompatActivity {
 
                                                                                                    Intent intent = new Intent(UpdateOrderActivity.this, PreviewOrderActivivity.class);
 
-                                                                                                   intent.putExtra("EmailLogin", emailLogin);
+                                                                                                   //intent.putExtra("EmailLogin", emailLogin);
                                                                                                    intent.putExtra("OrderPushKey", orderPushKeyString);
                                                                                                    intent.putExtra("OrderName", clientName);
                                                                                                    //intent.putExtra("OrderDiscount",orderDiscount);
@@ -869,7 +1092,7 @@ public class UpdateOrderActivity extends AppCompatActivity {
                                                                                }else{
                                                                                    VatModel vatModel = new VatModel(notVAT[0],VAT[0],finalPayment[0]);
 
-                                                                                   refDatabase.child(emailLogin).child("OrderList").child(orderPushKeyString).child("VAT").setValue(vatModel).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                                   refDatabase.child("OrderList").child(orderPushKeyString).child("VAT").setValue(vatModel).addOnSuccessListener(new OnSuccessListener<Void>() {
                                                                                        @Override
                                                                                        public void onSuccess(Void aVoid) {
                                                                                            hideProgressDialog();
@@ -879,7 +1102,7 @@ public class UpdateOrderActivity extends AppCompatActivity {
 
                                                                                            Intent intent = new Intent(UpdateOrderActivity.this, PreviewOrderActivivity.class);
 
-                                                                                           intent.putExtra("EmailLogin", emailLogin);
+                                                                                           //intent.putExtra("EmailLogin", emailLogin);
                                                                                            intent.putExtra("OrderPushKey", orderPushKeyString);
                                                                                            intent.putExtra("OrderName", clientName);
                                                                                            //intent.putExtra("OrderDiscount",orderDiscount);
@@ -908,13 +1131,13 @@ public class UpdateOrderActivity extends AppCompatActivity {
                                                                });
                                                            }
                                                             else if(dataSnapshotProman.hasChild("orderDiscount")){
-                                                               refDatabase.child(emailLogin).child("PromotionMan").child(promotionKey).child("orderDiscount").addListenerForSingleValueEvent(new ValueEventListener() {
+                                                               refDatabase.child("PromotionMan").child(promotionKey).child("orderDiscount").addListenerForSingleValueEvent(new ValueEventListener() {
                                                                    @Override
                                                                    public void onDataChange(DataSnapshot dataSnapshot) {
                                                                        finalPayment[0] = Math.round(finalPayment[0]*(1-Float.parseFloat(dataSnapshot.getValue().toString())/100));
                                                                        VatModel vatModel = new VatModel(notVAT[0],VAT[0],finalPayment[0]);
 
-                                                                       refDatabase.child(emailLogin).child("OrderList").child(orderPushKeyString).child("VAT").setValue(vatModel).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                       refDatabase.child("OrderList").child(orderPushKeyString).child("VAT").setValue(vatModel).addOnSuccessListener(new OnSuccessListener<Void>() {
                                                                            @Override
                                                                            public void onSuccess(Void aVoid) {
                                                                                hideProgressDialog();
@@ -924,7 +1147,7 @@ public class UpdateOrderActivity extends AppCompatActivity {
 
                                                                                Intent intent = new Intent(UpdateOrderActivity.this, PreviewOrderActivivity.class);
 
-                                                                               intent.putExtra("EmailLogin", emailLogin);
+                                                                               //intent.putExtra("EmailLogin", emailLogin);
                                                                                intent.putExtra("OrderPushKey", orderPushKeyString);
                                                                                intent.putExtra("OrderName", clientName);
                                                                                //intent.putExtra("OrderDiscount",orderDiscount);
@@ -947,7 +1170,7 @@ public class UpdateOrderActivity extends AppCompatActivity {
                                                            }else{
                                                                VatModel vatModel = new VatModel(notVAT[0],VAT[0],finalPayment[0]);
 
-                                                               refDatabase.child(emailLogin).child("OrderList").child(orderPushKeyString).child("VAT").setValue(vatModel).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                               refDatabase.child("OrderList").child(orderPushKeyString).child("VAT").setValue(vatModel).addOnSuccessListener(new OnSuccessListener<Void>() {
                                                                    @Override
                                                                    public void onSuccess(Void aVoid) {
                                                                        hideProgressDialog();
@@ -957,7 +1180,7 @@ public class UpdateOrderActivity extends AppCompatActivity {
 
                                                                        Intent intent = new Intent(UpdateOrderActivity.this, PreviewOrderActivivity.class);
 
-                                                                       intent.putExtra("EmailLogin", emailLogin);
+                                                                       //intent.putExtra("EmailLogin", emailLogin);
                                                                        intent.putExtra("OrderPushKey", orderPushKeyString);
                                                                        intent.putExtra("OrderName", clientName);
                                                                        //intent.putExtra("OrderDiscount",orderDiscount);
@@ -994,7 +1217,7 @@ public class UpdateOrderActivity extends AppCompatActivity {
                                    }else{
                                        VatModel vatModel = new VatModel(notVAT[0],VAT[0],finalPayment[0]);
 
-                                       refDatabase.child(emailLogin).child("OrderList").child(orderPushKeyString).child("VAT").setValue(vatModel).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                       refDatabase.child("OrderList").child(orderPushKeyString).child("VAT").setValue(vatModel).addOnSuccessListener(new OnSuccessListener<Void>() {
                                            @Override
                                            public void onSuccess(Void aVoid) {
                                                hideProgressDialog();
@@ -1004,7 +1227,7 @@ public class UpdateOrderActivity extends AppCompatActivity {
 
                                                Intent intent = new Intent(UpdateOrderActivity.this, PreviewOrderActivivity.class);
 
-                                               intent.putExtra("EmailLogin", emailLogin);
+                                               //intent.putExtra("EmailLogin", emailLogin);
                                                intent.putExtra("OrderPushKey", orderPushKeyString);
                                                intent.putExtra("OrderName", clientName);
                                                //intent.putExtra("OrderDiscount",orderDiscount);
@@ -1034,11 +1257,11 @@ public class UpdateOrderActivity extends AppCompatActivity {
                        }else{
                            finalPayment[0] += (float) (Math.round((Float.parseFloat(productPrice)*Float.parseFloat(productQuantity)*(1+choosenVATLong)*10d)/10d));
 
-                           refDatabase.child(emailLogin).child("OrderList").child(orderPushKeyString).addListenerForSingleValueEvent(new ValueEventListener() {
+                           refDatabase.child("OrderList").child(orderPushKeyString).addListenerForSingleValueEvent(new ValueEventListener() {
                                @Override
                                public void onDataChange(DataSnapshot dataSnapshot) {
                                    if(dataSnapshot.hasChild("Promotion")){
-                                       refDatabase.child(emailLogin).child("OrderList").child(orderPushKeyString).child("Promotion").addListenerForSingleValueEvent(new ValueEventListener() {
+                                       refDatabase.child("OrderList").child(orderPushKeyString).child("Promotion").addListenerForSingleValueEvent(new ValueEventListener() {
                                            @Override
                                            public void onDataChange(DataSnapshot dataSnapshot) {
                                                Iterable<DataSnapshot> snapPromotion = dataSnapshot.getChildren();
@@ -1048,13 +1271,13 @@ public class UpdateOrderActivity extends AppCompatActivity {
 
                                                    Promotion promotion = itemPromotion.getValue(Promotion.class);
                                                    final String promotionKey = promotion.getPromotionCode();
-                                                   refDatabase.child(emailLogin).child("PromotionMan").child(promotionKey).addListenerForSingleValueEvent(new ValueEventListener() {
+                                                   refDatabase.child("PromotionMan").child(promotionKey).addListenerForSingleValueEvent(new ValueEventListener() {
                                                        @Override
                                                        public void onDataChange(final DataSnapshot dataSnapshotProman) {
 
                                                            if(dataSnapshotProman.hasChild("ProductDiscount")){
 
-                                                               refDatabase.child(emailLogin).child("PromotionMan").child(promotionKey).child("ProductDiscount").addListenerForSingleValueEvent(new ValueEventListener() {
+                                                               refDatabase.child("PromotionMan").child(promotionKey).child("ProductDiscount").addListenerForSingleValueEvent(new ValueEventListener() {
                                                                    @Override
                                                                    public void onDataChange(DataSnapshot dataSnapshot) {
                                                                        Iterable<DataSnapshot> productSnap = dataSnapshot.getChildren();
@@ -1104,7 +1327,7 @@ public class UpdateOrderActivity extends AppCompatActivity {
 
                                        VatModel vatModel = new VatModel(notVAT[0],VAT[0],finalPayment[0]);
 
-                                       refDatabase.child(emailLogin).child("OrderList").child(orderPushKeyString).child("VAT").setValue(vatModel).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                       refDatabase.child("OrderList").child(orderPushKeyString).child("VAT").setValue(vatModel).addOnSuccessListener(new OnSuccessListener<Void>() {
                                            @Override
                                            public void onSuccess(Void aVoid) {
                                                hideProgressDialog();
@@ -1114,7 +1337,7 @@ public class UpdateOrderActivity extends AppCompatActivity {
 
                                                Intent intent = new Intent(UpdateOrderActivity.this, PreviewOrderActivivity.class);
 
-                                               intent.putExtra("EmailLogin", emailLogin);
+                                               //intent.putExtra("EmailLogin", emailLogin);
                                                intent.putExtra("OrderPushKey", orderPushKeyString);
                                                intent.putExtra("OrderName", clientName);
                                                //intent.putExtra("OrderDiscount",orderDiscount);
@@ -1286,7 +1509,7 @@ public class UpdateOrderActivity extends AppCompatActivity {
 
 
 
-                    refDatabase.child(emailLogin+"/WarehouseMan/StorageMan").child(p.getProductCode()).child("unitQuantity").addListenerForSingleValueEvent(new ValueEventListener() {
+                    refDatabase.child("WarehouseMan/StorageMan").child(p.getProductCode()).child("unitQuantity").addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             productStock = dataSnapshot.getValue().toString();
@@ -1336,7 +1559,7 @@ public class UpdateOrderActivity extends AppCompatActivity {
 
                         Promotion addPromotion = new Promotion(p.getPromotionName(),promotionKey);
 
-                        refDatabase.child(emailLogin+"/OrderList").child(orderPushKeyString).child("Promotion").child(promotionKey).setValue(addPromotion);
+                        refDatabase.child("OrderList").child(orderPushKeyString).child("Promotion").child(promotionKey).setValue(addPromotion);
                     }else{
                         Toast.makeText(getApplicationContext(), "Rất tiếc, đã qua thời gian áp dụng chương trình!", Toast.LENGTH_LONG).show();
                     }
@@ -1369,6 +1592,31 @@ public class UpdateOrderActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        refDatabase.child(emailLogin+"/OrderList").child(orderPushKeyString).setValue(null);
+        refDatabase.child("OrderList").child(orderPushKeyString).setValue(null);
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        myMenu = menu;
+        getMenuInflater().inflate(R.menu.menu_update_order,menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        int id = item.getItemId();
+
+        if(id == R.id.action_preview){
+
+            sendForPreview();
+
+        }
+
+        if(id == android.R.id.home){
+            onBackPressed();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
 }

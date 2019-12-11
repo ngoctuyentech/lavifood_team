@@ -6,279 +6,145 @@
     android:layout_height="match_parent"
     tools:context=".bytask.ActionList">
 
+    <TextView
+        android:id="@+id/tv_activity_main_hello"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/utm_dax"
+        android:text="Xin chào Quý khách !"
+        android:textColor="@color/white"
+        android:textSize="16dp"
+        app:layout_constraintBottom_toBottomOf="@+id/toolbar_main"
+        app:layout_constraintEnd_toEndOf="@+id/toolbar_main"
+        app:layout_constraintStart_toStartOf="@+id/toolbar_main"
+        app:layout_constraintTop_toTopOf="@+id/toolbar_main" />
 
-    <LinearLayout
-        android:id="@+id/linearLayout2"
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/constrain_center"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_height="180dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="50dp"
+        android:layout_marginEnd="32dp"
+        android:background="@drawable/box_white"
+        android:elevation="15dp"
+        android:visibility="visible"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_activity_main_hello">
 
-        <LinearLayout
-            android:id="@+id/ln_sale_man"
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rv_client_list"
             android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:orientation="horizontal"
-            android:visibility="gone"
+            android:layout_height="0dp"
+            android:background="@drawable/box_white"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
-
-            <ImageView
-                android:id="@+id/iv_bar_order"
-                android:layout_width="50dp"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:layout_weight="1"
-                app:srcCompat="@drawable/icon_order" />
-
-            <ImageView
-                android:id="@+id/iv_bar_client"
-                android:layout_width="50dp"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:layout_weight="1"
-                app:srcCompat="@drawable/icon_client" />
-
-            <ImageView
-                android:id="@+id/iv_bar_promotion"
-                android:layout_width="50dp"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:layout_weight="1"
-                app:srcCompat="@drawable/icon_promotion" />
-
-            <ImageView
-                android:id="@+id/iv_bar_announcement"
-                android:layout_width="50dp"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:layout_weight="1"
-                app:srcCompat="@drawable/icon_annoucement" />
-
-            <ImageView
-                android:id="@+id/iv_bar_sale_logout"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_gravity="center"
-                android:layout_weight="1"
-                app:srcCompat="@drawable/icon_logout" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
 
-        </LinearLayout>
+    </android.support.constraint.ConstraintLayout>
 
-        <LinearLayout
-            android:id="@+id/ln_sup"
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:orientation="horizontal"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/constrain_top"
+        android:layout_width="match_parent"
+        android:layout_height="130dp"
+        android:background="@color/lavifBlue"
+        android:visibility="visible"
+        app:layout_constraintBottom_toTopOf="@+id/constrain_bot"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar_main">
 
-            <ImageView
-                android:id="@+id/iv_bar_sale_sup"
-                android:layout_width="50dp"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:layout_weight="1"
-                app:srcCompat="@drawable/icon_team" />
-
-            <ImageView
-                android:id="@+id/iv_bar_client_sup"
-                android:layout_width="50dp"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:layout_weight="1"
-                app:srcCompat="@drawable/icon_client" />
-
-            <ImageView
-                android:id="@+id/iv_bar_order_sup"
-                android:layout_width="50dp"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:layout_weight="1"
-                app:srcCompat="@drawable/icon_order" />
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="8dp"
+            android:fontFamily="@font/utm_dax"
+            android:text="Bán hàng hôm nay"
+            android:textColor="@color/white"
+            android:textSize="14dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
 
-            <ImageView
-                android:id="@+id/iv_bar_promotion_sup"
-                android:layout_width="50dp"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:layout_weight="1"
-                app:srcCompat="@drawable/icon_promotion" />
+    </android.support.constraint.ConstraintLayout>
 
-            <ImageView
-                android:id="@+id/iv_bar_announcement_sup"
-                android:layout_width="50dp"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:layout_weight="1"
-                app:srcCompat="@drawable/icon_annoucement" />
-
-            <ImageView
-                android:id="@+id/iv_bar_sup_logout"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_gravity="center"
-                android:layout_weight="1"
-                app:srcCompat="@drawable/icon_logout" />
-
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/ln_asm"
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:orientation="horizontal"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
-
-            <ImageView
-                android:id="@+id/iv_bar_sup_asm"
-                android:layout_width="50dp"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:layout_weight="1"
-                app:srcCompat="@drawable/icon_supervisor" />
-
-
-            <ImageView
-                android:id="@+id/iv_bar_promotion_asm"
-                android:layout_width="50dp"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:layout_weight="1"
-                app:srcCompat="@drawable/icon_promotion" />
-
-            <ImageView
-                android:id="@+id/iv_bar_report_asm"
-                android:layout_width="50dp"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:layout_weight="1"
-                app:srcCompat="@drawable/icon_report" />
-
-            <ImageView
-                android:id="@+id/iv_bar_announcement_asm"
-                android:layout_width="50dp"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:layout_weight="1"
-                app:srcCompat="@drawable/icon_annoucement" />
-
-            <ImageView
-                android:id="@+id/iv_bar_asm_logout"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_gravity="center"
-                android:layout_weight="1"
-                app:srcCompat="@drawable/icon_logout" />
-
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/ln_admin"
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:orientation="horizontal"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
-
-            <ImageView
-                android:id="@+id/iv_bar_account_admin_order"
-                android:layout_width="50dp"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:layout_weight="1"
-                app:srcCompat="@drawable/icon_approve_order" />
-
-            <ImageView
-                android:id="@+id/iv_bar_account_admin_promotion"
-                android:layout_width="50dp"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:layout_weight="1"
-                app:srcCompat="@drawable/icon_promotion" />
-
-            <ImageView
-                android:id="@+id/iv_bar_account_admin"
-                android:layout_width="50dp"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:layout_weight="1"
-                app:srcCompat="@drawable/icon_account" />
-
-
-            <ImageView
-            android:id="@+id/iv_bar_account_admin_product"
-            android:layout_width="50dp"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            app:srcCompat="@drawable/icon_product" />
-
-            <ImageView
-                android:id="@+id/iv_bar_account_admin_product_payroll"
-                android:layout_width="50dp"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:layout_weight="1"
-                app:srcCompat="@drawable/icon_payroll" />
-
-            <ImageView
-                android:id="@+id/iv_bar_admin_logout"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_gravity="center"
-                android:layout_weight="1"
-                app:srcCompat="@drawable/icon_logout" />
-
-
-        </LinearLayout>
-
-    </LinearLayout>
-
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/rv_sale_action"
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/constrain_bot"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="24dp"
+        android:background="@color/lavifBackground"
         android:visibility="visible"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayout2"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/constrain_top">
 
-    </android.support.v7.widget.RecyclerView>
+        <TextView
+            android:id="@+id/textView4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginLeft="32dp"
+            android:layout_marginTop="119dp"
+            android:fontFamily="@font/utm_dax"
+            android:text="Chức năng"
+            android:textSize="14dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/tv_action_list_account_name"
-        android:layout_width="wrap_content"
+        <TextView
+            android:id="@+id/textView6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:fontFamily="@font/utm_dax"
+            android:text="Doanh số"
+            android:textSize="14dp"
+            app:layout_constraintBottom_toTopOf="@+id/constraintLayout14"
+            app:layout_constraintStart_toStartOf="@+id/textView4" />
+
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/constraintLayout14"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:background="@drawable/box_white"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+        </android.support.constraint.ConstraintLayout>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rv_function"
+            android:layout_width="match_parent"
+            android:layout_height="165dp"
+            android:layout_marginStart="20dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView4">
+
+        </android.support.v7.widget.RecyclerView>
+
+    </android.support.constraint.ConstraintLayout>
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar_main"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:text="Nguyễn Văn A"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/rv_sale_action"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/tv_action_list_account_role"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:text="Giám sát"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/rv_sale_action"
+        android:background="@color/lavifBlue"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="@style/ToolBarStyle"
+        app:layout_constraintBottom_toTopOf="@+id/constrain_top"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
 </android.support.constraint.ConstraintLayout>

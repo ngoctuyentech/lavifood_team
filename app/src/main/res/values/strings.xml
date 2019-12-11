@@ -8,6 +8,10 @@
     <string name="action_settings">Settings</string>
     <string name="section_format">Hello World from section: %1$d</string>
 
+    <string name="fix_location">Cập nhật vị trí khách hàng theo vị trí hiện tại bạn đang đứng</string>
+    <string name="scan_qr">Quét mã QR của khách hàng để thanh toán tiền trong ví thưởng</string>
+
+
     <string name="style_json">
        [
           {
@@ -31,6 +35,34 @@
       ]
     </string>
 
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="client_code">Nhập mã khách hàng</string>
+
+    <string name="client_name_hint">Nhập tên khách hàng</string>
+
+    <string name="title_activity_view_order">ViewOrderActivity</string>
+
+    <string name="action_send_approvement">Gửi duyệt</string>
+
+    <string name="title_activity_pos">Cửa hàng</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="none_paired">Không thể ghép thiết bị</string>
+
+    <string name="scanning">Đang tìm thiết bị</string>
+
+    <string name="none_found">Không tìm thấy thiết bị</string>
+
+    <string name="select_device">Chọn thiết bị</string>
+
+    <string name="bt_not_enabled_leaving">Chưa kích hoạt bluetooth trên điện thoại</string>
+
+    <string name="title_connecting">Đang kết nối...</string>
+
     <string-array name="client_array">
         <item>Đại lý NVA - Cà Mau</item>
         <item>Đại lý NVB - Cà Mau</item>
@@ -40,6 +72,8 @@
         <item>Đại lý NVF - Cà Mau</item>
     </string-array>
 
+
+    <!-- TODO: Remove or change this placeholder text -->
     <string-array name="account_array">
         <item>Cấp bậc</item>
         <item>Bán hàng</item>
@@ -48,20 +82,17 @@
         <item>RSM</item>
 
     </string-array>
-
     <string-array name="time_array">
         <item>Năm</item>
         <item>Tháng</item>
         <item>Ngày</item>
 
     </string-array>
-
     <string-array name="shop_array">
         <item>Cửa hàng 1</item>
         <item>Cửa hàng 2</item>
 
     </string-array>
-
     <string-array name="saleman_array">
         <item>Nguyễn Văn A</item>
         <item>Nguyễn Văn B</item>
@@ -81,7 +112,6 @@
         <item>Khách lẻ</item>
 
     </string-array>
-
     <string-array name="VAT_array">
         <item>0</item>
         <item>5</item>
@@ -157,13 +187,11 @@
 
 
     </string-array>
-
     <string-array name="payment_type_array">
         <item>Tiền mặt</item>
         <item>Công nợ</item>
 
     </string-array>
-
     <string-array name="unit_array">
         <item>Hộp</item>
         <item>Hũ</item>
@@ -171,7 +199,6 @@
         <item>Ống</item>
 
     </string-array>
-
     <string-array name="year_filter_array">
         <item>Năm</item>
         <item>2018</item>
@@ -183,7 +210,6 @@
         <item>2025</item>
 
     </string-array>
-
     <string-array name="month_filter_array">
         <item>Tháng</item>
         <item>1</item>
@@ -200,7 +226,6 @@
         <item>12</item>
 
     </string-array>
-
     <string-array name="order_type_array">
         <item>Xuất bán</item>
         <item>Xuất đổi</item>
@@ -208,35 +233,14 @@
         <item>Nhập đổi</item>
 
     </string-array>
-
     <string-array name="promotion_rate_array">
         <item>5</item>
         <item>10</item>
         <item>15</item>
     </string-array>
-
     <string-array name="promotion_type_array">
         <item>Tiền</item>
         <item>Hàng</item>
 
     </string-array>
-
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="client_code">Nhập mã khách hàng</string>
-    <string name="client_name_hint">Nhập tên khách hàng</string>
-    <string name="title_activity_view_order">ViewOrderActivity</string>
-
-    <string name="action_send_approvement">Gửi duyệt</string>
-    <string name="title_activity_pos">Cửa hàng</string>
-
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="none_paired">Không thể ghép thiết bị</string>
-    <string name="scanning">Đang tìm thiết bị</string>
-    <string name="none_found">Không tìm thấy thiết bị</string>
-    <string name="select_device">Chọn thiết bị</string>
-    <string name="bt_not_enabled_leaving">Chưa kích hoạt bluetooth trên điện thoại</string>
-    <string name="title_connecting">Đang kết nối...</string>
 </resources>

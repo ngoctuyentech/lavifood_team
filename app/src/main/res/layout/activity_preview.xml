@@ -8,6 +8,7 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:background="@color/lavifBackground"
         app:layout_constraintBottom_toTopOf="@+id/linearLayout14"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -21,23 +22,79 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
+            <ImageButton
+                android:id="@+id/ib_preview_edit_product"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:background="@color/colorPrimary"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/constraintLayout7"
+                app:srcCompat="@drawable/ic_mode_edit_black_24dp"
+                tools:layout_constraintRight_creator="1" />
+
+            <TextView
+                android:id="@+id/tv_ttc"
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:fontFamily="@font/utm_dax_bold"
+                android:text="Thông tin chung"
+                android:textStyle="italic"
+                android:visibility="visible"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:layout_constraintLeft_creator="1" />
+
+            <TextView
+                android:id="@+id/tv_ttvat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:fontFamily="@font/utm_dax_bold"
+                android:text="Thanh toán"
+                android:textSize="14sp"
+                android:textStyle="italic"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/order_recycler_promotion_preview"
+                tools:layout_constraintLeft_creator="1" />
+
             <TextView
                 android:id="@+id/tv_ttsp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
+                android:fontFamily="@font/utm_dax_bold"
                 android:text="Thông tin sản phẩm"
                 android:textSize="14sp"
-                android:textStyle="bold|italic"
+                android:textStyle="italic"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/constraintLayout7"
                 tools:layout_constraintLeft_creator="1" />
 
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/order_recycler_promotion_preview"
+            <TextView
+                android:id="@+id/tv_km"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:fontFamily="@font/utm_dax_bold"
+                android:text="Thông tin chương trình"
+                android:textSize="14sp"
+                android:textStyle="italic"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/constraintLayout8"
+                tools:layout_constraintLeft_creator="1" />
+
+            <android.support.constraint.ConstraintLayout
+                android:id="@+id/constraintLayout8"
                 android:layout_width="0dp"
-                android:layout_height="100dp"
+                android:layout_height="160dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
@@ -45,10 +102,252 @@
                 android:elevation="4dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tv_km"
-                tools:layout_constraintLeft_creator="1"
-                tools:layout_constraintRight_creator="1"
-                tools:layout_constraintTop_creator="1" />
+                app:layout_constraintTop_toBottomOf="@+id/tv_ttsp">
+
+                <TextView
+                    android:id="@+id/tv_ten"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="@font/utm_dax"
+                    android:text="Tên (trượt dọc để xem tiếp)"
+
+                    android:textSize="12sp"
+                    android:textStyle="normal|italic"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:layout_constraintLeft_creator="1" />
+
+
+                <TextView
+                    android:id="@+id/tv_sl"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginRight="16dp"
+                    android:fontFamily="@font/utm_dax"
+                    android:text="SL"
+                    android:textSize="12sp"
+                    android:textStyle="normal|italic"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/tv_dg"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginRight="50dp"
+                    android:fontFamily="@font/utm_dax"
+                    android:text="Đơn giá"
+                    android:textSize="12sp"
+                    android:textStyle="normal|italic"
+                    app:layout_constraintRight_toLeftOf="@+id/tv_sl"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/recycler_order_detail_product"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginBottom="8dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_ten"
+                    tools:layout_constraintLeft_creator="1"
+                    tools:layout_constraintTop_creator="1" />
+
+
+            </android.support.constraint.ConstraintLayout>
+
+            <android.support.constraint.ConstraintLayout
+                android:id="@+id/constraintLayout7"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/border_white"
+                android:elevation="4dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tv_ttc">
+
+                <TextView
+                    android:id="@+id/tv_tkh"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="@font/utm_dax"
+                    android:text="Tên khách hàng"
+                    android:textSize="12sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/tv_lkh"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:fontFamily="@font/utm_dax"
+                    android:text="Loại khách hàng"
+                    android:textSize="12sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_tkh"
+                    tools:layout_constraintLeft_creator="1"
+                    tools:layout_constraintTop_creator="1" />
+
+                <TextView
+                    android:id="@+id/tv_tt"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:fontFamily="@font/utm_dax"
+                    android:text="Hình thức thanh toán"
+                    android:textSize="12sp"
+
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_lkh" />
+
+                <TextView
+                    android:id="@+id/tv_gh"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:fontFamily="@font/utm_dax"
+                    android:text="Ngày giao hàng"
+
+                    android:textSize="12sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_tt" />
+
+                <TextView
+                    android:id="@+id/tv_approve_sale_client_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginRight="8dp"
+                    android:fontFamily="@font/utm_dax"
+                    android:text="Nguyễn Văn A"
+                    android:textSize="12sp"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/tv_approve_sale_client_type"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="8dp"
+                    android:fontFamily="@font/utm_dax"
+                    android:text="Nhà thuốc"
+                    android:textSize="12sp"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_approve_sale_client_name" />
+
+                <TextView
+                    android:id="@+id/tv_approve_sale_payment_type"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="8dp"
+                    android:fontFamily="@font/utm_dax"
+                    android:text="Tiền mặt"
+                    android:textSize="12sp"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_approve_sale_client_type" />
+
+                <TextView
+                    android:id="@+id/tv_preview_delivery_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="8dp"
+                    android:fontFamily="@font/utm_dax"
+                    android:text="9/9"
+                    android:textSize="12sp"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_approve_sale_payment_type"
+                    tools:layout_constraintRight_creator="1" />
+
+                <TextView
+                    android:id="@+id/textView43"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:fontFamily="@font/utm_dax"
+                    android:text="Địa chỉ"
+                    android:textSize="12sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/textView237" />
+
+                <TextView
+                    android:id="@+id/tv_preview_order_address"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginRight="8dp"
+                    android:fontFamily="@font/utm_dax"
+                    android:text="abc"
+                    android:textSize="12sp"
+                    android:textStyle="italic"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintLeft_toLeftOf="@+id/textView43"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/textView43" />
+
+                <TextView
+                    android:id="@+id/textView195"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:fontFamily="@font/utm_dax"
+                    android:text="Ghi chú"
+
+                    android:textSize="12sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_preview_order_address" />
+
+                <TextView
+                    android:id="@+id/tv_preview_order_note"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+
+                    android:layout_marginBottom="8dp"
+                    android:fontFamily="@font/utm_dax"
+                    android:text="Ghi chú"
+                    android:textSize="12sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/textView195"
+                    app:layout_constraintVertical_bias="0.0" />
+
+                <TextView
+                    android:id="@+id/textView237"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:fontFamily="@font/utm_dax"
+                    android:text="Nhân viên"
+                    android:textSize="12sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_gh" />
+
+                <TextView
+                    android:id="@+id/tv_preview_sale_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:fontFamily="@font/utm_dax"
+                    android:text="Nguyễn V B"
+                    android:textSize="12sp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_preview_delivery_date" />
+
+            </android.support.constraint.ConstraintLayout>
 
             <android.support.constraint.ConstraintLayout
                 android:layout_width="match_parent"
@@ -71,6 +370,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="8dp"
+                    android:fontFamily="@font/utm_dax"
                     android:text="Chưa VAT"
                     android:textSize="12sp"
                     app:layout_constraintStart_toStartOf="parent"
@@ -82,6 +382,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
+                    android:fontFamily="@font/utm_dax"
                     android:text="Có VAT"
                     android:textSize="12sp"
                     app:layout_constraintStart_toStartOf="parent"
@@ -95,6 +396,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:layout_marginBottom="8dp"
+                    android:fontFamily="@font/utm_dax"
                     android:text="Thanh toán thực (trừ chương trình)"
                     android:textSize="12sp"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -107,8 +409,8 @@
                     android:id="@+id/tv_detail_notVAT_preview"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
                     android:layout_marginRight="8dp"
+                    android:fontFamily="@font/utm_dax"
                     android:text="Chưa xác định"
                     android:textSize="12sp"
                     app:layout_constraintRight_toRightOf="parent"
@@ -119,8 +421,8 @@
                     android:id="@+id/tv_detail_VAT_preview"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
                     android:layout_marginRight="8dp"
+                    android:fontFamily="@font/utm_dax"
                     android:text="Chưa xác định"
                     android:textSize="12sp"
                     app:layout_constraintRight_toRightOf="parent"
@@ -133,10 +435,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginRight="8dp"
+                    android:fontFamily="@font/utm_dax_bold"
                     android:text="Chưa xác định"
                     android:textColor="@color/colorAccent"
                     android:textSize="12sp"
-                    android:textStyle="bold"
                     app:layout_constraintRight_toRightOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/tv_detail_VAT_preview"
                     tools:layout_constraintLeft_creator="1"
@@ -144,23 +446,10 @@
                     tools:layout_constraintTop_creator="1" />
             </android.support.constraint.ConstraintLayout>
 
-            <TextView
-                android:id="@+id/tv_ttc"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
-                android:text="Thông tin chung"
-                android:textStyle="bold|italic"
-                android:visibility="visible"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:layout_constraintLeft_creator="1" />
-
-            <android.support.constraint.ConstraintLayout
-                android:id="@+id/constraintLayout8"
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/order_recycler_promotion_preview"
                 android:layout_width="0dp"
-                android:layout_height="160dp"
+                android:layout_height="100dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
@@ -168,277 +457,10 @@
                 android:elevation="4dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tv_ttsp">
-
-                <TextView
-                    android:id="@+id/tv_ten"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="8dp"
-                    android:text="Tên (trượt dọc để xem tiếp)"
-                    android:textSize="12sp"
-
-                    android:textStyle="normal|italic"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:layout_constraintLeft_creator="1" />
-
-
-                <TextView
-                    android:id="@+id/tv_sl"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginRight="8dp"
-                    android:text="SL"
-                    android:textSize="12sp"
-                    android:textStyle="normal|italic"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/recycler_order_detail_product"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="4dp"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginBottom="8dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/tv_ten"
-                    tools:layout_constraintLeft_creator="1"
-                    tools:layout_constraintTop_creator="1" />
-
-                <TextView
-                    android:id="@+id/tv_dg"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginRight="24dp"
-                    android:text="Đơn giá"
-                    android:textSize="12sp"
-                    android:textStyle="normal|italic"
-                    app:layout_constraintRight_toLeftOf="@+id/tv_sl"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-
-            </android.support.constraint.ConstraintLayout>
-
-            <TextView
-                android:id="@+id/tv_ttvat"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
-                android:text="Thanh toán"
-                android:textSize="14sp"
-                android:textStyle="bold|italic"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/order_recycler_promotion_preview"
-                tools:layout_constraintLeft_creator="1" />
-
-            <ImageButton
-                android:id="@+id/ib_preview_edit_product"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="16dp"
-                android:background="@color/colorPrimary"
-                android:visibility="gone"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/constraintLayout7"
-                app:srcCompat="@drawable/ic_mode_edit_black_24dp"
-                tools:layout_constraintRight_creator="1" />
-
-            <android.support.constraint.ConstraintLayout
-                android:id="@+id/constraintLayout7"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
-                android:background="@drawable/border_white"
-                android:elevation="4dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tv_ttc">
-
-                <TextView
-                    android:id="@+id/tv_tkh"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginTop="8dp"
-                    android:text="Tên khách hàng"
-                    android:textSize="12sp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/tv_lkh"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:text="Loại khách hàng"
-                    android:textSize="12sp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/tv_tkh"
-                    tools:layout_constraintLeft_creator="1"
-                    tools:layout_constraintTop_creator="1" />
-
-                <TextView
-                    android:id="@+id/tv_tt"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:text="Hình thức thanh toán"
-                    android:textSize="12sp"
-                    app:layout_constraintStart_toStartOf="parent"
-
-                    app:layout_constraintTop_toBottomOf="@+id/tv_lkh" />
-
-                <TextView
-                    android:id="@+id/tv_gh"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:text="Ngày giao hàng"
-                    android:textSize="12sp"
-
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/tv_tt" />
-
-                <TextView
-                    android:id="@+id/tv_approve_sale_client_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginRight="8dp"
-                    android:text="Nguyễn Văn A"
-                    android:textSize="12sp"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/tv_approve_sale_client_type"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginRight="8dp"
-                    android:text="Nhà thuốc"
-                    android:textSize="12sp"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/tv_approve_sale_client_name" />
-
-                <TextView
-                    android:id="@+id/tv_approve_sale_payment_type"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginRight="8dp"
-                    android:text="Tiền mặt"
-                    android:textSize="12sp"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/tv_approve_sale_client_type" />
-
-                <TextView
-                    android:id="@+id/tv_preview_delivery_date"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginRight="8dp"
-                    android:text="9/9"
-                    android:textSize="12sp"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/tv_approve_sale_payment_type"
-                    tools:layout_constraintRight_creator="1" />
-
-                <TextView
-                    android:id="@+id/textView43"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:text="Địa chỉ"
-                    android:textSize="12sp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/textView237" />
-
-                <TextView
-                    android:id="@+id/tv_preview_order_address"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginRight="8dp"
-                    android:text="abc"
-                    android:textSize="12sp"
-                    android:textStyle="italic"
-                    app:layout_constraintHorizontal_bias="0.0"
-                    app:layout_constraintLeft_toLeftOf="@+id/textView43"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/textView43" />
-
-                <TextView
-                    android:id="@+id/textView195"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:text="Ghi chú"
-                    android:textSize="12sp"
-
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/tv_preview_order_address" />
-
-                <TextView
-                    android:id="@+id/tv_preview_order_note"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-
-                    android:layout_marginBottom="8dp"
-                    android:text="Ghi chú"
-                    android:textSize="12sp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/textView195"
-                    app:layout_constraintVertical_bias="0.0" />
-
-                <TextView
-                    android:id="@+id/textView237"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:text="Nhân viên"
-                    android:textSize="12sp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/tv_gh" />
-
-                <TextView
-                    android:id="@+id/tv_preview_sale_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:text="Nguyễn V B"
-                    android:textSize="12sp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/tv_preview_delivery_date" />
-
-            </android.support.constraint.ConstraintLayout>
-
-            <TextView
-                android:id="@+id/tv_km"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
-                android:text="Thông tin chương trình"
-                android:textSize="14sp"
-                android:textStyle="bold|italic"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/constraintLayout8"
-                tools:layout_constraintLeft_creator="1" />
+                app:layout_constraintTop_toBottomOf="@+id/tv_km"
+                tools:layout_constraintLeft_creator="1"
+                tools:layout_constraintRight_creator="1"
+                tools:layout_constraintTop_creator="1" />
 
 
         </android.support.constraint.ConstraintLayout>
@@ -461,6 +483,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@color/colorAccent"
+            android:fontFamily="@font/utm_dax_bold"
             android:text="Hủy"
             android:textColor="@android:color/white" />
 
@@ -470,6 +493,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@color/colorPrimary"
+            android:fontFamily="@font/utm_dax_bold"
             android:text="Gửi"
             android:textColor="@android:color/white" />
     </LinearLayout>

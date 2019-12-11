@@ -19,6 +19,9 @@ public class Product {
     String productCode;
     String productDiscount;
 
+    String productQuantity;
+    String productPrice;
+
     public Product() {
     }
 
@@ -111,5 +114,13 @@ public class Product {
 
     public String getProductDiscount() {
         return productDiscount;
+    }
+
+    public String getProductQuantity() {
+        return productQuantity;
+    }
+
+    public String getProductPrice() {
+        return productPrice;
     }
 }

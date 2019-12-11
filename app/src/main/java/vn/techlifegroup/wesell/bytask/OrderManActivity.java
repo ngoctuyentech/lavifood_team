@@ -12,6 +12,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -23,6 +24,7 @@ import android.text.InputType;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
@@ -46,6 +48,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import org.joda.time.DateTime;
@@ -77,27 +80,39 @@ import vn.techlifegroup.wesell.model.OrderDetail;
 import vn.techlifegroup.wesell.model.Product;
 import vn.techlifegroup.wesell.model.Promotion;
 import vn.techlifegroup.wesell.model.VatModel;
+import vn.techlifegroup.wesell.model.vatTest;
 import vn.techlifegroup.wesell.order.PreviewOrderActivivity;
+import vn.techlifegroup.wesell.order.UpdateOrderActivity;
 import vn.techlifegroup.wesell.utils.AdapterOrder;
 import vn.techlifegroup.wesell.utils.Constants;
 import vn.techlifegroup.wesell.utils.MySpinerAdapter;
 import fr.ganfra.materialspinner.MaterialSpinner;
 import im.delight.android.location.SimpleLocation;
+import vn.techlifegroup.wesell.utils.Utils;
 
 import static vn.techlifegroup.wesell.list.AddClientActivity.MY_REQUEST_LOCATION;
 import static vn.techlifegroup.wesell.utils.Constants.buttonClick;
 import static vn.techlifegroup.wesell.utils.Constants.refDatabase;
+import static vn.techlifegroup.wesell.utils.Constants.refEmployee;
+import static vn.techlifegroup.wesell.utils.Constants.refOrder;
+import static vn.techlifegroup.wesell.utils.Constants.refOrderList;
+import static vn.techlifegroup.wesell.utils.Utils.convertNumber;
 
 public class OrderManActivity extends AppCompatActivity {
     private RecyclerView recyclerViewUnApproved, recyclerViewApproved, recyclerViewDenied, clientList;
     private FirebaseRecyclerAdapter<OrderDetail, OrderViewHolderUnapproved> adapterFirebaseUnapproved;
     private FirebaseRecyclerAdapter<OrderDetail, OrderViewHolderApproved> adapterFirebaseApproved;
     private FirebaseRecyclerAdapter<OrderDetail, OutRouteViewHolder> adapterFirebaseDenied;
+
+
     private FirebaseRecyclerAdapter<Product, ProductViewHolder> adapterFirebaseProduct;
     private FirebaseRecyclerAdapter<Employee, EmployeeViewHolder> adapterFirebaseEmployee;
     private FirebaseRecyclerAdapter<Client, ClientViewHolder> adapterFirebaseClient;
-    FirebaseRecyclerAdapter<Group, GroupViewHolder> adapterFirebaseClientGroup;
+            FirebaseRecyclerAdapter<Group, GroupViewHolder> adapterFirebaseClientGroup;
     private FirebaseRecyclerAdapter<OrderDetail, OrderViewHolderByTime> adapterFirebaseByTime;
+
+    private FirebaseRecyclerAdapter<OrderDetail, OrderDetailViewHolder> adapterOrder;
+    private FirebaseRecyclerAdapter<Product, ProductViewHolder> adapterFirebaseOrderDetail;
 
     private LinearLayoutManager linearLayoutManager;
     private LinearLayout layoutApproved, layoutUnapproved, layoutDenied, boxApproved, boxUnApproved, boxCancelled;
@@ -106,10 +121,11 @@ public class OrderManActivity extends AppCompatActivity {
     private String emailLogin, choosenMonth, choosenYear, choosenProduct, choosenEmployee, employeeEmail;
 
     private Dialog dialogProductList, dialogEmployeeList;
-    private TextView tvChooseProduct, tvEmployeeName, tvUnapproved, tvApproved, tvDenied;
+    private TextView tvChooseProduct, tvEmployeeName, tvUnapproved, tvApproved, tvDenied, tvOutRoute;
     private boolean saleMan,supervisor,asm,admin;
     private double latitude, longitude;
     private RecyclerView rvClientList;
+    private RecyclerView rvActivityOrder;
     int MY_REQUEST_CALL = 2;
     private String clientPhone;
     private ProgressDialog mProgressDialog;
@@ -125,31 +141,107 @@ public class OrderManActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_order);
         setSupportActionBar(toolbar);
 
-        Intent intent = this.getIntent();
-        emailLogin = intent.getStringExtra("EmailLogin");
-        saleMan = intent.getBooleanExtra("SaleMan", false);
-        supervisor = intent.getBooleanExtra("Supervisor", false);
-        admin = intent.getBooleanExtra("Admin",false);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        asm = intent.getBooleanExtra("ASM", false);
-        //refCurrentClient = Constants.refClientMan.child("Đại lý").child("Nha Trang");
+/*
+        final FloatingActionButton btnCreateOrder = findViewById(R.id.fab_add_order);
+
+        btnCreateOrder.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                Toast.makeText(getApplicationContext(), "Nút tạo đơn mới", Toast.LENGTH_SHORT).show();
+
+                startActivity(new Intent(getApplicationContext(), UpdateOrderActivity.class));
+
+            }
+        });
+
+ */
+//button create order
+
+        Intent intent = this.getIntent();
+
+        emailLogin = intent.getStringExtra("EmailLogin");
+
+        saleMan    = intent.getBooleanExtra("SaleMan", false);
+        supervisor = intent.getBooleanExtra("Supervisor", false);
+        admin      = intent.getBooleanExtra("Admin",false);
+        asm        = intent.getBooleanExtra("ASM", false);
+
         userEmail = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getEmail().replace(".", ",");
 
-        refCompany = refDatabase.child(emailLogin);
+        rvActivityOrder = (RecyclerView) findViewById(R.id.rv_order_main);
 
-        tvUnapproved = (TextView) findViewById(R.id.tv_order_unapproved);
         tvApproved = (TextView) findViewById(R.id.tv_order_approved);
-        tvDenied = (TextView) findViewById(R.id.tv_order_denied);
+        tvUnapproved = (TextView) findViewById(R.id.tv_order_unapproved);
+        tvOutRoute = (TextView) findViewById(R.id.tv_order_offline);
+
+        tvApproved.setBackgroundColor(getResources().getColor(R.color.white));
+        tvUnapproved.setBackgroundColor(getResources().getColor(R.color.white));
+        tvOutRoute.setBackgroundColor(getResources().getColor(R.color.lavifBlue));
+
+        tvApproved.setTextColor(getResources().getColor(R.color.lavifBlue));
+        tvUnapproved.setTextColor(getResources().getColor(R.color.lavifBlue));
+        tvOutRoute.setTextColor(getResources().getColor(R.color.white));
+
+        getOutRouteOrder();
+
+        tvApproved.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                v.startAnimation(buttonClick);
+
+                tvApproved.setBackgroundColor(getResources().getColor(R.color.lavifBlue));
+                tvUnapproved.setBackgroundColor(getResources().getColor(R.color.white));
+                tvOutRoute.setBackgroundColor(getResources().getColor(R.color.white));
+
+                tvApproved.setTextColor(getResources().getColor(R.color.white));
+                tvUnapproved.setTextColor(getResources().getColor(R.color.lavifBlue));
+                tvOutRoute.setTextColor(getResources().getColor(R.color.lavifBlue));
+
+                getApprovedOrder();
+
+            }
+        });
+
+        tvUnapproved.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                v.startAnimation(buttonClick);
+
+                tvApproved.setBackgroundColor(getResources().getColor(R.color.white));
+                tvUnapproved.setBackgroundColor(getResources().getColor(R.color.lavifBlue));
+                tvOutRoute.setBackgroundColor(getResources().getColor(R.color.white));
+
+                tvApproved.setTextColor(getResources().getColor(R.color.lavifBlue));
+                tvUnapproved.setTextColor(getResources().getColor(R.color.white));
+                tvOutRoute.setTextColor(getResources().getColor(R.color.lavifBlue));
+
+                getUnApprovedOrder();
+            }
+        });
+
+        tvOutRoute.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                v.startAnimation(buttonClick);
+
+                tvApproved.setBackgroundColor(getResources().getColor(R.color.white));
+                tvUnapproved.setBackgroundColor(getResources().getColor(R.color.white));
+                tvOutRoute.setBackgroundColor(getResources().getColor(R.color.lavifBlue));
+
+                tvApproved.setTextColor(getResources().getColor(R.color.lavifBlue));
+                tvUnapproved.setTextColor(getResources().getColor(R.color.lavifBlue));
+                tvOutRoute.setTextColor(getResources().getColor(R.color.white));
+
+                getOutRouteOrder();
+
+            }
+        });
 
 
-        boxApproved = (LinearLayout) findViewById(R.id.order_man_boxApproved);
-        boxUnApproved = (LinearLayout) findViewById(R.id.order_man_boxUnApproved);
-        boxCancelled = (LinearLayout) findViewById(R.id.order_man_boxCanceled);
-
-        recyclerViewApproved = (RecyclerView) findViewById(R.id.order_approved_recyclerview);
-        recyclerViewDenied = (RecyclerView) findViewById(R.id.order_denied_recyclerview);
-        recyclerViewUnApproved = (RecyclerView) findViewById(R.id.order_unapproved_recyclerview);
-
+/*
         ConstraintLayout csSuccess = findViewById(R.id.cs_orderman_success);
 
         if(admin || supervisor)
@@ -236,9 +328,12 @@ public class OrderManActivity extends AppCompatActivity {
             }
         });
 
-        locationPreparation();
-        orderByTime();
+ */
 
+        locationPreparation();
+
+
+        //orderByTime();
         //getTotalByTime();
 
     }
@@ -278,7 +373,7 @@ public class OrderManActivity extends AppCompatActivity {
         });
     }
 
-
+/*
     private void orderByTime() {
 
         final RecyclerView listByTime = findViewById(R.id.rv_order_list_by_time);
@@ -492,6 +587,9 @@ public class OrderManActivity extends AppCompatActivity {
 
     }
 
+ */
+
+
     private void locationPreparation() {
 
         FusedLocationProviderClient mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
@@ -526,6 +624,41 @@ public class OrderManActivity extends AppCompatActivity {
 
     }
 
+    private void getOrderList(Query ref) {
+
+        rvActivityOrder = (RecyclerView) findViewById(R.id.rv_order_main);
+        rvActivityOrder.setHasFixedSize(true);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        rvActivityOrder.setLayoutManager(linearLayoutManager);
+
+        adapterOrder = new FirebaseRecyclerAdapter<OrderDetail, OrderDetailViewHolder>(
+                OrderDetail.class,
+                R.layout.item_main_order,
+                OrderDetailViewHolder.class,
+                ref
+        ) {
+
+
+            @Override
+            public OrderDetailViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+                View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_main_order, parent, false);
+                return new OrderDetailViewHolder(v);
+            }
+
+            @Override
+            protected void populateViewHolder(final OrderDetailViewHolder viewHolder, final OrderDetail model, int position) {
+
+                viewHolder.orderName.setText(model.getOrderName());
+
+
+            }
+        };
+
+        rvActivityOrder.setAdapter(adapterOrder);
+        adapterOrder.notifyDataSetChanged();
+
+    }
+
     private void initializeDenied() {
         recyclerViewDenied.setHasFixedSize(true);
         linearLayoutManager = new LinearLayoutManager(getApplicationContext());
@@ -536,28 +669,9 @@ public class OrderManActivity extends AppCompatActivity {
 
     }
 
-    private void initializeApproved() {
-        recyclerViewApproved.setHasFixedSize(true);
-        linearLayoutManager = new LinearLayoutManager(getApplicationContext());
-        recyclerViewApproved.setLayoutManager(linearLayoutManager);
-
-
-        getApprovedOrder();
-
-    }
-
-    private void initializeUnapproved() {
-        recyclerViewUnApproved.setHasFixedSize(true);
-        linearLayoutManager = new LinearLayoutManager(getApplicationContext());
-        recyclerViewUnApproved.setLayoutManager(linearLayoutManager);
-
-        getUnApprovedOrder();
-
-    }
-
     private void getApprovedOrder() {
         if(admin){
-            refApproved = Constants.refDatabase.child(emailLogin + "/Order").child("Approved");
+            refApproved = refDatabase.child(emailLogin + "/Order").child("Approved");
             adapterFirebaseApproved = new FirebaseRecyclerAdapter<OrderDetail, OrderViewHolderApproved>(
                     OrderDetail.class,
                     R.id.order_cardview,
@@ -586,12 +700,17 @@ public class OrderManActivity extends AppCompatActivity {
         }
 
         if(saleMan){
-            refCompany.child("Employee").child(userEmail).addListenerForSingleValueEvent(new ValueEventListener() {
+
+
+            refEmployee.child(userEmail).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     Employee employee = dataSnapshot.getValue(Employee.class);
                     String managerEmail = employee.getManagedBy();
 
+                    getOrderList(refOrder.child("OrderBySale").child(managerEmail).child("Approved"));
+
+/*
                     refApproved = refCompany.child("Order/OrderBySale").child(managerEmail).child("Approved");
 
                     adapterFirebaseApproved = new FirebaseRecyclerAdapter<OrderDetail, OrderViewHolderApproved>(
@@ -619,6 +738,8 @@ public class OrderManActivity extends AppCompatActivity {
 
                     recyclerViewApproved.setAdapter(adapterFirebaseApproved);
                     adapterFirebaseApproved.notifyDataSetChanged();
+
+ */
                 }
 
                 @Override
@@ -694,14 +815,15 @@ public class OrderManActivity extends AppCompatActivity {
         }
 
         if(saleMan){
-            refCompany.child("Employee").child(userEmail).addListenerForSingleValueEvent(new ValueEventListener() {
+
+            refEmployee.child(userEmail).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     Employee employee = dataSnapshot.getValue(Employee.class);
                     String managerEmail = employee.getManagedBy();
 
-                    refUnapproved = refCompany.child("Order/OrderBySale").child(managerEmail).child("UnApproved");
-
+                    getOrderList(refOrder.child("OrderBySale").child(managerEmail).child("UnApproved"));
+/*
                     adapterFirebaseUnapproved = new FirebaseRecyclerAdapter<OrderDetail, OrderViewHolderUnapproved>(
                             OrderDetail.class,
                             R.id.order_cardview,
@@ -726,6 +848,9 @@ public class OrderManActivity extends AppCompatActivity {
 
                     recyclerViewUnApproved.setAdapter(adapterFirebaseUnapproved);
                     adapterFirebaseUnapproved.notifyDataSetChanged();
+
+ */
+
                 }
 
                 @Override
@@ -800,38 +925,14 @@ public class OrderManActivity extends AppCompatActivity {
         }
 
         if(saleMan){
-            refCompany.child("Employee").child(userEmail).addListenerForSingleValueEvent(new ValueEventListener() {
+
+            refEmployee.child(userEmail).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     Employee employee = dataSnapshot.getValue(Employee.class);
                     String managerEmail = employee.getManagedBy();
 
-                    refDenied = refCompany.child("Order/OrderBySale").child(managerEmail).child("OutRoute");
-
-                    adapterFirebaseDenied = new FirebaseRecyclerAdapter<OrderDetail, OutRouteViewHolder>(
-                            OrderDetail.class,
-                            R.id.order_cardview,
-                            OutRouteViewHolder.class,
-                            refDenied
-                    ) {
-                        @Override
-                        public OutRouteViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-                            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_order, parent, false);
-                            return new OutRouteViewHolder(v);
-                        }
-
-
-                        @Override
-                        protected void populateViewHolder(OutRouteViewHolder viewHolder, OrderDetail model, int position) {
-                            viewHolder.orderName.setText(model.getOrderName());
-                            if(supervisor || asm){
-                                viewHolder.ivApprove.setVisibility(View.VISIBLE);
-                            }
-                        }
-                    };
-
-                    recyclerViewDenied.setAdapter(adapterFirebaseDenied);
-                    adapterFirebaseDenied.notifyDataSetChanged();
+                    getOrderList(refOrder.child("OrderBySale").child(managerEmail).child("OutRoute"));
                 }
 
                 @Override
@@ -1243,7 +1344,6 @@ public class OrderManActivity extends AppCompatActivity {
         dialogProductList.show();
     }
 
-
     private void employeeListDialog() {
 
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
@@ -1329,6 +1429,237 @@ public class OrderManActivity extends AppCompatActivity {
 
     }
 
+    private class OrderDetailViewHolder extends RecyclerView.ViewHolder {
+        TextView orderName;
+
+
+        public OrderDetailViewHolder(View itemView) {
+            super(itemView);
+            orderName = itemView.findViewById(R.id.tv_name_order_main);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    v.startAnimation(Constants.buttonClick);
+                    final int position = getLayoutPosition();
+                    final String keyOrder = adapterOrder.getRef(position).getKey();
+
+                    final Dialog dialog = new Dialog(OrderManActivity.this, R.style.FullWidth_Dialog);
+                    dialog.setContentView(R.layout.dialog_order_detail);
+                    dialog.show();
+
+
+                    Button btnExit = dialog.findViewById(R.id.btn_exit_order_detail);
+                    btnExit.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            dialog.dismiss();
+                        }
+                    });
+
+                    final TextView tvDiscount   = dialog.findViewById(R.id.tv_discount_order_detail);
+                    final TextView tvTotal   = dialog.findViewById(R.id.tv_order_detail_total);
+                    final TextView tvPayment = dialog.findViewById(R.id.tv_order_detail_payment);
+
+                    refOrderList.child(keyOrder).child("ProductList").addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            Iterable<DataSnapshot> snapP = dataSnapshot.getChildren();
+                            float orderTotal = 0;
+                            for (DataSnapshot itemSnap:snapP){
+                                Product currentP = itemSnap.getValue(Product.class);
+                                orderTotal += Float.parseFloat(currentP.getProductTotal());
+
+
+                                tvTotal.setText(convertNumber(orderTotal+""));
+                            }
+
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+
+                    refOrderList.child(keyOrder).child("VAT").addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+
+                            vatTest vat = dataSnapshot.getValue(vatTest.class);
+
+                            Float discount = Float.parseFloat(vat.getDiscount());
+                            Float payment = Float.parseFloat(vat.getFinalPayment());
+
+                            tvDiscount.setText(convertNumber(discount+""));
+                            tvPayment.setText(convertNumber(payment+""));
+
+
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+
+
+
+
+
+
+
+                    RecyclerView rvOrderDetail = dialog.findViewById(R.id.rv_order_detail);
+                    rvOrderDetail.setHasFixedSize(true);
+                    LinearLayoutManager linearLayoutManagerOrDe = new LinearLayoutManager(getApplicationContext());
+                    rvOrderDetail.setLayoutManager(linearLayoutManagerOrDe);
+
+                    adapterFirebaseOrderDetail = new FirebaseRecyclerAdapter<Product, ProductViewHolder>(
+                            Product.class,
+                            R.layout.item_product_order_detail,
+                            ProductViewHolder.class,
+                            refOrderList.child(keyOrder).child("ProductList")
+                    ) {
+                        @Override
+                        public ProductViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+                            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_product_order_detail, parent, false);
+                            return new ProductViewHolder(v);
+                        }
+
+                        @Override
+                        protected void populateViewHolder(final ProductViewHolder viewHolder, final Product model, int position) {
+
+                            Float quantity = Float.parseFloat(model.getProductQuantity());
+                            Float price = Float.parseFloat(model.getProductPrice());
+                            Float total = Float.parseFloat(model.getProductTotal());
+
+
+                            viewHolder.productNameDialog.setText(model.getProductName());
+                            viewHolder.productQuantity.setText(convertNumber(quantity+""));
+                            viewHolder.productPrice.setText(convertNumber(price+""));
+                            viewHolder.productTotal.setText(convertNumber(total+""));
+
+                        }
+                    };
+
+                    rvOrderDetail.setAdapter(adapterFirebaseOrderDetail);
+                    adapterFirebaseOrderDetail.notifyDataSetChanged();
+
+                }
+            });
+/*
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    v.startAnimation(Constants.buttonClick);
+                    final int position = getLayoutPosition();
+                    final String keyOrder = adapterOrder.getRef(position).getKey();
+
+                    final Dialog dialog = new Dialog(MainOrderActivity.this, R.style.FullWidth_Dialog);
+                    dialog.setContentView(R.layout.dialog_order_detail);
+                    dialog.show();
+
+
+                    Button btnExit = dialog.findViewById(R.id.btn_exit_order_detail);
+                    btnExit.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            dialog.dismiss();
+                        }
+                    });
+
+                    final TextView tvDiscount   = dialog.findViewById(R.id.tv_discount_order_detail);
+                    final TextView tvTotal   = dialog.findViewById(R.id.tv_order_detail_total);
+                    final TextView tvPayment = dialog.findViewById(R.id.tv_order_detail_payment);
+
+                    refOrderList.child(keyOrder).child("ProductList").addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            Iterable<DataSnapshot> snapP = dataSnapshot.getChildren();
+                            float orderTotal = 0;
+                            for (DataSnapshot itemSnap:snapP){
+                                Product currentP = itemSnap.getValue(Product.class);
+                                orderTotal += Float.parseFloat(currentP.getProductTotal());
+
+
+                                tvTotal.setText(Utils.convertNumber(orderTotal+""));
+                            }
+
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+
+                    refOrderList.child(keyOrder).child("VAT").addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            VatModel vat = dataSnapshot.getValue(VatModel.class);
+
+                            Float discount = Float.parseFloat(vat.getDiscount());
+                            Float payment = Float.parseFloat(vat.getFinalPayment());
+
+                            tvDiscount.setText(convertNumber(discount+""));
+                            tvPayment.setText(convertNumber(payment+""));
+
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+
+
+
+
+
+                    RecyclerView rvOrderDetail = dialog.findViewById(R.id.rv_order_detail);
+                    rvOrderDetail.setHasFixedSize(true);
+                    LinearLayoutManager linearLayoutManagerOrDe = new LinearLayoutManager(getApplicationContext());
+                    rvOrderDetail.setLayoutManager(linearLayoutManagerOrDe);
+
+                    adapterFirebaseOrderDetail = new FirebaseRecyclerAdapter<Product, ProductViewHolder>(
+                            Product.class,
+                            R.layout.item_product_order_detail,
+                            ProductViewHolder.class,
+                            refOrderList.child(keyOrder).child("ProductList")
+                    ) {
+                        @Override
+                        public ProductViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+                            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_product_order_detail, parent, false);
+                            return new ProductViewHolder(v);
+                        }
+
+                        @Override
+                        protected void populateViewHolder(final ProductViewHolder viewHolder, final Product model, int position) {
+
+                            Float quantity = Float.parseFloat(model.getProductQuantity());
+                            Float price = Float.parseFloat(model.getProductPrice());
+                            Float total = Float.parseFloat(model.getProductTotal());
+
+
+                            viewHolder.productName.setText(model.getProductName());
+                            viewHolder.productQuantity.setText(convertNumber(quantity+""));
+                            viewHolder.productPrice.setText(convertNumber(price+""));
+                            viewHolder.productTotal.setText(convertNumber(total+""));
+
+                        }
+                    };
+
+                    rvOrderDetail.setAdapter(adapterFirebaseOrderDetail);
+                    adapterFirebaseOrderDetail.notifyDataSetChanged();
+
+                }
+            });
+
+ */
+        }
+    }
 
     public class OrderViewHolderUnapproved extends RecyclerView.ViewHolder {
         TextView orderName;
@@ -2314,9 +2645,20 @@ public class OrderManActivity extends AppCompatActivity {
     public class ProductViewHolder extends RecyclerView.ViewHolder {
         TextView productName;
 
+        TextView productNameDialog;
+        TextView productQuantity;
+        TextView productPrice;
+        TextView productTotal;
+
         public ProductViewHolder(View itemView) {
             super(itemView);
             productName = (TextView) itemView.findViewById(R.id.tv_item_product_name);
+
+                productNameDialog = itemView.findViewById(R.id.tv_name_product_detail);
+                productQuantity = itemView.findViewById(R.id.tv_quantity_product_detail);
+                productPrice = itemView.findViewById(R.id.tv_price_product_detail);
+                productTotal = itemView.findViewById(R.id.tv_total_money_detail);
+
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -2332,7 +2674,6 @@ public class OrderManActivity extends AppCompatActivity {
                     tvChooseProduct.setText(p.getProductName());
                 }
             });
-
         }
     }
     public class OrderViewHolderByTime extends RecyclerView.ViewHolder {
@@ -2712,6 +3053,16 @@ public class OrderManActivity extends AppCompatActivity {
         if (mProgressDialog != null && mProgressDialog.isShowing()) {
             mProgressDialog.hide();
         }
+    }
+
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if(id == android.R.id.home){
+            onBackPressed();
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
 

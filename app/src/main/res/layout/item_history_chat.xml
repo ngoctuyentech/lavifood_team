@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="120dp"
+    android:layout_marginTop="0.75dp"
+    android:layout_marginBottom="0.75dp">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        app:civ_border_color="#FF000000"
+        app:civ_border_width="1dp"
+        android:src="@drawable/icon_client_circle"
+        android:id="@+id/iv_logo_chat"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="22dp"
+        android:layout_marginTop="10dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/logo_chat" />
+
+    <TextView
+        android:id="@+id/tv_item_history_chat_time"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_marginBottom="2dp"
+        android:fontFamily="@font/utm_dax"
+        android:gravity="bottom"
+        android:text="Time"
+        android:textColor="@color/gray"
+        android:textSize="12dp"
+        app:layout_constraintBottom_toTopOf="@+id/tv_item_history_chat_date"
+        app:layout_constraintEnd_toEndOf="@+id/tv_item_history_chat_date"
+        app:layout_constraintStart_toStartOf="@+id/tv_item_history_chat_date"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_item_history_chat_last_content"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="22dp"
+        android:layout_marginTop="12dp"
+        android:fontFamily="@font/utm_dax"
+        android:text="Recent Message"
+        android:textColor="@color/black"
+        android:textSize="14dp"
+        app:layout_constraintStart_toEndOf="@+id/iv_logo_chat"
+        app:layout_constraintTop_toTopOf="@+id/iv_logo_chat" />
+
+    <TextView
+        android:id="@+id/tv_item_history_chat_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:fontFamily="@font/utm_dax_bold"
+        android:text="name"
+        android:textColor="@color/black"
+        android:textSize="12dp"
+        app:layout_constraintEnd_toEndOf="@+id/iv_logo_chat"
+        app:layout_constraintStart_toStartOf="@+id/iv_logo_chat"
+        app:layout_constraintTop_toBottomOf="@+id/iv_logo_chat" />
+
+    <TextView
+        android:id="@+id/tv_item_history_chat_role"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="8dp"
+        android:fontFamily="@font/utm_dax"
+        android:text="role"
+        android:textSize="12dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/tv_item_history_chat_name"
+        app:layout_constraintStart_toStartOf="@+id/tv_item_history_chat_name"
+        app:layout_constraintTop_toBottomOf="@+id/tv_item_history_chat_name" />
+
+    <TextView
+        android:id="@+id/tv_item_history_chat_date"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginEnd="8dp"
+        android:fontFamily="@font/utm_dax"
+        android:text="date"
+        android:textColor="@color/gray"
+        android:textSize="12dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_item_history_chat_time" />
+
+    <View
+        android:id="@+id/view14"
+        android:layout_width="0dp"
+        android:layout_height="0.5dp"
+        android:background="@color/gray"
+        android:elevation="5dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+</android.support.constraint.ConstraintLayout>
+

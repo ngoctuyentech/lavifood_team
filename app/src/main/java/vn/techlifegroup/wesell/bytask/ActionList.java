@@ -16,8 +16,10 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.util.Util;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -27,14 +29,21 @@ import com.google.firebase.database.ValueEventListener;
 
 import org.joda.time.DateTime;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
+import java.util.function.Function;
 
+import de.hdodenhof.circleimageview.CircleImageView;
 import vn.techlifegroup.wesell.LoginActivity;
 import vn.techlifegroup.wesell.R;
 import vn.techlifegroup.wesell.list.AccountList;
 import vn.techlifegroup.wesell.list.ClientListBySaleTeam;
 import vn.techlifegroup.wesell.list.SaleList;
+import vn.techlifegroup.wesell.model.Client;
 import vn.techlifegroup.wesell.model.Employee;
+import vn.techlifegroup.wesell.model.Functions;
+import vn.techlifegroup.wesell.utils.AdapterFunctions;
 
 import static vn.techlifegroup.wesell.utils.Constants.refDatabase;
 
@@ -45,15 +54,18 @@ public class ActionList extends AppCompatActivity {
             ivOrderSup,ivPromotionSup,ivAnnoucementSup,ivSaleLogout,ivSupLogout,ivClientSup,
             ivSupASM,ivPromotionASM,ivReportASM,ivAnnouncementASM,ivLogoutASM,ivSaleASM,
             ivCreateAcc,ivLogoutAdmin,ivAdminProduct,ivAdminOrder,ivAdminPayroll,ivAdminPromotion;
+
     private String emailLogin,userEmail;
     private boolean saleMan,supervisor,asm,admin,rsm;
     private LinearLayout lnSup,lnSaleMan,lnASM,lnAdmin;
-    DatabaseReference refCompany;
+
     private String currentDay,date,day,year,month;
     private TextView tvName,tvRole;
     private SharedPreferences.Editor editor;
     private SharedPreferences sharedPref;
     private int pos;
+
+    DatabaseReference refCompany;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,7 +81,6 @@ public class ActionList extends AppCompatActivity {
         rsm = it.getBooleanExtra("RSM", false);
 
         userEmail = FirebaseAuth.getInstance().getCurrentUser().getEmail().replace(".", ",");
-        refCompany = refDatabase.child(emailLogin);
 
         sharedPref = getPreferences(Context.MODE_PRIVATE);
         editor = sharedPref.edit();
@@ -82,41 +93,41 @@ public class ActionList extends AppCompatActivity {
         year = dt.getYear()+"";
         month = dt.getMonthOfYear()+"";
 
-         ivOrder = findViewById(R.id.iv_bar_order);
-         ivClient = findViewById(R.id.iv_bar_client);
-        ivClientSup = findViewById(R.id.iv_bar_client_sup);
+         ivOrder     = findViewById(R.id.iv_bar_order);
+         ivClient    = findViewById(R.id.iv_bar_client);
+         ivClientSup = findViewById(R.id.iv_bar_client_sup);
 
-        ivPromotion = findViewById(R.id.iv_bar_promotion);
-         ivAnnouncement = findViewById(R.id.iv_bar_announcement);
-         ivTeam = findViewById(R.id.iv_bar_sale_sup);
-         ivOrderSup = findViewById(R.id.iv_bar_order_sup);
-         ivPromotionSup = findViewById(R.id.iv_bar_promotion_sup);
+         ivPromotion      = findViewById(R.id.iv_bar_promotion);
+         ivAnnouncement   = findViewById(R.id.iv_bar_announcement);
+         ivTeam           = findViewById(R.id.iv_bar_sale_sup);
+         ivOrderSup       = findViewById(R.id.iv_bar_order_sup);
+         ivPromotionSup   = findViewById(R.id.iv_bar_promotion_sup);
          ivAnnoucementSup = findViewById(R.id.iv_bar_announcement_sup);
-         ivSaleLogout = findViewById(R.id.iv_bar_sale_logout);
-         ivSupLogout = findViewById(R.id.iv_bar_sup_logout);
+         ivSaleLogout     = findViewById(R.id.iv_bar_sale_logout);
+         ivSupLogout      = findViewById(R.id.iv_bar_sup_logout);
 
-         ivPromotionASM = findViewById(R.id.iv_bar_promotion_asm);
-         ivReportASM = findViewById(R.id.iv_bar_report_asm);
+         ivPromotionASM    = findViewById(R.id.iv_bar_promotion_asm);
+         ivReportASM       = findViewById(R.id.iv_bar_report_asm);
          ivAnnouncementASM = findViewById(R.id.iv_bar_announcement_asm);
-         ivLogoutASM = findViewById(R.id.iv_bar_asm_logout);
-         ivSupASM = findViewById(R.id.iv_bar_sup_asm);
+         ivLogoutASM       = findViewById(R.id.iv_bar_asm_logout);
+         ivSupASM          = findViewById(R.id.iv_bar_sup_asm);
 
 
-         ivCreateAcc = findViewById(R.id.iv_bar_account_admin);
-         ivLogoutAdmin = findViewById(R.id.iv_bar_admin_logout);
-         ivAdminProduct = findViewById(R.id.iv_bar_account_admin_product);
-         ivAdminOrder = findViewById(R.id.iv_bar_account_admin_order);
-         ivAdminPayroll = findViewById(R.id.iv_bar_account_admin_product_payroll);
+         ivCreateAcc      = findViewById(R.id.iv_bar_account_admin);
+         ivLogoutAdmin    = findViewById(R.id.iv_bar_admin_logout);
+         ivAdminProduct   = findViewById(R.id.iv_bar_account_admin_product);
+         ivAdminOrder     = findViewById(R.id.iv_bar_account_admin_order);
+         ivAdminPayroll   = findViewById(R.id.iv_bar_account_admin_product_payroll);
          ivAdminPromotion = findViewById(R.id.iv_bar_account_admin_promotion);
 
          tvName = findViewById(R.id.tv_action_list_account_name);
          tvRole = findViewById(R.id.tv_action_list_account_role);
 
 
-        lnSup = findViewById(R.id.ln_sup);
+         lnSup     = findViewById(R.id.ln_sup);
          lnSaleMan = findViewById(R.id.ln_sale_man);
-        lnASM = findViewById(R.id.ln_asm);
-        lnAdmin = findViewById(R.id.ln_admin);
+         lnASM     = findViewById(R.id.ln_asm);
+         lnAdmin   = findViewById(R.id.ln_admin);
 
     }
 
@@ -124,12 +135,32 @@ public class ActionList extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        refDatabase.child(emailLogin).child("Employee").child(userEmail).addListenerForSingleValueEvent(new ValueEventListener() {
+        refDatabase.child("Employee").child(userEmail).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                TextView tvHello = findViewById(R.id.tv_activity_main_hello);
+
+                Employee employee = dataSnapshot.getValue(Employee.class);
+
+                String name = employee.getEmployeeName();
+
+                tvHello.setText("Xin chào " + " " + name);
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+/*
+        refDatabase.child("Employee").child(userEmail).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Employee employee = dataSnapshot.getValue(Employee.class);
-                tvName.setText(employee.getEmployeeName());
-                if(saleMan) tvRole.setText("Bán hàng");
+                //tvName.setText(employee.getEmployeeName());
+                //if(saleMan) tvRole.setText("Bán hàng");
                 if(supervisor) tvRole.setText("Giám sát");
                 if(asm) tvRole.setText("ASM");
                 if(admin) tvRole.setText("Admin");
@@ -142,8 +173,76 @@ public class ActionList extends AppCompatActivity {
             }
         });
 
+ */
+
 
         if(saleMan){
+
+            getDay();
+
+            List<Functions> functions = Arrays.asList(
+                    new Functions(R.drawable.icon_cart,"đơn hàng"),
+                    new Functions(R.drawable.icon_promotion,"khách hàng"),
+                    new Functions(R.drawable.icon_product,"chương trình"),
+                    new Functions(R.drawable.icon_chat,"thông báo")
+            );
+
+            RecyclerView rvFunction = findViewById(R.id.rv_function);
+
+            rvFunction.setHasFixedSize(true);
+
+            //StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.HORIZONTAL);
+            LinearLayoutManager linearLayoutManagerFunc = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+            rvFunction.setLayoutManager(linearLayoutManagerFunc);
+
+            AdapterFunctions adapterFunctions = new AdapterFunctions(getApplicationContext(), functions, ActionList.this);
+            rvFunction.setAdapter(adapterFunctions);
+            adapterFunctions.notifyDataSetChanged();
+
+            FirebaseRecyclerAdapter<Client, ClientViewHolder> adapterDetail;
+            RecyclerView rvClientList;
+
+            //Toast.makeText(getApplicationContext(), currentDay+"", Toast.LENGTH_SHORT).show();
+
+
+            rvClientList = findViewById(R.id.rv_client_list);
+            rvClientList.setHasFixedSize(true);
+
+            LinearLayoutManager linearLayoutManagerClient = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+            rvClientList.setLayoutManager(linearLayoutManagerClient);
+
+
+            adapterDetail = new FirebaseRecyclerAdapter<Client, ClientViewHolder>(
+                    Client.class,
+                    R.layout.item_client_route,
+                    ClientViewHolder.class,
+                    refDatabase.child("SaleRoute").child(userEmail).child(currentDay)
+            ) {
+                @Override
+                public ClientViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+                    View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_client_route, parent, false);
+                    return new ClientViewHolder(v);
+                }
+
+
+                @Override
+                protected void populateViewHolder(ClientViewHolder viewHolder, Client model, int position) {
+                    viewHolder.clientName.setText(model.getClientName());
+                    viewHolder.circleClient.setImageDrawable(getResources().getDrawable(R.drawable.icon_client2));
+
+                    Glide.with(getApplicationContext()).load(model.getClientUrl()).into(viewHolder.circleClient);
+
+                }
+            };
+
+            rvClientList.setAdapter(adapterDetail);
+            adapterDetail.notifyDataSetChanged();
+
+
+
+
+
+/*
             lnSup.setVisibility(View.GONE);
             lnSaleMan.setVisibility(View.VISIBLE);
             lnASM.setVisibility(View.GONE);
@@ -228,6 +327,8 @@ public class ActionList extends AppCompatActivity {
             adapter.notifyDataSetChanged();
 
             actionOnClick();
+
+ */
         }
 
         if(supervisor){
@@ -1028,7 +1129,7 @@ public class ActionList extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent it = new Intent(getApplicationContext(), PromotionList.class);
-                it.putExtra("EmailLogin",emailLogin);
+                //it.putExtra("EmailLogin",emailLogin);
                 startActivity(it);
             }
         });
@@ -1253,5 +1354,76 @@ public class ActionList extends AppCompatActivity {
 
         }
     }
+
+    public class ClientViewHolder extends RecyclerView.ViewHolder {
+        CircleImageView circleClient;
+        TextView clientName;
+
+        public ClientViewHolder(View itemView) {
+            super(itemView);
+            circleClient = (CircleImageView) itemView.findViewById(R.id.profile_image);
+            clientName = itemView.findViewById(R.id.tv_item_client_circle_name);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Toast.makeText(getApplicationContext(), "Chon khach hang", Toast.LENGTH_SHORT).show();
+                }
+            });
+
+
+        }
+    }
+
+    private void getDay() {
+
+        DateTime dt = new DateTime();
+        day = dt.dayOfWeek().getAsText();
+
+        date = dt.toString().substring(0, 10);
+        switch (day) {
+            case "Thứ Hai":
+                currentDay = "a_Thứ hai";
+                break;
+            case "Thứ Ba":
+                currentDay = "b_Thứ ba";
+                break;
+            case "Thứ Tư":
+                currentDay = "c_Thứ tư";
+                break;
+            case "Thứ Năm":
+                currentDay = "d_Thứ năm";
+                break;
+            case "Thứ Sáu":
+                currentDay = "e_Thứ sáu";
+                break;
+            case "Thứ Bảy":
+                currentDay = "f_Thứ bảy";
+                break;
+            case "Monday":
+                currentDay = "a_Thứ hai";
+                break;
+            case "Tuesday":
+                currentDay = "b_Thứ ba";
+                break;
+            case "Wednesday":
+                currentDay = "c_Thứ tư";
+                break;
+            case "Thursday":
+                currentDay = "d_Thứ năm";
+                break;
+            case "Friday":
+                currentDay = "e_Thứ sáu";
+                break;
+            case "Saturday":
+                currentDay = "f_Thứ bảy";
+                break;
+            default:
+                currentDay = "a_Thứ hai";
+        }
+
+    }
+
+
 
 }

@@ -44,6 +44,8 @@ import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.PdfWriter;
 
+import org.joda.time.DateTime;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileDescriptor;
@@ -94,6 +96,7 @@ public class Utils {
         public EndlessRecyclerOnScrollListener(LinearLayoutManager linearLayoutManager) {
             this.mLinearLayoutManager = linearLayoutManager;
         }
+
 
 
         @Override
@@ -234,12 +237,54 @@ public class Utils {
         return thisYear+"-"+thisMonth+"-"+thisDate;
     }
 
+    public static String getHourDateFromTimeStamp(long time) {
+        Calendar cal = Calendar.getInstance(Locale.ENGLISH);
+        cal.setTimeInMillis(time);
+        String date = android.text.format.DateFormat.format("dd/MM/yy hh:mm", cal).toString();
+        return date;
+    }
+
+    public static String getHourFromTimeStamp(long time) {
+        Calendar cal = Calendar.getInstance(Locale.ENGLISH);
+        cal.setTimeInMillis(time);
+        String date = android.text.format.DateFormat.format("hh:mm aa", cal).toString();
+        return date;
+    }
+
+    public static String getDateFromTimeStamp(long time) {
+        Calendar cal = Calendar.getInstance(Locale.ENGLISH);
+        cal.setTimeInMillis(time);
+        String date = android.text.format.DateFormat.format("dd/MM/yyyy", cal).toString();
+        return date;
+    }
+
     public static String convertNumber(String numString){
         NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.US);
         float numStringFloat = Float.parseFloat(numString);
         String covertNum = numberFormat.format(numStringFloat);
         return covertNum;
     }
+
+    public static HashMap sortByValues(HashMap map) {
+        List list = new LinkedList(map.entrySet());
+        // Defined Custom Comparator here
+        Collections.sort(list, new Comparator() {
+            public int compare(Object o1, Object o2) {
+                return ((Comparable) ((Map.Entry) (o2)).getValue())
+                        .compareTo(((Map.Entry) (o1)).getValue());
+            }
+        });
+
+        // Here I am copying the sorted list in HashMap
+        // using LinkedHashMap to preserve the insertion order
+        HashMap sortedHashMap = new LinkedHashMap();
+        for (Iterator it = list.iterator(); it.hasNext();) {
+            Map.Entry entry = (Map.Entry) it.next();
+            sortedHashMap.put(entry.getKey(), entry.getValue());
+        }
+        return sortedHashMap;
+    }
+
 
     public static Bitmap getScaledBitmap(Bitmap b, int reqWidth, int reqHeight)   {
 
@@ -637,4 +682,5 @@ public class Utils {
 
         return p1;
     }
+
 }

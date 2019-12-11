@@ -42,6 +42,7 @@ import java.util.List;
 import vn.techlifegroup.wesell.MainActivity;
 import vn.techlifegroup.wesell.R;
 import vn.techlifegroup.wesell.bytask.OrderManActivity;
+import vn.techlifegroup.wesell.list.ClientListBySaleTeam;
 import vn.techlifegroup.wesell.model.Client;
 import vn.techlifegroup.wesell.model.Employee;
 import vn.techlifegroup.wesell.model.OrderDetail;
@@ -55,6 +56,7 @@ import fr.ganfra.materialspinner.MaterialSpinner;
 
 import static vn.techlifegroup.wesell.utils.Constants.buttonClick;
 import static vn.techlifegroup.wesell.utils.Constants.refDatabase;
+import static vn.techlifegroup.wesell.utils.Constants.refEmployee;
 
 public class PreviewOrderActivivity extends AppCompatActivity {
 
@@ -64,7 +66,7 @@ public class PreviewOrderActivivity extends AppCompatActivity {
     private FirebaseRecyclerAdapter<Product,EditProductViewHolder> adapterFirebaseEditProduct;
     private FirebaseRecyclerAdapter<Promotion,PromotionViewHolder> adapterFirebasePromotion;
 
-    private DatabaseReference refProduct, refPromotion,refOrderList,refStorage,refCompany;
+    private DatabaseReference refProduct, refPromotion,refOrderList,refStorage;
     private ImageButton ibInfo, ibProduct, ibPromotion;
     private boolean discountVAT,outRoute,viewOnly,saleMan;
 
@@ -108,13 +110,13 @@ public class PreviewOrderActivivity extends AppCompatActivity {
         emailLogin = intent.getStringExtra("EmailLogin");
         viewOnly = intent.getBooleanExtra("ViewOnly",false);
 
-        refOrderList = refDatabase.child(emailLogin).child("OrderList");
-        refStorage = refDatabase.child(emailLogin).child("Storage");
-        refCompany = refDatabase.child(emailLogin);
+        refOrderList = refDatabase.child("OrderList");
+        refStorage = refDatabase.child("Storage");
+        //refCompany = refDatabase.child(emailLogin);
 
         String userEmail = FirebaseAuth.getInstance().getCurrentUser().getEmail().replace(".", ",");
 
-        refCompany.child("Employee").child(userEmail).addListenerForSingleValueEvent(new ValueEventListener() {
+        refEmployee.child(userEmail).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Employee employee = dataSnapshot.getValue(Employee.class);
@@ -154,8 +156,8 @@ public class PreviewOrderActivivity extends AppCompatActivity {
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                refDatabase.child(emailLogin+"/OrderList").child(orderPushKey).setValue(null);
-                startActivity(new Intent(getApplicationContext(),MainActivity.class));
+                refDatabase.child("OrderList").child(orderPushKey).setValue(null);
+                startActivity(new Intent(getApplicationContext(), MainActivity.class));
             }
         });
 
@@ -172,8 +174,8 @@ public class PreviewOrderActivivity extends AppCompatActivity {
 
                 if(outRoute){
                     if(managerEmail != null)
-                        refDatabase.child(emailLogin+"/Order/OrderBySale").child(managerEmail).child("OutRoute").child(orderPushKey).child("orderName").setValue(orderName);
-                    refDatabase.child(emailLogin+"/Order").child("OutRoute").child(orderPushKey).child("orderName").setValue(orderName).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        refDatabase.child("Order/OrderBySale").child(managerEmail).child("OutRoute").child(orderPushKey).child("orderName").setValue(orderName);
+                    refDatabase.child("Order").child("OutRoute").child(orderPushKey).child("orderName").setValue(orderName).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
 
@@ -185,11 +187,11 @@ public class PreviewOrderActivivity extends AppCompatActivity {
                     });
                 }else{
                     if(managerEmail != null)
-                        refDatabase.child(emailLogin+"/Order/OrderBySale").child(managerEmail).child("UnApproved").child(orderPushKey).child("orderName").setValue(orderName);
+                        refDatabase.child("Order/OrderBySale").child(managerEmail).child("UnApproved").child(orderPushKey).child("orderName").setValue(orderName);
 
-                    refDatabase.child(emailLogin).child("OrderListByTime").child(thisYear+"-"+thisMonth+"-"+thisDate).child(orderPushKey).setValue(orderName);
+                    refDatabase.child("OrderListByTime").child(thisYear+"-"+thisMonth+"-"+thisDate).child(orderPushKey).setValue(orderName);
 
-                    refDatabase.child(emailLogin+"/Order").child("UnApproved").child(orderPushKey).child("orderName").setValue(orderName).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    refDatabase.child("Order").child("UnApproved").child(orderPushKey).child("orderName").setValue(orderName).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
 
@@ -275,7 +277,7 @@ public class PreviewOrderActivivity extends AppCompatActivity {
 
     private void viewOtherInformation() {
 
-        refDatabase.child(emailLogin+"/OrderList").child(orderPushKey).child("OtherInformation").addValueEventListener(new ValueEventListener() {
+        refDatabase.child("OrderList").child(orderPushKey).child("OtherInformation").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 OrderDetail orderDetail = dataSnapshot.getValue(OrderDetail.class);
@@ -294,7 +296,7 @@ public class PreviewOrderActivivity extends AppCompatActivity {
                     tvNote.setText(orderNote);
                     tvSaleName.setText(saleName);
 
-                    refDatabase.child(emailLogin+"/Client").child(clientCode).addListenerForSingleValueEvent(new ValueEventListener() {
+                    refDatabase.child("Client").child(clientCode).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             Client client = dataSnapshot.getValue(Client.class);
@@ -330,7 +332,7 @@ public class PreviewOrderActivivity extends AppCompatActivity {
         linearLayoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerViewPromotion.setLayoutManager(linearLayoutManager);
 
-        refPromotion = refDatabase.child(emailLogin+"/OrderList").child(orderPushKey).child("Promotion");
+        refPromotion = refDatabase.child("OrderList").child(orderPushKey).child("Promotion");
 
         adapterFirebasePromotion = new FirebaseRecyclerAdapter<Promotion, PromotionViewHolder>(
                 Promotion.class,
@@ -360,7 +362,7 @@ public class PreviewOrderActivivity extends AppCompatActivity {
         recyclerViewProduct.setLayoutManager(linearLayoutManager);
 
 
-        refProduct = refDatabase.child(emailLogin+"/OrderList").child(orderPushKey).child("ProductList");
+        refProduct = refDatabase.child("OrderList").child(orderPushKey).child("ProductList");
 
         adapterFirebaseProduct = new FirebaseRecyclerAdapter<Product, ProductViewHolder>(
                 Product.class,
@@ -526,11 +528,11 @@ public class PreviewOrderActivivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 v.startAnimation(Constants.buttonClick);
-                refDatabase.child(emailLogin+"/Order").child("UnApproved").child(orderPushKey).child("paymentType").setValue(b.getString("PaymentType"));
-                refDatabase.child(emailLogin+"/Order").child("UnApproved").child(orderPushKey).child("dateDelivery").setValue(edtDate.getText().toString());
+                refDatabase.child("Order").child("UnApproved").child(orderPushKey).child("paymentType").setValue(b.getString("PaymentType"));
+                refDatabase.child("Order").child("UnApproved").child(orderPushKey).child("dateDelivery").setValue(edtDate.getText().toString());
 
-                refDatabase.child(emailLogin+"/OrderList").child(orderPushKey).child("OtherInformation").child("paymentType").setValue(b.getString("PaymentType"));
-                refDatabase.child(emailLogin+"/OrderList").child(orderPushKey).child("OtherInformation").child("dateDelivery").setValue(edtDate.getText().toString());
+                refDatabase.child("OrderList").child(orderPushKey).child("OtherInformation").child("paymentType").setValue(b.getString("PaymentType"));
+                refDatabase.child("OrderList").child(orderPushKey).child("OtherInformation").child("dateDelivery").setValue(edtDate.getText().toString());
 
                 dialog.dismiss();
             }
@@ -568,7 +570,7 @@ public class PreviewOrderActivivity extends AppCompatActivity {
         linearLayoutManager = new LinearLayoutManager(getApplicationContext());
         editProductRecycler.setLayoutManager(linearLayoutManager);
 
-        refProduct = refDatabase.child(emailLogin+"/OrderList").child(orderPushKey).child("ProductList");
+        refProduct = refDatabase.child("OrderList").child(orderPushKey).child("ProductList");
 
         adapterFirebaseEditProduct = new FirebaseRecyclerAdapter<Product, EditProductViewHolder>(
                 Product.class,
@@ -656,7 +658,7 @@ public class PreviewOrderActivivity extends AppCompatActivity {
 
                      float productPayment = Float.parseFloat(productPrice) * Float.parseFloat(productQuantity);
                      Product productAdded = new Product(productNameDialog,productPrice,productQuantity,productCode,productPayment+"");
-                     refDatabase.child(emailLogin+"/OrderList").child(orderPushKey).child("ProductList").push().setValue(productAdded);
+                     refDatabase.child("OrderList").child(orderPushKey).child("ProductList").push().setValue(productAdded);
 
                      /*
 
@@ -721,7 +723,7 @@ public class PreviewOrderActivivity extends AppCompatActivity {
                 Product.class,
                 R.id.item_product_pos,
                 ProductViewHolder.class,
-                refDatabase.child(emailLogin+"/Product")
+                refDatabase.child("Product")
         ) {
             @Override
             public ProductViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -748,7 +750,7 @@ public class PreviewOrderActivivity extends AppCompatActivity {
                             productCode = p.getProductCode();
                             tvProductChoosen.setText(p.getProductName());
 
-                            refDatabase.child(emailLogin).child("Product").child(p.getProductCode()).child("unitPrice").addListenerForSingleValueEvent(new ValueEventListener() {
+                            refDatabase.child("Product").child(p.getProductCode()).child("unitPrice").addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     edtDialogProductPrice.setText(dataSnapshot.getValue().toString());
@@ -760,7 +762,7 @@ public class PreviewOrderActivivity extends AppCompatActivity {
                                 }
                             });
 
-                        refDatabase.child(emailLogin+"/WarehouseMan/StorageMan").child(p.getProductCode()).child("unitQuantity").addListenerForSingleValueEvent(new ValueEventListener() {
+                        refDatabase.child("WarehouseMan/StorageMan").child(p.getProductCode()).child("unitQuantity").addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     productStorageDialog = dataSnapshot.getValue().toString();
@@ -784,7 +786,7 @@ public class PreviewOrderActivivity extends AppCompatActivity {
 
                             tvPromotionChoosen.setText(p.getProductName());
 
-                            refDatabase.child(emailLogin+"/WarehouseMan/StorageMan").child(p.getProductCode()).child("unitQuantity").addListenerForSingleValueEvent(new ValueEventListener() {
+                            refDatabase.child("WarehouseMan/StorageMan").child(p.getProductCode()).child("unitQuantity").addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     promotionStorageDialog = dataSnapshot.getValue().toString();
@@ -836,7 +838,7 @@ public class PreviewOrderActivivity extends AppCompatActivity {
 
                 }else{
                     Product product = new Product(productName);
-                    refDatabase.child(emailLogin+"/Product").push().setValue(product);
+                    refDatabase.child("Product").push().setValue(product);
 
                     dialog.dismiss();
                 }
@@ -863,9 +865,9 @@ public class PreviewOrderActivivity extends AppCompatActivity {
             String thisMonth = (Calendar.getInstance().get(Calendar.MONTH)+1)+"";
             String thisDate = Calendar.getInstance().get(Calendar.DATE)+"";
 
-            refDatabase.child(emailLogin).child("OrderListByTime").child(thisYear+"-"+thisMonth+"-"+thisDate).child(orderPushKey).setValue(orderName);
+            refDatabase.child("OrderListByTime").child(thisYear+"-"+thisMonth+"-"+thisDate).child(orderPushKey).setValue(orderName);
 
-            refDatabase.child(emailLogin+"/Order").child("UnApproved").child(orderPushKey).child("orderName").setValue(orderName).addOnCompleteListener(new OnCompleteListener<Void>() {
+            refDatabase.child("Order").child("UnApproved").child(orderPushKey).child("orderName").setValue(orderName).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
 
@@ -887,7 +889,7 @@ public class PreviewOrderActivivity extends AppCompatActivity {
     public void onBackPressed() {
         super.onBackPressed();
         if(!viewOnly){
-            refDatabase.child(emailLogin+"/OrderList").child(orderPushKey).setValue(null);
+            refDatabase.child("OrderList").child(orderPushKey).setValue(null);
             startActivity(new Intent(this,MainActivity.class));
         }
 

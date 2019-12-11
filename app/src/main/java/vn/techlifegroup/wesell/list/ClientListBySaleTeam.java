@@ -12,6 +12,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
+import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -24,6 +25,8 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -117,7 +120,7 @@ public class ClientListBySaleTeam extends AppCompatActivity {
         setContentView(R.layout.activity_client_list_by_sale);
 
         Intent it = this.getIntent();
-        emailLogin = it.getStringExtra("EmailLogin");
+        //emailLogin = it.getStringExtra("EmailLogin");
         saleMan = it.getBooleanExtra("SaleMan",false);
         supervisor = it.getBooleanExtra("Supervisor",false);
         btnRoute = findViewById(R.id.btn_sale_client_route);
@@ -125,8 +128,8 @@ public class ClientListBySaleTeam extends AppCompatActivity {
         userEmail = FirebaseAuth.getInstance().getCurrentUser().getEmail().replace(".", ",");
         getDay();
         if(saleMan){
-            DatabaseReference refClient = refDatabase.child(emailLogin).child("ClientManBySale").child(userEmail).child("Tất cả");
-            DatabaseReference refGroup = refDatabase.child(emailLogin).child("ClientManBySale").child(userEmail).child("Group");
+            DatabaseReference refClient = refDatabase.child("ClientManBySale").child(userEmail).child("Tất cả");
+            DatabaseReference refGroup = refDatabase.child("ClientManBySale").child(userEmail).child("Group");
 
             groupList(refGroup);
             detailList(refClient);
@@ -139,10 +142,10 @@ public class ClientListBySaleTeam extends AppCompatActivity {
         if(supervisor){
 
             btnRoute.setVisibility(View.GONE);
-            DatabaseReference refClient = refDatabase.child(emailLogin).child("ClientManBySup").child(userEmail).child("Tất cả");
-            DatabaseReference refGroup = refDatabase.child(emailLogin).child("ClientManBySup").child(userEmail).child("Group");
+            DatabaseReference refClient = refDatabase.child("ClientManBySup").child(userEmail).child("Tất cả");
+            DatabaseReference refGroup = refDatabase.child("ClientManBySup").child(userEmail).child("Group");
 
-            refDatabase.child(emailLogin).child("SaleManBySup").child(userEmail).child("Tất cả").addListenerForSingleValueEvent(new ValueEventListener() {
+            refDatabase.child("SaleManBySup").child(userEmail).child("Tất cả").addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     Iterator<DataSnapshot> ite = dataSnapshot.getChildren().iterator();
@@ -176,7 +179,7 @@ public class ClientListBySaleTeam extends AppCompatActivity {
         final TextView tvKPINew = findViewById(R.id.tv_client_list_kpi_new);
 
 
-        refDatabase.child(emailLogin).child("KPI").child(userEmail).addListenerForSingleValueEvent(new ValueEventListener() {
+        refDatabase.child("KPI").child(userEmail).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Iterable<DataSnapshot> snapKPI = dataSnapshot.getChildren();
@@ -192,11 +195,11 @@ public class ClientListBySaleTeam extends AppCompatActivity {
 
                         final int kpiTarget = Integer.parseInt(kpi.getKpiTarget());
 
-                        refDatabase.child(emailLogin).child("TotalBySale").child(userEmail).addListenerForSingleValueEvent(new ValueEventListener() {
+                        refDatabase.child("TotalBySale").child(userEmail).addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
                                 if(dataSnapshot.hasChild(year+"-"+month)){
-                                    refDatabase.child(emailLogin).child("TotalBySale").child(userEmail).child(year+"-"+month).addListenerForSingleValueEvent(new ValueEventListener() {
+                                    refDatabase.child("TotalBySale").child(userEmail).child(year+"-"+month).addListenerForSingleValueEvent(new ValueEventListener() {
                                         @Override
                                         public void onDataChange(DataSnapshot dataSnapshot) {
                                             float kpiReach = Float.parseFloat(dataSnapshot.getValue().toString());
@@ -286,13 +289,13 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                     String clientType = "Tạp hoá";
                     String clientZone = "Hồ Chí Minh";
 
-                    String pushKey = refDatabase.child(emailLogin).child("Client").push().getKey();
+                    String pushKey = refDatabase.child("Client").push().getKey();
 
 
                     LatLng latLng = Utils.getLocationFromAddress(getApplicationContext(), clientStreet+", "+clientCity);
                     MapModel map = new MapModel(latLng.latitude+"",latLng.longitude+"");
 
-                    final DatabaseReference clientPush = refDatabase.child(emailLogin+"/Client").push();
+                    final DatabaseReference clientPush = refDatabase.child("Client").push();
 
                     Client client = new Client(pushKey,clientName,clientType, clientStreet,
                             clientDistrict,clientZone,clientProvinceString,
@@ -301,11 +304,11 @@ public class ClientListBySaleTeam extends AppCompatActivity {
 
                     Client clientMan = new Client(pushKey,clientName,map,clientZone);
 
-                    refDatabase.child(emailLogin).child("Client").child(pushKey).setValue(client);
-                    refDatabase.child(emailLogin+"/ClientMan").child(clientType).child(clientZone).child(pushKey).setValue(clientMan);
+                    refDatabase.child("Client").child(pushKey).setValue(client);
+                    refDatabase.child("ClientMan").child(clientType).child(clientZone).child(pushKey).setValue(clientMan);
 
                     if(csv.getRow(i).getField("Khu vực").equals("HCM1")){
-                        refDatabase.child(emailLogin).child("ClientManBySup").child("test_sup@gmail,com").child("Tất cả").child(pushKey).setValue(clientMan);
+                        refDatabase.child("ClientManBySup").child("test_sup@gmail,com").child("Tất cả").child(pushKey).setValue(clientMan);
 
                  }
                 }
@@ -369,27 +372,39 @@ public class ClientListBySaleTeam extends AppCompatActivity {
             case "Thứ Hai":
                 currentDay = "a_Thứ hai";
                 break;
-
             case "Thứ Ba":
                 currentDay = "b_Thứ ba";
                 break;
-
             case "Thứ Tư":
                 currentDay = "c_Thứ tư";
                 break;
-
             case "Thứ Năm":
                 currentDay = "d_Thứ năm";
                 break;
-
             case "Thứ Sáu":
                 currentDay = "e_Thứ sáu";
                 break;
-
             case "Thứ Bảy":
                 currentDay = "f_Thứ bảy";
                 break;
-
+            case "Monday":
+                currentDay = "a_Thứ hai";
+                break;
+            case "Tuesday":
+                currentDay = "b_Thứ ba";
+                break;
+            case "Wednesday":
+                currentDay = "c_Thứ tư";
+                break;
+            case "Thursday":
+                currentDay = "d_Thứ năm";
+                break;
+            case "Friday":
+                currentDay = "e_Thứ sáu";
+                break;
+            case "Saturday":
+                currentDay = "f_Thứ bảy";
+                break;
             default:
                 currentDay = "a_Thứ hai";
 
@@ -402,7 +417,7 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                 String currentWeek = dataSnapshot.getValue().toString();
                 if(!currentWeek.equals(week)){
 
-                    refDatabase.child(emailLogin).child("SaleRoute").child(userEmail).child(currentDay).addListenerForSingleValueEvent(new ValueEventListener() {
+                    refDatabase.child("SaleRoute").child(userEmail).child(currentDay).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             Iterable<DataSnapshot> snapClient = dataSnapshot.getChildren();
@@ -435,7 +450,7 @@ public class ClientListBySaleTeam extends AppCompatActivity {
             public void onClick(View v) {
                 v.startAnimation(buttonClick);
                 Intent it = new Intent(getApplicationContext(), SaleRoute.class);
-                it.putExtra("EmailLogin",emailLogin);
+                //it.putExtra("EmailLogin",emailLogin);
                 it.putExtra("SaleMan",true);
                 startActivity(it);
             }
@@ -461,7 +476,7 @@ public class ClientListBySaleTeam extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 Intent it = new Intent(getApplicationContext(), AddClientActivity.class);
-                it.putExtra("EmailLogin",emailLogin);
+                //it.putExtra("EmailLogin",emailLogin);
                 it.putExtra("SaleMan",saleMan);
                 it.putExtra("Supervisor", supervisor);
                 startActivity(it);
@@ -507,10 +522,10 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                         }
                         else{
                             if(saleMan){
-                                refDatabase.child(emailLogin).child("ClientManBySale").child(userEmail).child("Group").push().child("groupName").setValue(newGroupName);
+                                refDatabase.child("ClientManBySale").child(userEmail).child("Group").push().child("groupName").setValue(newGroupName);
 
                             }else{
-                                refDatabase.child(emailLogin).child("ClientManBySup").child(userEmail).child("Group").push().child("groupName").setValue(newGroupName);
+                                refDatabase.child("ClientManBySup").child(userEmail).child("Group").push().child("groupName").setValue(newGroupName);
 
                             }
                         }
@@ -634,7 +649,7 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                     View dialogView = getLayoutInflater().inflate(R.layout.dialog_client_detail,null);
                     builder.setView(dialogView);
 
-                    Dialog dialog = builder.create();
+                    final Dialog dialog = builder.create();
                     dialog.show();
 
                     final BarChart barTime = (BarChart)dialogView.findViewById(R.id.bar_client_detail_sale);
@@ -670,13 +685,13 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                                 @Override
                                 public void onClick(final DialogInterface dialog, int which) {
 
-                                    refDatabase.child(emailLogin).child("ClientManBySup").child(userEmail).child("Tất cả").child(clientCode).setValue(client);
+                                    refDatabase.child("ClientManBySup").child(userEmail).child("Tất cả").child(clientCode).setValue(client);
 
-                                    refDatabase.child(emailLogin).child("Client").child(clientCode).setValue(client).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    refDatabase.child("Client").child(clientCode).setValue(client).addOnCompleteListener(new OnCompleteListener<Void>() {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
                                             refClient.setValue(null);
-                                            refDatabase.child(emailLogin).child("ClientManBySup").child(userEmail).child("Mới").child(clientCode).setValue(null);
+                                            refDatabase.child("ClientManBySup").child(userEmail).child("Mới").child(clientCode).setValue(null);
                                             dialog.dismiss();
                                         }
                                     });
@@ -702,7 +717,7 @@ public class ClientListBySaleTeam extends AppCompatActivity {
 
                     final List<BarEntry> monthEntries = new ArrayList<>();
 
-                    refDatabase.child(emailLogin).child("TotalByClient").child(clientCode).addListenerForSingleValueEvent(new ValueEventListener() {
+                    refDatabase.child("TotalByClient").child(clientCode).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             Iterable<DataSnapshot> snapTimeSale = dataSnapshot.getChildren();
@@ -777,7 +792,7 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                             final TextView tvManageBy = dialogView.findViewById(R.id.tv_dialog_route_man_manageBy);
                             final TextView tvClientName = dialogView.findViewById(R.id.tv_sale_route_clientname);
 
-                            refDatabase.child(emailLogin).child("Client").child(choosenClientCode).addListenerForSingleValueEvent(new ValueEventListener() {
+                            refDatabase.child("Client").child(choosenClientCode).addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     Client client = dataSnapshot.getValue(Client.class);
@@ -785,7 +800,7 @@ public class ClientListBySaleTeam extends AppCompatActivity {
 
                                     if(dataSnapshot.hasChild("managedBy")){
 
-                                        refDatabase.child(emailLogin).child("Client").child(choosenClientCode).child("managedBy").addListenerForSingleValueEvent(new ValueEventListener() {
+                                        refDatabase.child("Client").child(choosenClientCode).child("managedBy").addListenerForSingleValueEvent(new ValueEventListener() {
                                             @Override
                                             public void onDataChange(DataSnapshot dataSnapshot) {
                                                 Employee employee = dataSnapshot.getValue(Employee.class);
@@ -793,7 +808,7 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                                                 final String employeeEmail = employee.getEmployeeEmail();
                                                 tvManageBy.setText(employee.getEmployeeName());
 
-                                                refDatabase.child(emailLogin).child("SaleManBySup").child(userEmail).child("Tất cả").addListenerForSingleValueEvent(new ValueEventListener() {
+                                                refDatabase.child("SaleManBySup").child(userEmail).child("Tất cả").addListenerForSingleValueEvent(new ValueEventListener() {
                                                     @Override
                                                     public void onDataChange(DataSnapshot dataSnapshot) {
                                                         Iterable<DataSnapshot> snapSale = dataSnapshot.getChildren();
@@ -845,7 +860,7 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                                     Employee.class,
                                     R.layout.item_saleman,
                                     SaleViewHolder.class,
-                                    refDatabase.child(emailLogin).child("SaleManBySup").child(userEmail).child("Tất cả")
+                                    refDatabase.child("SaleManBySup").child(userEmail).child("Tất cả")
                             ) {
                                 @Override
                                 public SaleViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -879,12 +894,12 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                             final CheckBox chFri = dialogView.findViewById(R.id.check_dialog_route_fri);
                             final CheckBox chSar = dialogView.findViewById(R.id.check_dialog_route_sar);
 
-                            refDatabase.child(emailLogin).child("Client").child(choosenClientCode).addListenerForSingleValueEvent(new ValueEventListener() {
+                            refDatabase.child("Client").child(choosenClientCode).addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     if(dataSnapshot.hasChild("managedBy")){
 
-                                        refDatabase.child(emailLogin).child("Client").child(choosenClientCode).child("managedBy").addListenerForSingleValueEvent(new ValueEventListener() {
+                                        refDatabase.child("Client").child(choosenClientCode).child("managedBy").addListenerForSingleValueEvent(new ValueEventListener() {
                                             @Override
                                             public void onDataChange(DataSnapshot dataSnapshot) {
                                                 Employee employee = dataSnapshot.getValue(Employee.class);
@@ -893,7 +908,7 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                                                 tvManageBy.setText(employee.getEmployeeName());
                                                 managedByEmail = employee.getEmployeeEmail();
 
-                                                refDatabase.child(emailLogin).child("SaleRoute").child(managedByEmail).addListenerForSingleValueEvent(new ValueEventListener() {
+                                                refDatabase.child("SaleRoute").child(managedByEmail).addListenerForSingleValueEvent(new ValueEventListener() {
                                                     @Override
                                                     public void onDataChange(DataSnapshot dataSnapshot) {
                                                         Iterable<DataSnapshot> snapDay = dataSnapshot.getChildren();
@@ -942,7 +957,7 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                                                     }
                                                 });
 
-                                                refDatabase.child(emailLogin).child("SaleManBySup").child(userEmail).child("Tất cả").addListenerForSingleValueEvent(new ValueEventListener() {
+                                                refDatabase.child("SaleManBySup").child(userEmail).child("Tất cả").addListenerForSingleValueEvent(new ValueEventListener() {
                                                     @Override
                                                     public void onDataChange(DataSnapshot dataSnapshot) {
                                                         Iterable<DataSnapshot> snapSaleMan = dataSnapshot.getChildren();
@@ -997,52 +1012,52 @@ public class ClientListBySaleTeam extends AppCompatActivity {
 
                                     Employee manageByEmployee = new Employee(choosenEmployeeName,choosenEmployeeEmail);
 
-                                    refDatabase.child(emailLogin).child("ClientManBySale").child(choosenEmployeeEmail).child("Tất cả").child(clientCode).setValue(client);
+                                    refDatabase.child("ClientManBySale").child(choosenEmployeeEmail).child("Tất cả").child(clientCode).setValue(client);
 
                                     if(chMon.isChecked()){
-                                        refDatabase.child(emailLogin).child("SaleRoute").child(choosenEmployeeEmail).child("a_Thứ hai").child(clientCode).setValue(client);
-                                        refDatabase.child(emailLogin).child("Client").child(choosenClientCode).child("managedBy").setValue(manageByEmployee);
+                                        refDatabase.child("SaleRoute").child(choosenEmployeeEmail).child("a_Thứ hai").child(clientCode).setValue(client);
+                                        refDatabase.child("Client").child(choosenClientCode).child("managedBy").setValue(manageByEmployee);
                                     }else{
-                                        refDatabase.child(emailLogin).child("SaleRoute").child(choosenEmployeeEmail).child("a_Thứ hai").child(clientCode).setValue(null);
+                                        refDatabase.child("SaleRoute").child(choosenEmployeeEmail).child("a_Thứ hai").child(clientCode).setValue(null);
                                     }
 
                                     if(chTue.isChecked()){
-                                        refDatabase.child(emailLogin).child("SaleRoute").child(choosenEmployeeEmail).child("b_Thứ ba").child(clientCode).setValue(client);
-                                        refDatabase.child(emailLogin).child("Client").child(choosenClientCode).child("managedBy").setValue(manageByEmployee);
+                                        refDatabase.child("SaleRoute").child(choosenEmployeeEmail).child("b_Thứ ba").child(clientCode).setValue(client);
+                                        refDatabase.child("Client").child(choosenClientCode).child("managedBy").setValue(manageByEmployee);
 
                                     }else{
-                                        refDatabase.child(emailLogin).child("SaleRoute").child(choosenEmployeeEmail).child("b_Thứ ba").child(clientCode).setValue(null);
+                                        refDatabase.child("SaleRoute").child(choosenEmployeeEmail).child("b_Thứ ba").child(clientCode).setValue(null);
                                     }
                                     if(chWed.isChecked()){
-                                        refDatabase.child(emailLogin).child("SaleRoute").child(choosenEmployeeEmail).child("c_Thứ tư").child(clientCode).setValue(client);
-                                        refDatabase.child(emailLogin).child("Client").child(choosenClientCode).child("managedBy").setValue(manageByEmployee);
+                                        refDatabase.child("SaleRoute").child(choosenEmployeeEmail).child("c_Thứ tư").child(clientCode).setValue(client);
+                                        refDatabase.child("Client").child(choosenClientCode).child("managedBy").setValue(manageByEmployee);
 
                                     }else{
-                                        refDatabase.child(emailLogin).child("SaleRoute").child(choosenEmployeeEmail).child("c_Thứ tư").child(clientCode).setValue(null);
+                                        refDatabase.child("SaleRoute").child(choosenEmployeeEmail).child("c_Thứ tư").child(clientCode).setValue(null);
                                     }
 
                                     if(chThu.isChecked()){
-                                        refDatabase.child(emailLogin).child("SaleRoute").child(choosenEmployeeEmail).child("d_Thứ năm").child(clientCode).setValue(client);
-                                        refDatabase.child(emailLogin).child("Client").child(choosenClientCode).child("managedBy").setValue(manageByEmployee);
+                                        refDatabase.child("SaleRoute").child(choosenEmployeeEmail).child("d_Thứ năm").child(clientCode).setValue(client);
+                                        refDatabase.child("Client").child(choosenClientCode).child("managedBy").setValue(manageByEmployee);
 
                                     }else{
-                                        refDatabase.child(emailLogin).child("SaleRoute").child(choosenEmployeeEmail).child("d_Thứ năm").child(clientCode).setValue(null);
+                                        refDatabase.child("SaleRoute").child(choosenEmployeeEmail).child("d_Thứ năm").child(clientCode).setValue(null);
                                     }
 
                                     if(chFri.isChecked()){
-                                        refDatabase.child(emailLogin).child("SaleRoute").child(choosenEmployeeEmail).child("e_Thứ sáu").child(clientCode).setValue(client);
-                                        refDatabase.child(emailLogin).child("Client").child(choosenClientCode).child("managedBy").setValue(manageByEmployee);
+                                        refDatabase.child("SaleRoute").child(choosenEmployeeEmail).child("e_Thứ sáu").child(clientCode).setValue(client);
+                                        refDatabase.child("Client").child(choosenClientCode).child("managedBy").setValue(manageByEmployee);
 
                                     }else{
-                                        refDatabase.child(emailLogin).child("SaleRoute").child(choosenEmployeeEmail).child("e_Thứ sáu").child(clientCode).setValue(null);
+                                        refDatabase.child("SaleRoute").child(choosenEmployeeEmail).child("e_Thứ sáu").child(clientCode).setValue(null);
                                     }
 
                                     if(chSar.isChecked()){
-                                        refDatabase.child(emailLogin).child("SaleRoute").child(choosenEmployeeEmail).child("f_Thứ bảy").child(clientCode).setValue(client);
-                                        refDatabase.child(emailLogin).child("Client").child(choosenClientCode).child("managedBy").setValue(manageByEmployee);
+                                        refDatabase.child("SaleRoute").child(choosenEmployeeEmail).child("f_Thứ bảy").child(clientCode).setValue(client);
+                                        refDatabase.child("Client").child(choosenClientCode).child("managedBy").setValue(manageByEmployee);
 
                                     }else{
-                                        refDatabase.child(emailLogin).child("SaleRoute").child(choosenEmployeeEmail).child("f_Thứ bảy").child(clientCode).setValue(null);
+                                        refDatabase.child("SaleRoute").child(choosenEmployeeEmail).child("f_Thứ bảy").child(clientCode).setValue(null);
                                     }
 
                                     dialogSaleRoute.dismiss();
@@ -1059,14 +1074,14 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                         public void onClick(View v) {
                             v.startAnimation(buttonClick);
                             Intent it = new Intent(getApplicationContext(), UpdateOrderActivity.class);
-                            it.putExtra("EmailLogin", emailLogin);
+                            //it.putExtra("EmailLogin", emailLogin);
                             it.putExtra("ClientCode", clientCode);
                             it.putExtra("SaleMan",true);
                             it.putExtra("OutRoute",true);
                             startActivity(it);
                         }
                     });
-
+/*
                     btnExportExcel.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -1075,12 +1090,15 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                         }
                     });
 
+ */
+//btnExportExcel
+
                     phone.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             v.startAnimation(buttonClick);
 
-                            refDatabase.child(emailLogin).child("Client").child(clientCode).child("clientPhone").addListenerForSingleValueEvent(new ValueEventListener() {
+                            refDatabase.child("Client").child(clientCode).child("clientPhone").addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     String phone = dataSnapshot.getValue().toString();
@@ -1110,7 +1128,7 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     MapModel updateMap = new MapModel(latitude+"",longitude+"");
-                                    refDatabase.child(emailLogin).child("Client").child(clientCode).child("map").setValue(updateMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    refDatabase.child("Client").child(clientCode).child("map").setValue(updateMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
                                             Toast.makeText(getApplicationContext(), "Cập nhật hoàn tất!", Toast.LENGTH_LONG).show();
@@ -1127,12 +1145,10 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                         public void onClick(View v) {
                             v.startAnimation(buttonClick);
 
-                            AlertDialog.Builder builder = new AlertDialog.Builder(ClientListBySaleTeam.this);
-                            View dialogView = getLayoutInflater().inflate(R.layout.dialog_grouping,null);
-                            builder.setView(dialogView);
+                            final Dialog dialogView = new Dialog(ClientListBySaleTeam.this, R.style.FullWidth_Dialog);
+                            dialogView.setContentView(R.layout.dialog_grouping);
+                            dialogView.show();
 
-                            final Dialog dialog = builder.create();
-                            dialog.show();
                             /*
                             builder.setMessage("Đổi nhóm khách hàng?");
 
@@ -1145,16 +1161,29 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                             input.setHint("Nhập tên nhóm");
                             builder.setView(input);
 */
-                             final Spinner spinGroup = dialogView.findViewById(R.id.spin_grouping);
-                             final EditText edtGroupName = dialogView.findViewById(R.id.edt_grouping_input);
-                             Button btnDone = dialogView.findViewById(R.id.btn_grouping_done);
-                             final CheckBox chDelete = dialogView.findViewById(R.id.ch_grouping_delete);
+                            //Đổi nhóm khách hàng?
 
-                             final List<String> listGroup = new ArrayList<>();
+                            final Spinner spinGroup       = dialogView.findViewById(R.id.spin_grouping);
+                            //final EditText edtGroupName = dialogView.findViewById(R.id.edt_grouping_input);
+                            Button btnClose                = dialogView.findViewById(R.id.btn_grouping_close);
+                            Button btnDone                = dialogView.findViewById(R.id.btn_grouping_update);
+                            final CheckBox chDelete       = dialogView.findViewById(R.id.ch_grouping_delete);
+                            final TextView tvGroupRecent  = dialogView.findViewById(R.id.tv_dialog_group_recent);
+
+                            //refClient
+
+                            btnClose.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    dialogView.dismiss();
+                                }
+                            });
+
+                            final List<String> listGroup = new ArrayList<>();
 
                             listGroup.add("Chọn nhóm");
 
-                            refDatabase.child(emailLogin).child("ClientManBySup").child(userEmail).child("Group").addListenerForSingleValueEvent(new ValueEventListener() {
+                            refDatabase.child("ClientManBySup").child(userEmail).child("Group").addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     Iterable<DataSnapshot> snapGroup = dataSnapshot.getChildren();
@@ -1175,6 +1204,7 @@ public class ClientListBySaleTeam extends AppCompatActivity {
 
                                 }
                             });
+                            //add list group
 
                             adpProduct = new ArrayAdapter<String>(getApplicationContext(),
                                     android.R.layout.simple_list_item_1, listGroup);
@@ -1187,8 +1217,21 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                                     ((TextView) spinGroup.getSelectedView()).setTextColor(getResources().getColor(android.R.color.black));
 
+                                    choosenGroup = (String) parent.getItemAtPosition(position);
+
                                     if(position!=0){
-                                        choosenGroup = (String) parent.getItemAtPosition(position);
+
+                                        Button btnClose  = dialogView.findViewById(R.id.btn_grouping_close);
+                                        Button btnUpdate = dialogView.findViewById(R.id.btn_grouping_update);
+
+                                        btnClose.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                dialogView.dismiss();
+                                            }
+                                        });
+
+
                                     }
                                 }
 
@@ -1201,25 +1244,24 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                                 @Override
                                 public void onClick(View v) {
                                     v.startAnimation(buttonClick);
-                                    final String newGroupName = edtGroupName.getText().toString();
+                                    //final String newGroupName = edtGroupName.getText().toString();
 
-                                    if (newGroupName.equals("Tất cả")){
-                                        Toast.makeText(getApplicationContext(), "Không thể đặt tên này!", Toast.LENGTH_LONG).show();
-
-                                    }else if(choosenGroup == null){
+                                    if(choosenGroup == null){
                                         Toast.makeText(getApplicationContext(), "Vui lòng chọn tên nhóm!", Toast.LENGTH_LONG).show();
 
                                     }
                                     else{
-                                        dialog.dismiss();
+                                        dialogView.dismiss();
 
-                                        refDatabase.child(emailLogin).child("ClientManBySup").child(userEmail).child(choosenGroup).child(clientCode).setValue(client);
+                                        refDatabase.child("ClientManBySup").child(userEmail).child(choosenGroup).child(clientCode).setValue(client);
+
                                         if(chDelete.isChecked()){
                                             if(!parentKey.equals("Tất cả")){
-                                                refDatabase.child(emailLogin).child("ClientManBySup").child(userEmail).child(choosenGroup).child(clientCode).setValue(null);
+                                                refDatabase.child("ClientManBySup").child(userEmail).child(choosenGroup).child(clientCode).setValue(null);
                                                 //Toast.makeText(getApplicationContext(),refClient+"", Toast.LENGTH_LONG).show();
                                             }
                                         }
+
                                     }
                                 }
                             });
@@ -1242,7 +1284,7 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                             final List<BarEntry> yearEntries = new ArrayList<>();
                             final ArrayList<String> barEntryLabels = new ArrayList<>();;
 
-                            refDatabase.child(emailLogin).child("TotalByClient").child(clientCode).addListenerForSingleValueEvent(new ValueEventListener() {
+                            refDatabase.child("TotalByClient").child(clientCode).addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     Iterable<DataSnapshot> snapTimeSale = dataSnapshot.getChildren();
@@ -1310,7 +1352,7 @@ public class ClientListBySaleTeam extends AppCompatActivity {
 
                             final List<BarEntry> monthEntries = new ArrayList<>();
 
-                            refDatabase.child(emailLogin).child("TotalByClient").child(clientCode).addListenerForSingleValueEvent(new ValueEventListener() {
+                            refDatabase.child("TotalByClient").child(clientCode).addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     Iterable<DataSnapshot> snapTimeSale = dataSnapshot.getChildren();
@@ -1382,7 +1424,7 @@ public class ClientListBySaleTeam extends AppCompatActivity {
 
                             final List<BarEntry> monthEntries = new ArrayList<>();
 
-                            refDatabase.child(emailLogin).child("TotalByClient").child(clientCode).addListenerForSingleValueEvent(new ValueEventListener() {
+                            refDatabase.child("TotalByClient").child(clientCode).addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     Iterable<DataSnapshot> snapTimeSale = dataSnapshot.getChildren();
@@ -1447,34 +1489,44 @@ public class ClientListBySaleTeam extends AppCompatActivity {
 
                 private void clientSaleClick() {
                     int position = getAdapterPosition();
-                    final Client client = adapterDetail.getItem(position);
+                    final Client client               = adapterDetail.getItem(position);
                     final DatabaseReference refClient = adapterDetail.getRef(position);
-                    final String parentKey = adapterDetail.getRef(position).getParent().getKey();
-                    final String clientCode = client.getClientCode();
+                    final String parentKey            = adapterDetail.getRef(position).getParent().getKey();
+                    final String clientCode           = client.getClientCode();
                     exportClickName = "ThisMonth";
 
-                    AlertDialog.Builder builder = new AlertDialog.Builder(ClientListBySaleTeam.this);
-                    View dialogView = getLayoutInflater().inflate(R.layout.dialog_client_detail,null);
-                    builder.setView(dialogView);
+                    final Dialog dialogView = new Dialog(ClientListBySaleTeam.this, R.style.FullWidth_Dialog);
+                    dialogView.setContentView(R.layout.dialog_client_detail);
 
-                    Dialog dialog = builder.create();
-                    dialog.show();
+                    Window window = dialogView.getWindow();
+                    window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+                            WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL);
+                    dialogView.show();
+
+                    ConstraintLayout csClientDetail = dialogView.findViewById(R.id.cs_dialog_client_detail);
+                    csClientDetail.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            dialogView.dismiss();
+                        }
+                    });
 
                     final BarChart barTime = (BarChart)dialogView.findViewById(R.id.bar_client_detail_sale);
 
-                    final TextView tvClientName = dialogView.findViewById(R.id.tv_client_detail_name);
+                    final TextView tvClientName    = dialogView.findViewById(R.id.tv_client_detail_name);
                     final TextView tvClientAddress = dialogView.findViewById(R.id.tv_client_detail_address);
 
-                    final Button yearSale = dialogView.findViewById(R.id.btn_client_detail_yearsale);
-                    final Button monthSale = dialogView.findViewById(R.id.btn_client_detail_month_sale);
-                    final Button thisMonthSale = dialogView.findViewById(R.id.btn_client_detail_thismonth);
-                    Button btnExportExcel = dialogView.findViewById(R.id.btn_client_detail_exportExcel);
+                    final Button yearSale       = dialogView.findViewById(R.id.btn_client_detail_yearsale);
+                    final Button monthSale      = dialogView.findViewById(R.id.btn_client_detail_month_sale);
+                    final Button thisMonthSale  = dialogView.findViewById(R.id.btn_client_detail_thismonth);
+                          //Button btnExportExcel = dialogView.findViewById(R.id.btn_client_detail_exportExcel);
 
-                    ImageView phone = dialogView.findViewById(R.id.btn_client_detail_phone);
-                    ImageView grouping = dialogView.findViewById(R.id.btn_client_detail_grouping);
-                    ImageView ivOrder = dialogView.findViewById(R.id.iv_client_detail_order);
-                    ImageView ivFixLoc = dialogView.findViewById(R.id.iv_client_fix_location);
+                    ImageView phone       = dialogView.findViewById(R.id.btn_client_detail_phone);
+                    ImageView grouping    = dialogView.findViewById(R.id.btn_client_detail_grouping);
+                    ImageView ivOrder     = dialogView.findViewById(R.id.iv_client_detail_order);
+                    ImageView ivFixLoc    = dialogView.findViewById(R.id.iv_client_fix_location);
                     ImageView ivSaleRoute = dialogView.findViewById(R.id.iv_client_detail_saleroute);
+                    ImageView ivScanQR    = dialogView.findViewById(R.id.iv_client_scan_qr);
 
                     ivSaleRoute.setVisibility(View.GONE);
 
@@ -1482,7 +1534,7 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                     monthSale.setBackground(getResources().getDrawable(R.drawable.border_drug_cat));
                     thisMonthSale.setBackground(getResources().getDrawable(R.drawable.border_drug_cat_accent));
 
-                    refDatabase.child(emailLogin).child("Client").child(clientCode).addListenerForSingleValueEvent(new ValueEventListener() {
+                    refDatabase.child("Client").child(clientCode).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             Client clientInfo = dataSnapshot.getValue(Client.class);
@@ -1506,7 +1558,7 @@ public class ClientListBySaleTeam extends AppCompatActivity {
 
                     final List<BarEntry> monthEntries = new ArrayList<>();
 
-                    refDatabase.child(emailLogin).child("TotalByClient").child(clientCode).addListenerForSingleValueEvent(new ValueEventListener() {
+                    refDatabase.child("TotalByClient").child(clientCode).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             Iterable<DataSnapshot> snapTimeSale = dataSnapshot.getChildren();
@@ -1564,19 +1616,52 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                         }
                     });
 
+                    ivScanQR.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+
+                            v.startAnimation(buttonClick);
+
+                            final Dialog dialog = new Dialog(ClientListBySaleTeam.this, R.style.FullWidth_Dialog);
+                            dialog.setContentView(R.layout.dialog_client_detail_scan_qr);
+                            dialog.show();
+
+                            Button btnClose = dialog.findViewById(R.id.btn_dialog_client_detail_scan_qr_close);
+                            Button btnOk    = dialog.findViewById(R.id.btn_dialog_client_detail_scan_qr_ok);
+
+                            btnClose.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    dialog.dismiss();
+                                }
+                            });
+
+                            btnOk.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    Toast.makeText(getApplicationContext(), "Scan QR", Toast.LENGTH_SHORT).show();
+                                    dialog.dismiss();
+
+                                }
+                            });
+
+
+                        }
+                    });
+
                     ivOrder.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             v.startAnimation(buttonClick);
                             Intent it = new Intent(getApplicationContext(), UpdateOrderActivity.class);
-                            it.putExtra("EmailLogin", emailLogin);
+                            //it.putExtra("EmailLogin", emailLogin);
                             it.putExtra("ClientCode", clientCode);
                             it.putExtra("SaleMan",true);
                             it.putExtra("OutRoute",true);
                             startActivity(it);
                         }
                     });
-
+/*
                     btnExportExcel.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -1585,12 +1670,15 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                         }
                     });
 
+ */
+//button export Excel
+
                     phone.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             v.startAnimation(buttonClick);
 
-                            refDatabase.child(emailLogin).child("Client").child(clientCode).child("clientPhone").addListenerForSingleValueEvent(new ValueEventListener() {
+                            refDatabase.child("Client").child(clientCode).child("clientPhone").addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     String phone = dataSnapshot.getValue().toString();
@@ -1613,21 +1701,36 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                         public void onClick(View v) {
                             v.startAnimation(buttonClick);
 
-                            AlertDialog.Builder builder = new AlertDialog.Builder(ClientListBySaleTeam.this);
-                            builder.setMessage("Cập nhật toạ khách hàng?");
+                            final Dialog dialog = new Dialog(ClientListBySaleTeam.this, R.style.FullWidth_Dialog);
+                            dialog.setContentView(R.layout.dialog_client_detail_fix_location);
+                            dialog.show();
 
-                            builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                            Button btnClose = dialog.findViewById(R.id.btn_dialog_client_detail_scan_qr_close);
+                            Button btnOk    = dialog.findViewById(R.id.btn_dialog_client_detail_scan_qr_ok);
+
+                            btnClose.setOnClickListener(new View.OnClickListener() {
                                 @Override
-                                public void onClick(DialogInterface dialog, int which) {
+                                public void onClick(View v) {
+                                    dialog.dismiss();
+                                }
+                            });
+
+                            btnOk.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+
                                     MapModel updateMap = new MapModel(latitude+"",longitude+"");
-                                    refDatabase.child(emailLogin).child("Client").child(clientCode).child("map").setValue(updateMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    refDatabase.child("Client").child(clientCode).child("map").setValue(updateMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
-                                            Toast.makeText(getApplicationContext(), "Cập nhật hoàn tất!", Toast.LENGTH_LONG).show();
+                                    Toast.makeText(getApplicationContext(), "Cập nhật hoàn tất!", Toast.LENGTH_LONG).show();
+                                    dialog.dismiss();
+
                                         }
                                     });
+
                                 }
-                            }).show();
+                            });
 
                         }
                     });
@@ -1637,12 +1740,10 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                         public void onClick(View v) {
                             v.startAnimation(buttonClick);
 
-                            AlertDialog.Builder builder = new AlertDialog.Builder(ClientListBySaleTeam.this);
-                            View dialogView = getLayoutInflater().inflate(R.layout.dialog_grouping,null);
-                            builder.setView(dialogView);
+                            final Dialog dialogView = new Dialog(ClientListBySaleTeam.this, R.style.FullWidth_Dialog);
+                            dialogView.setContentView(R.layout.dialog_grouping);
+                            dialogView.show();
 
-                            final Dialog dialog = builder.create();
-                            dialog.show();
                             /*
                             builder.setMessage("Đổi nhóm khách hàng?");
 
@@ -1655,17 +1756,27 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                             input.setHint("Nhập tên nhóm");
                             builder.setView(input);
 */
-                            Spinner spinGroup = dialogView.findViewById(R.id.spin_grouping);
-                            final EditText edtGroupName = dialogView.findViewById(R.id.edt_grouping_input);
-                            Button btnDone = dialogView.findViewById(R.id.btn_grouping_done);
-                            final CheckBox chDelete = dialogView.findViewById(R.id.ch_grouping_delete);
+                            //Đổi nhóm khách hàng?
+
+                            Spinner spinGroup             = dialogView.findViewById(R.id.spin_grouping);
+                            //final EditText edtGroupName = dialogView.findViewById(R.id.edt_grouping_input);
+                            Button btnClose               = dialogView.findViewById(R.id.btn_grouping_close);
+                            Button btnDone                = dialogView.findViewById(R.id.btn_grouping_update);
+                            final CheckBox chDelete       = dialogView.findViewById(R.id.ch_grouping_delete);
+
+                            btnClose.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    dialogView.dismiss();
+                                }
+                            });
 
                             final List<String> listGroup = new ArrayList<>();
 
                             listGroup.add("Chọn nhóm");
                             Toast.makeText(getApplicationContext(), userEmail, Toast.LENGTH_LONG).show();
 
-                            refDatabase.child(emailLogin).child("ClientManBySale").child(userEmail).child("Group").addListenerForSingleValueEvent(new ValueEventListener() {
+                            refDatabase.child("ClientManBySale").child(userEmail).child("Group").addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     Iterable<DataSnapshot> snapGroup = dataSnapshot.getChildren();
@@ -1678,8 +1789,6 @@ public class ClientListBySaleTeam extends AppCompatActivity {
 
                                         }
                                     }
-
-
                                 }
 
                                 @Override
@@ -1687,6 +1796,7 @@ public class ClientListBySaleTeam extends AppCompatActivity {
 
                                 }
                             });
+                            //add list group
 
                             adpProduct = new ArrayAdapter<String>(getApplicationContext(),
                                     android.R.layout.simple_list_item_1, listGroup);
@@ -1697,8 +1807,10 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                             spinGroup.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                                 @Override
                                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+                                    choosenGroup = (String) parent.getItemAtPosition(position);
+
                                     if(position!=0){
-                                        choosenGroup = (String) parent.getItemAtPosition(position);
                                     }
                                 }
 
@@ -1707,25 +1819,23 @@ public class ClientListBySaleTeam extends AppCompatActivity {
 
                                 }
                             });
+
                             btnDone.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
                                     v.startAnimation(buttonClick);
-                                    final String newGroupName = edtGroupName.getText().toString();
+                                    //final String newGroupName = edtGroupName.getText().toString();
 
-                                    if (newGroupName.equals("Tất cả")){
-                                        Toast.makeText(getApplicationContext(), "Không thể đặt tên này!", Toast.LENGTH_LONG).show();
-
-                                    }else if(choosenGroup == null){
+                                    if(choosenGroup == null){
                                         Toast.makeText(getApplicationContext(), "Vui lòng chọn tên nhóm!", Toast.LENGTH_LONG).show();
                                     }
                                     else{
-                                        refDatabase.child(emailLogin).child("ClientManBySup").child(userEmail).child(choosenGroup).child(clientCode).setValue(client);
-                                        dialog.dismiss();
+                                        refDatabase.child("ClientManBySup").child(userEmail).child(choosenGroup).child(clientCode).setValue(client);
+                                        dialogView.dismiss();
 
                                         if(chDelete.isChecked()){
                                             if(!parentKey.equals("Tất cả")){
-                                                refClient.setValue(null);
+                                                refDatabase.child("ClientManBySup").child(userEmail).child(choosenGroup).child(clientCode).setValue(null);
                                                 //Toast.makeText(getApplicationContext(),refClient+"", Toast.LENGTH_LONG).show();
                                             }
                                         }
@@ -1750,7 +1860,7 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                             final List<BarEntry> yearEntries = new ArrayList<>();
                             final ArrayList<String> barEntryLabels = new ArrayList<>();;
 
-                            refDatabase.child(emailLogin).child("TotalByClient").child(clientCode).addListenerForSingleValueEvent(new ValueEventListener() {
+                            refDatabase.child("TotalByClient").child(clientCode).addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     Iterable<DataSnapshot> snapTimeSale = dataSnapshot.getChildren();
@@ -1818,7 +1928,7 @@ public class ClientListBySaleTeam extends AppCompatActivity {
 
                             final List<BarEntry> monthEntries = new ArrayList<>();
 
-                            refDatabase.child(emailLogin).child("TotalByClient").child(clientCode).addListenerForSingleValueEvent(new ValueEventListener() {
+                            refDatabase.child("TotalByClient").child(clientCode).addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     Iterable<DataSnapshot> snapTimeSale = dataSnapshot.getChildren();
@@ -1890,7 +2000,7 @@ public class ClientListBySaleTeam extends AppCompatActivity {
 
                             final List<BarEntry> monthEntries = new ArrayList<>();
 
-                            refDatabase.child(emailLogin).child("TotalByClient").child(clientCode).addListenerForSingleValueEvent(new ValueEventListener() {
+                            refDatabase.child("TotalByClient").child(clientCode).addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     Iterable<DataSnapshot> snapTimeSale = dataSnapshot.getChildren();
@@ -1986,7 +2096,7 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                         final Collection<String[]> data = new ArrayList<>();
 
                         if(exportClickName.equals("YearSale")){
-                            refDatabase.child(emailLogin).child("TotalByClient").child(clientCode).addListenerForSingleValueEvent(new ValueEventListener() {
+                            refDatabase.child("TotalByClient").child(clientCode).addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
 
@@ -2024,7 +2134,7 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                             });
 
                         }else if(exportClickName.equals("MonthSale")){
-                            refDatabase.child(emailLogin).child("TotalByClient").child(clientCode).addListenerForSingleValueEvent(new ValueEventListener() {
+                            refDatabase.child("TotalByClient").child(clientCode).addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     Iterable<DataSnapshot> snapTimeSale = dataSnapshot.getChildren();
@@ -2063,7 +2173,7 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                             final String month = dt.getMonthOfYear()+"";
                             final String year = dt.getYear()+"";
 
-                            refDatabase.child(emailLogin).child("TotalByClient").child(clientCode).addListenerForSingleValueEvent(new ValueEventListener() {
+                            refDatabase.child("TotalByClient").child(clientCode).addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     Iterable<DataSnapshot> snapTimeSale = dataSnapshot.getChildren();
@@ -2132,12 +2242,12 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                     Group group = adapterGroup.getItem(itemCat);
                     String groupName = group.getGroupName();
                     if(saleMan){
-                        detailList(refDatabase.child(emailLogin).child("ClientManBySale").child(userEmail).child(groupName));
+                        detailList(refDatabase.child("ClientManBySale").child(userEmail).child(groupName));
 
                     }
 
                     if(supervisor){
-                        detailList(refDatabase.child(emailLogin).child("ClientManBySup").child(userEmail).child(groupName));
+                        detailList(refDatabase.child("ClientManBySup").child(userEmail).child(groupName));
 
                     }
                 }
@@ -2179,19 +2289,19 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                                 String key = adapterGroup.getRef(pos).getKey();
 
                                 if(saleMan){
-                                    refDatabase.child(emailLogin).child("ClientManBySale").child(userEmail).child("Group").child(key).child("groupName").setValue(newGroupName);
+                                    refDatabase.child("ClientManBySale").child(userEmail).child("Group").child(key).child("groupName").setValue(newGroupName);
                                     //Đổi tên và copy các thành phần trong group
-                                    refDatabase.child(emailLogin).child("ClientManBySale").child(userEmail).child(oldName).addListenerForSingleValueEvent(new ValueEventListener() {
+                                    refDatabase.child("ClientManBySale").child(userEmail).child(oldName).addListenerForSingleValueEvent(new ValueEventListener() {
                                         @Override
                                         public void onDataChange(DataSnapshot dataSnapshot) {
                                             Iterable<DataSnapshot> snapClient = dataSnapshot.getChildren();
                                             for(DataSnapshot itemClient: snapClient){
                                                 Client clientCopied = itemClient.getValue(Client.class);
 
-                                                refDatabase.child(emailLogin).child("ClientManBySale").child(userEmail).child(newGroupName).push().setValue(clientCopied).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                refDatabase.child("ClientManBySale").child(userEmail).child(newGroupName).push().setValue(clientCopied).addOnCompleteListener(new OnCompleteListener<Void>() {
                                                     @Override
                                                     public void onComplete(@NonNull Task<Void> task) {
-                                                        refDatabase.child(emailLogin).child("ClientManBySale").child(userEmail).child(oldName).setValue(null);
+                                                        refDatabase.child("ClientManBySale").child(userEmail).child(oldName).setValue(null);
                                                     }
                                                 });
 
@@ -2206,19 +2316,19 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                                 }
 
                                 if(supervisor){
-                                    refDatabase.child(emailLogin).child("ClientManBySup").child(userEmail).child("Group").child(key).child("groupName").setValue(newGroupName);
+                                    refDatabase.child("ClientManBySup").child(userEmail).child("Group").child(key).child("groupName").setValue(newGroupName);
                                     //Đổi tên và copy các thành phần trong group
-                                    refDatabase.child(emailLogin).child("ClientManBySup").child(userEmail).child(oldName).addListenerForSingleValueEvent(new ValueEventListener() {
+                                    refDatabase.child("ClientManBySup").child(userEmail).child(oldName).addListenerForSingleValueEvent(new ValueEventListener() {
                                         @Override
                                         public void onDataChange(DataSnapshot dataSnapshot) {
                                             Iterable<DataSnapshot> snapClient = dataSnapshot.getChildren();
                                             for(DataSnapshot itemClient: snapClient){
                                                 Client clientCopied = itemClient.getValue(Client.class);
 
-                                                refDatabase.child(emailLogin).child("ClientManBySup").child(userEmail).child(newGroupName).push().setValue(clientCopied).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                refDatabase.child("ClientManBySup").child(userEmail).child(newGroupName).push().setValue(clientCopied).addOnCompleteListener(new OnCompleteListener<Void>() {
                                                     @Override
                                                     public void onComplete(@NonNull Task<Void> task) {
-                                                        refDatabase.child(emailLogin).child("ClientManBySup").child(userEmail).child(oldName).setValue(null);
+                                                        refDatabase.child("ClientManBySup").child(userEmail).child(oldName).setValue(null);
                                                     }
                                                 });
 
@@ -2263,12 +2373,12 @@ public class ClientListBySaleTeam extends AppCompatActivity {
 
                     adapterEmployee.notifyDataSetChanged();
 
-                    refDatabase.child(emailLogin).child("Client").child(choosenClientCode).addListenerForSingleValueEvent(new ValueEventListener() {
+                    refDatabase.child("Client").child(choosenClientCode).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             if(dataSnapshot.hasChild("managedBy")){
 
-                                refDatabase.child(emailLogin).child("Client").child(choosenClientCode).child("managedBy").addListenerForSingleValueEvent(new ValueEventListener() {
+                                refDatabase.child("Client").child(choosenClientCode).child("managedBy").addListenerForSingleValueEvent(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(DataSnapshot dataSnapshot) {
                                         final Employee  currentEmployee = dataSnapshot.getValue(Employee.class);
@@ -2291,10 +2401,10 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                                                     dialogSaleRoute.dismiss();
 
                                                     //adapterEmployee.notifyDataSetChanged();
-                                                    refDatabase.child(emailLogin).child("Client").child(choosenClientCode).child("managedBy").setValue(employee);
-                                                    refDatabase.child(emailLogin).child("ClientManBySale").child(currentEmployee.getEmployeeEmail()).child("Tất cả").child(choosenClientCode).setValue(null);
+                                                    refDatabase.child("Client").child(choosenClientCode).child("managedBy").setValue(employee);
+                                                    refDatabase.child("ClientManBySale").child(currentEmployee.getEmployeeEmail()).child("Tất cả").child(choosenClientCode).setValue(null);
 
-                                                    refDatabase.child(emailLogin).child("SaleRoute").child(currentEmployee.getEmployeeEmail()).addListenerForSingleValueEvent(new ValueEventListener() {
+                                                    refDatabase.child("SaleRoute").child(currentEmployee.getEmployeeEmail()).addListenerForSingleValueEvent(new ValueEventListener() {
                                                         @Override
                                                         public void onDataChange(DataSnapshot dataSnapshot) {
                                                             Iterable<DataSnapshot> snapDay = dataSnapshot.getChildren();

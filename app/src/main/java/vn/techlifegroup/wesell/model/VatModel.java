@@ -9,6 +9,8 @@ public class VatModel {
     float includedVat;
 
     float finalPayment;
+    String discount;
+
 
     public VatModel() {
     }
@@ -30,4 +32,9 @@ public class VatModel {
     public float getFinalPayment() {
         return finalPayment;
     }
+
+    public String getDiscount() {
+        return discount;
+    }
 }
+

@@ -15,11 +15,17 @@ public class Constants {
 
     public static String userUid = FirebaseAuth.getInstance().getCurrentUser().getEmail().replace(".",",");
     public static DatabaseReference refUserUid = FirebaseDatabase.getInstance().getReference().child(userUid);
+
     public static DatabaseReference refDatabase = FirebaseDatabase.getInstance().getReference();
     public static AlphaAnimation buttonClick = new AlphaAnimation(1F, 0.8F);
 
     public static DatabaseReference refLogin = FirebaseDatabase.getInstance().getReference().child("Login");
     public static DatabaseReference refRole= FirebaseDatabase.getInstance().getReference().child("Role");
+
+    public static DatabaseReference refProductList = FirebaseDatabase.getInstance().getReference().child("ProductList");
+    public static DatabaseReference refProductListByGroup = FirebaseDatabase.getInstance().getReference().child("ProductListByGroup");
+    public static DatabaseReference refUsers = FirebaseDatabase.getInstance().getReference().child("Users");
+
 
     public static DatabaseReference refOrder = FirebaseDatabase.getInstance().getReference().child("Order");
     public static DatabaseReference refOrderDetail = FirebaseDatabase.getInstance().getReference().child("OrderDetail");
@@ -69,6 +75,7 @@ public class Constants {
     public static DatabaseReference refClientMan = FirebaseDatabase.getInstance().getReference().child("ClientMan");
     public static DatabaseReference refSupplier = FirebaseDatabase.getInstance().getReference().child("Supplier");
     public static DatabaseReference refEmployee = FirebaseDatabase.getInstance().getReference().child("Employee");
+    public static DatabaseReference refEmployees = FirebaseDatabase.getInstance().getReference().child("Employees");
     public static DatabaseReference refWarehouseMan = FirebaseDatabase.getInstance().getReference().child("WarehouseMan");
 
     public static DatabaseReference refStorage = FirebaseDatabase.getInstance().getReference().child("Storage");
