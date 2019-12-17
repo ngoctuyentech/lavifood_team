@@ -7,6 +7,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -23,6 +24,7 @@ import vn.techlifegroup.wesell.model.ChatHistoryModel;
 import vn.techlifegroup.wesell.utils.AdapterHistoryChat;
 import vn.techlifegroup.wesell.utils.Utils;
 
+import static vn.techlifegroup.wesell.utils.Constants.refDatabase;
 import static vn.techlifegroup.wesell.utils.Constants.refEmployees;
 import static vn.techlifegroup.wesell.utils.Utils.sortByValues;
 
@@ -36,7 +38,7 @@ public class HistoryChatActivity extends AppCompatActivity {
     private RecyclerView rvHistoryChat;
     private LinearLayoutManager linearLayoutManager;
 
-    private String saleManEmail;
+    public static String saleManEmail, userUid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,125 +53,11 @@ public class HistoryChatActivity extends AppCompatActivity {
         Intent intent = this.getIntent();
 
         saleManEmail = FirebaseAuth.getInstance().getCurrentUser().getEmail().replace(".",",");
+        userUid      = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         rvHistoryChat = findViewById(R.id.rv_history_chat);
 
-
-/*
-        refUsers.child(userUid).child("chat").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                int i = 0;
-
-                Iterable<DataSnapshot> snapFriend = dataSnapshot.getChildren();
-
-                for (final DataSnapshot itemFriend : snapFriend) {
-
-                    i = i + 1;
-
-                    final int countKeyFriend = (int) dataSnapshot.getChildrenCount();
-
-                    final String keyFriend = itemFriend.getKey();
-
-                    final Query lastNodeChat = refUsers.child(userUid).child("chat").child(keyFriend)
-                            .limitToLast(1);
-
-                    if (i == countKeyFriend) {
-
-                        lastNodeChat.addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                Iterable<DataSnapshot> snapChat = dataSnapshot.getChildren();
-
-                                historyChatList.clear();
-
-                                for (DataSnapshot itemChat : snapChat) {
-                                    Chat chat = itemChat.getValue(Chat.class);
-
-                                    String timeStampQuery = Utils.getHourDateFromTimeStamp(Long.parseLong(chat.getTimeStamp()));
-
-                                    lastTimeStampDate = new Date(timeStampQuery);
-
-                                    mapHistoryChat.put(keyFriend, lastTimeStampDate);
-
-                                    //Toast.makeText(getApplicationContext(), mapChatRoom+"", Toast.LENGTH_LONG).show();
-
-
-                                    HashMap<String, Date> mapChatRoomFinal = new HashMap<>();
-
-                                    mapChatRoomFinal = sortByValues(mapHistoryChat);
-
-                                    for (Map.Entry<String, Date> entryFinal : mapChatRoomFinal.entrySet()) {
-
-                                        String idFriendFinal = entryFinal.getKey();
-
-                                        Date lastTimeStampFinal = entryFinal.getValue();
-
-                                        String lastTimeStampStrFinal = DateFormat.format("dd/MM/yy hh:mm", lastTimeStampFinal).toString();
-
-                                        Chat idDateFinal = new Chat(idFriendFinal, lastTimeStampStrFinal);
-
-                                        historyChatList.add(idDateFinal);
-
-                                        //Toast.makeText(getApplicationContext(), mapChatRoomFinal+"", Toast.LENGTH_LONG).show();
-
-                                        adapterHistoryChat = new AdapterHistoryChat(getApplicationContext(), historyChatList, HistoryChatActivity.this);
-                                        adapterHistoryChat.notifyDataSetChanged();
-
-                                        rvHistoryChat.setAdapter(adapterHistoryChat);
-
-                                    }
-                                }
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-
-                            }
-                        });
-
-                    } else {
-
-
-                        lastNodeChat.addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                Iterable<DataSnapshot> snapChat = dataSnapshot.getChildren();
-
-                                for (DataSnapshot itemChat : snapChat) {
-                                    Chat chat = itemChat.getValue(Chat.class);
-
-                                    //Toast.makeText(getApplicationContext(), contentQuery, Toast.LENGTH_LONG).show();
-
-                                    String timeStampQuery = Utils.getHourDateFromTimeStamp(Long.parseLong(chat.getTimeStamp()));
-
-                                    lastTimeStampDate = new Date(timeStampQuery);
-
-                                    //Toast.makeText(getApplicationContext(), lastTimeStampDate+"", Toast.LENGTH_LONG).show();
-
-                                    mapHistoryChat.put(keyFriend, lastTimeStampDate);
-
-
-                                }
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-
-                            }
-                        });
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-
- */
+        //refDatabase.child("userUid").setValue(userUid);
 
     }
 
@@ -180,11 +68,10 @@ public class HistoryChatActivity extends AppCompatActivity {
         linearLayoutManager = new LinearLayoutManager(HistoryChatActivity.this);
         rvHistoryChat.setHasFixedSize(false);
         rvHistoryChat.setLayoutManager(linearLayoutManager);
-        //rvChatRoom.setDividerHeight(1);
 
         mapHistoryChat.clear();
 
-        refEmployees.child(saleManEmail).child("friend").addListenerForSingleValueEvent(new ValueEventListener() {
+        refEmployees.child(userUid).child("friend").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(final DataSnapshot dataSnapshot) {
 
@@ -202,7 +89,7 @@ public class HistoryChatActivity extends AppCompatActivity {
 
                     if(i == countKeyFriend){
 
-                        refEmployees.child(saleManEmail).child("friend").child(keyFriend).addListenerForSingleValueEvent(new ValueEventListener() {
+                        refEmployees.child(userUid).child("friend").child(keyFriend).addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
 
@@ -211,10 +98,6 @@ public class HistoryChatActivity extends AppCompatActivity {
                                 ChatHistoryModel chat = dataSnapshot.getValue(ChatHistoryModel.class);
 
                                 Long lastTimeStampLong = Long.parseLong(chat.getLastTimeStamp());
-
-                                //String lastTimeStamp = Utils.getHourDateFromTimeStamp(Long.parseLong(chat.getLastTimeStamp()));
-
-                                //lastTimeStampDate = new Date(lastTimeStamp);
 
                                 mapHistoryChat.put(keyFriend, lastTimeStampLong);
 
@@ -226,8 +109,6 @@ public class HistoryChatActivity extends AppCompatActivity {
 
                                     String idFriendFinal      = entryFinal.getKey();
                                     Long  lastTimeStampLongFinal = entryFinal.getValue();
-
-                                    //Date lastTimeStampFinal = entryFinal.getValue();
 
                                     String lastTimeStampStrFinal = Utils.getHourDateFromTimeStamp(lastTimeStampLongFinal);
 
@@ -252,7 +133,7 @@ public class HistoryChatActivity extends AppCompatActivity {
 
                     }else{
 
-                        refEmployees.child(saleManEmail).child("friend").child(keyFriend).addListenerForSingleValueEvent(new ValueEventListener() {
+                        refEmployees.child(userUid).child("friend").child(keyFriend).addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
 
@@ -260,11 +141,7 @@ public class HistoryChatActivity extends AppCompatActivity {
 
                                 Long lastTimeStampLong = Long.parseLong(chat.getLastTimeStamp());
 
-                                //lastTimeStampDate = new Date(lastTimeStamp);
-
                                 mapHistoryChat.put(keyFriend, lastTimeStampLong);
-
-
 
                             }
 

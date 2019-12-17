@@ -28,7 +28,6 @@
         android:layout_height="45dp"
         android:layout_marginStart="64dp"
         android:src="@drawable/icon_client_circle"
-
         app:layout_constraintBottom_toBottomOf="@+id/toolbar_chat_box"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/toolbar_chat_box"

@@ -48,33 +48,40 @@ import java.util.Map;
 
 import vn.techlifegroup.wesell.R;
 import vn.techlifegroup.wesell.model.Chat;
+import vn.techlifegroup.wesell.model.Order;
 import vn.techlifegroup.wesell.model.Product;
+import vn.techlifegroup.wesell.model.vatTest;
 import vn.techlifegroup.wesell.utils.Utils;
 
+import static vn.techlifegroup.wesell.utils.Constants.buttonClick;
 import static vn.techlifegroup.wesell.utils.Constants.refDatabase;
 import static vn.techlifegroup.wesell.utils.Constants.refEmployees;
+import static vn.techlifegroup.wesell.utils.Constants.refOrderList;
+import static vn.techlifegroup.wesell.utils.Constants.refProductListByGroup;
 import static vn.techlifegroup.wesell.utils.Constants.refUsers;
+import static vn.techlifegroup.wesell.utils.Utils.convertNumber;
 
 public class MainChatActivity extends AppCompatActivity {
 
     private FirebaseRecyclerAdapter<Chat, ChatBoxViewHolder> adapterFirebaseChatBox;
-    //private FirebaseRecyclerAdapter<Product, ProductSameViewHolder> adapterFirebaseRecentlyOrderDia;
+    private FirebaseRecyclerAdapter<Product, ProductViewHolder> adapterFirebaseOrderQuickNew;
 
 
-    public static String saleManEmail;
+    public static String saleManEmail, userUid;
     //public static DatabaseReference refUserUid = refDatabase.child("Employees").child(saleManEmail);
+
+    private String orderPushKeyString;
 
     private String idFr;
 
     private String todayDate, lastDateChat;
-    private String groupChoose, productChoose,keyOrderTemp,chosenProductPrice,finalPayment,discount;
+    private String groupChoose, productChoose,chosenProductPrice,finalPayment,discount;
 
     private ArrayAdapter<String> adpGroup,adpProduct;
 
     private ImageView ivLogo, ivMesSend, ivMesCart, ivMesReact, ivMesKeyboard, ivMesVoice;
     private TextView tvName, tvProper,tvRole;
     private TextView tvPoint,tvDiscount,tvTotal;
-
 
     private RecyclerView rvChatbox;
     private EditText edtMessage;
@@ -98,6 +105,7 @@ public class MainChatActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         saleManEmail = FirebaseAuth.getInstance().getCurrentUser().getEmail().replace(".",",");
+        userUid      = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         Intent it = this.getIntent();
 
@@ -147,12 +155,11 @@ public class MainChatActivity extends AppCompatActivity {
                 final String messageInput = edtMessage.getText().toString();
                 final String timeStamp = (Calendar.getInstance().getTime().getTime())+"";
 
-                final Chat chatPushContent = new Chat(saleManEmail, messageInput, timeStamp);
+                final Chat chatPushContent = new Chat(userUid, messageInput, timeStamp);
 
                 final Chat chatPushDate = new Chat("true", timeStamp);
 
-
-                final Query lastChat =  refEmployees.child(saleManEmail).child("chat").child(idFr)
+                final Query lastChat =  refEmployees.child(userUid).child("chat").child(idFr)
                         .limitToLast(1);
 
                 lastChat.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -172,35 +179,35 @@ public class MainChatActivity extends AppCompatActivity {
 
                             if(todayDate.equals(lastDateChat)){
 
-                                refEmployees.child(saleManEmail).child("chat").child(idFr).push().setValue(chatPushContent);
-                                refUsers.child(idFr).child("chat").child(saleManEmail).push().setValue(chatPushContent);
+                                refEmployees.child(userUid).child("chat").child(idFr).push().setValue(chatPushContent);
+                                refUsers.child(idFr).child("chat").child(userUid).push().setValue(chatPushContent);
 
-                                refEmployees.child(saleManEmail).child("friend").child(idFr).child("lastContent").setValue(messageInput);
-                                refEmployees.child(saleManEmail).child("friend").child(idFr).child("lastTimeStamp").setValue(timeStamp);
-                                refEmployees.child(saleManEmail).child("friend").child(idFr).child("isRead").setValue(true);
+                                refEmployees.child(userUid).child("friend").child(idFr).child("lastContent").setValue(messageInput);
+                                refEmployees.child(userUid).child("friend").child(idFr).child("lastTimeStamp").setValue(timeStamp);
+                                refEmployees.child(userUid).child("friend").child(idFr).child("isRead").setValue(true);
 
-                                refUsers.child(idFr).child("friend").child(saleManEmail).child("lastContent").setValue(messageInput);
-                                refUsers.child(idFr).child("friend").child(saleManEmail).child("lastTimeStamp").setValue(timeStamp);
-                                refUsers.child(idFr).child("friend").child(saleManEmail).child("isRead").setValue(false);
+                                refUsers.child(idFr).child("friend").child(userUid).child("lastContent").setValue(messageInput);
+                                refUsers.child(idFr).child("friend").child(userUid).child("lastTimeStamp").setValue(timeStamp);
+                                refUsers.child(idFr).child("friend").child(userUid).child("isRead").setValue(false);
 
 
                                 rvChatbox.scrollToPosition(linearLayoutManager.getItemCount() - 1);
 
 
                             }else {
-                                refEmployees.child(saleManEmail).child("chat").child(idFr).push().setValue(chatPushDate);
-                                refUsers.child(idFr).child("chat").child(saleManEmail).push().setValue(chatPushDate);
+                                refEmployees.child(userUid).child("chat").child(idFr).push().setValue(chatPushDate);
+                                refUsers.child(idFr).child("chat").child(userUid).push().setValue(chatPushDate);
 
-                                refEmployees.child(saleManEmail).child("chat").child(idFr).push().setValue(chatPushContent);
-                                refUsers.child(idFr).child("chat").child(saleManEmail).push().setValue(chatPushContent);
+                                refEmployees.child(userUid).child("chat").child(idFr).push().setValue(chatPushContent);
+                                refUsers.child(idFr).child("chat").child(userUid).push().setValue(chatPushContent);
 
-                                refEmployees.child(saleManEmail).child("friend").child(idFr).child("lastContent").setValue(messageInput);
-                                refEmployees.child(saleManEmail).child("friend").child(idFr).child("lastTimeStamp").setValue(timeStamp);
-                                refEmployees.child(saleManEmail).child("friend").child(idFr).child("isRead").setValue(true);
+                                refEmployees.child(userUid).child("friend").child(idFr).child("lastContent").setValue(messageInput);
+                                refEmployees.child(userUid).child("friend").child(idFr).child("lastTimeStamp").setValue(timeStamp);
+                                refEmployees.child(userUid).child("friend").child(idFr).child("isRead").setValue(true);
 
-                                refUsers.child(idFr).child("friend").child(saleManEmail).child("lastContent").setValue(messageInput);
-                                refUsers.child(idFr).child("friend").child(saleManEmail).child("lastTimeStamp").setValue(timeStamp);
-                                refUsers.child(idFr).child("friend").child(saleManEmail).child("isRead").setValue(false);
+                                refUsers.child(idFr).child("friend").child(userUid).child("lastContent").setValue(messageInput);
+                                refUsers.child(idFr).child("friend").child(userUid).child("lastTimeStamp").setValue(timeStamp);
+                                refUsers.child(idFr).child("friend").child(userUid).child("isRead").setValue(false);
 
                                 rvChatbox.scrollToPosition(linearLayoutManager.getItemCount() - 1);
 
@@ -219,7 +226,7 @@ public class MainChatActivity extends AppCompatActivity {
             }
         });
 
-        refEmployees.child(saleManEmail).child("friend").child(idFr).addListenerForSingleValueEvent(new ValueEventListener() {
+        refEmployees.child(userUid).child("friend").child(idFr).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(final DataSnapshot dataSnapshot) {
 
@@ -245,7 +252,7 @@ public class MainChatActivity extends AppCompatActivity {
                 Chat.class,
                 R.layout.item_chat_right,
                 ChatBoxViewHolder.class,
-                refEmployees.child(saleManEmail).child("chat").child(idFr)
+                refEmployees.child(userUid).child("chat").child(idFr)
         ) {
 
             @Override
@@ -258,7 +265,7 @@ public class MainChatActivity extends AppCompatActivity {
 
                 if (isDate == null) {
 
-                    if (id.equals(saleManEmail)) {
+                    if (id.equals(userUid)) {
                         return TYPE_GENERAL_RIGHT;
 
                     } else {
@@ -338,23 +345,22 @@ public class MainChatActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 rvChatbox.scrollToPosition(linearLayoutManager.getItemCount() - 1);
-                Toast.makeText(getApplicationContext(), "tao don hang", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(), "tao don hang", Toast.LENGTH_SHORT).show();
 
-                //dialogOrder();
+                dialogOrder();
 
             }
         });
-
-
-
     }
-/*
+
     private void dialogOrder(){
 
-        keyOrderTemp = refUsers.child(userUid).child("OrderTemp").push().getKey();
+        //keyOrderTemp = refUsers.child(userUid).child("OrderTemp").push().getKey();
+
+        orderPushKeyString = refOrderList.push().getKey();
 
         final Dialog dialog = new Dialog(MainChatActivity.this, R.style.FullWidth_Dialog);
-        dialog.setContentView(R.layout.dialog_order_recently);
+        dialog.setContentView(R.layout.dialog_order_quick_new);
         dialog.show();
 
         Button btnSendOrder = dialog.findViewById(R.id.btn_send_order_dia_recently);
@@ -373,7 +379,7 @@ public class MainChatActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 v.startAnimation(buttonClick);
-                refUsers.child(userUid).child("OrderTemp").child(keyOrderTemp).setValue(null);
+                refOrderList.child(orderPushKeyString).setValue(null);
                 dialog.dismiss();
             }
         });
@@ -383,23 +389,23 @@ public class MainChatActivity extends AppCompatActivity {
         LinearLayoutManager linearLayoutManagerRecentlyOrder = new LinearLayoutManager(getApplicationContext());
         rvRecentlyOrder.setLayoutManager(linearLayoutManagerRecentlyOrder);
 
-        adapterFirebaseRecentlyOrderDia = new FirebaseRecyclerAdapter<Product, ProductSameViewHolder>(
+        adapterFirebaseOrderQuickNew = new FirebaseRecyclerAdapter<Product, ProductViewHolder>(
                 Product.class,
-                R.layout.item_product_same_order,
-                ProductSameViewHolder.class,
-                refUsers.child(userUid).child("OrderTemp").child(keyOrderTemp).child("ProductList")                    ) {
+                R.layout.item_order_quick_new_product,
+                ProductViewHolder.class,
+                refOrderList.child(orderPushKeyString).child("ProductList")                    ) {
             @Override
-            public ProductSameViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-                View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_product_same_order, parent, false);
-                return new ProductSameViewHolder(v);
+            public ProductViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+                View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_order_quick_new_product, parent, false);
+                return new ProductViewHolder(v);
             }
 
             @Override
-            protected void populateViewHolder(final ProductSameViewHolder viewHolder, final Product model, int position) {
+            protected void populateViewHolder(final ProductViewHolder viewHolder, final Product model, int position) {
 
                 Float quantity = Float.parseFloat(model.getProductQuantity());
-                Float price = Float.parseFloat(model.getProductPrice());
-                Float total = Float.parseFloat(model.getProductTotal());
+                Float price    = Float.parseFloat(model.getProductPrice());
+                Float total    = Float.parseFloat(model.getProductTotal());
 
                 viewHolder.productNameDia.setText(model.getProductName());
                 viewHolder.productQuantityDia.setText(convertNumber(quantity+""));
@@ -409,38 +415,106 @@ public class MainChatActivity extends AppCompatActivity {
             }
         };
 
-        rvRecentlyOrder.setAdapter(adapterFirebaseRecentlyOrderDia);
-        adapterFirebaseRecentlyOrderDia.notifyDataSetChanged();
+        rvRecentlyOrder.setAdapter(adapterFirebaseOrderQuickNew);
+        adapterFirebaseOrderQuickNew.notifyDataSetChanged();
 
         btnSendOrder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                refUserUid.child("OrderTemp").child(keyOrderTemp).addListenerForSingleValueEvent(new ValueEventListener() {
+                refOrderList.child(orderPushKeyString).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
 
-                        String timeStamp = Calendar.getInstance().getTime().getTime()+"";
+                        final String timeStamp = Calendar.getInstance().getTime().getTime()+"";
 
-                        final Order order = new Order(userUid, "", "", finalPayment, timeStamp, shop, "", "Tiền mặt", "", "0");
+                        final Order order = new Order(saleManEmail, "", "", finalPayment, timeStamp, saleManEmail, "", "Tiền mặt", "", "0");
 
-                        VatModel vatModel = new VatModel("0", finalPayment, finalPayment, timeStamp);
+                        vatTest vatTest = new vatTest("0", finalPayment, finalPayment, timeStamp);
                         Map<String, Object> childUpdates = new HashMap<>();
                         childUpdates.put("ProductList", dataSnapshot.child("ProductList").getValue());
-                        childUpdates.put("VAT", vatModel);
+                        childUpdates.put("VAT", vatTest);
 
                         childUpdates.put("OtherInformation",order.toMap());
 
-                        refOrderList.child(keyOrderTemp).updateChildren(childUpdates);
+                        refOrderList.child(orderPushKeyString).updateChildren(childUpdates);
 
-                        Order orderShort = new Order(finalPayment, timeStamp, shop);
+                        Order orderShort = new Order(finalPayment, timeStamp, saleManEmail);
 
                         Map<String, Object> childUpdatesOther = new HashMap<>();
 
-                        childUpdatesOther.put("Users/" + userUid + "/Order/Waiting/" + keyOrderTemp,orderShort);
-                        childUpdatesOther.put("Order/FromApp/" + keyOrderTemp,orderShort);
+                        childUpdatesOther.put("Users/" + idFr + "/Order/Waiting/" + orderPushKeyString,orderShort);
+                        childUpdatesOther.put("Order/FromApp/" + orderPushKeyString,orderShort);
 
-                        refDatabase.updateChildren(childUpdatesOther);
+                        final String contentOrder;
+
+                        contentOrder = "Đã gửi đơn";
+
+                        final Chat chatPushContent = new Chat(userUid, contentOrder, timeStamp);
+
+                        final Chat chatPushDate    = new Chat("true", timeStamp);
+
+                        final Query lastChat =  refEmployees.child(userUid).child("chat").child(idFr)
+                                .limitToLast(1);
+
+                        lastChat.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                                Iterable <DataSnapshot> snapChat = dataSnapshot.getChildren();
+                                for (DataSnapshot itemChat : snapChat) {
+
+                                    Chat chat = itemChat.getValue(Chat.class);
+
+                                    lastDateChat = Utils.getDateFromTimeStamp(Long.parseLong(chat.getTimeStamp()));
+
+                                    long timeNow = (long) (System.currentTimeMillis());
+
+                                    todayDate = DateFormat.format("dd/MM/yyyy", timeNow)+"";
+
+                                    if(todayDate.equals(lastDateChat)){
+
+                                        refEmployees.child(userUid).child("chat").child(idFr).push().setValue(chatPushContent);
+                                        refUsers.child(idFr).child("chat").child(userUid).push().setValue(chatPushContent);
+
+                                        refEmployees.child(userUid).child("friend").child(idFr).child("lastContent").setValue(contentOrder);
+                                        refEmployees.child(userUid).child("friend").child(idFr).child("lastTimeStamp").setValue(timeStamp);
+                                        refEmployees.child(userUid).child("friend").child(idFr).child("isRead").setValue(true);
+
+                                        refUsers.child(idFr).child("friend").child(userUid).child("lastContent").setValue(contentOrder);
+                                        refUsers.child(idFr).child("friend").child(userUid).child("lastTimeStamp").setValue(timeStamp);
+                                        refUsers.child(idFr).child("friend").child(userUid).child("isRead").setValue(false);
+
+
+                                        rvChatbox.scrollToPosition(linearLayoutManager.getItemCount() - 1);
+
+
+                                    }else {
+                                        refEmployees.child(userUid).child("chat").child(idFr).push().setValue(chatPushDate);
+                                        refUsers.child(idFr).child("chat").child(userUid).push().setValue(chatPushDate);
+
+                                        refEmployees.child(userUid).child("chat").child(idFr).push().setValue(chatPushContent);
+                                        refUsers.child(idFr).child("chat").child(userUid).push().setValue(chatPushContent);
+
+                                        refEmployees.child(userUid).child("friend").child(idFr).child("lastContent").setValue(contentOrder);
+                                        refEmployees.child(userUid).child("friend").child(idFr).child("lastTimeStamp").setValue(timeStamp);
+                                        refEmployees.child(userUid).child("friend").child(idFr).child("isRead").setValue(true);
+
+                                        refUsers.child(idFr).child("friend").child(userUid).child("lastContent").setValue(contentOrder);
+                                        refUsers.child(idFr).child("friend").child(userUid).child("lastTimeStamp").setValue(timeStamp);
+                                        refUsers.child(idFr).child("friend").child(userUid).child("isRead").setValue(false);
+
+                                        rvChatbox.scrollToPosition(linearLayoutManager.getItemCount() - 1);
+
+                                    }
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
 
                         dialog.dismiss();
                     }
@@ -531,7 +605,7 @@ public class MainChatActivity extends AppCompatActivity {
                         tvAddTotal.setText(null);
                         edtInQuantity.setText(null);
 
-                        refUsers.child(userUid).child("OrderTemp").child(keyOrderTemp).child("ProductList")
+                        refOrderList.child(orderPushKeyString).child("ProductList")
                                 .addListenerForSingleValueEvent(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -573,7 +647,7 @@ public class MainChatActivity extends AppCompatActivity {
                                     @Override
                                     public void onDataChange(DataSnapshot dataSnapshot) {
                                         chosenProductPrice = dataSnapshot.getValue().toString();
-                                        tvAddPrice.setText(Utils.convertNumber(chosenProductPrice));
+                                        tvAddPrice.setText(convertNumber(chosenProductPrice));
 
                                         //String inQuantity = edtInQuantity.getText().toString();
                                         //float addTotal = Float.parseFloat(chosenProductPrice) * Float.parseFloat(inQuantity);
@@ -635,7 +709,7 @@ public class MainChatActivity extends AppCompatActivity {
                 if(productChoose.equals("Chọn sản phẩm")){
                     Toast.makeText(getApplicationContext(), "Vui lòng chọn sản phẩm", Toast.LENGTH_LONG).show();
                 }else{
-                    final String keyProduct = refUsers.child(userUid).child("OrderTemp").child(keyOrderTemp).child("ProductList").push().getKey();
+                    final String keyProduct = refOrderList.child(orderPushKeyString).child("ProductList").push().getKey();
 
                     final String inQuantity = edtInQuantity.getText().toString();
 
@@ -647,10 +721,10 @@ public class MainChatActivity extends AppCompatActivity {
 
                         Product addP = new Product(productChoose, inQuantity, chosenProductPrice, productTotal+"");
 
-                        refUserUid.child("OrderTemp").child(keyOrderTemp).child("ProductList").child(keyProduct).setValue(addP).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        refOrderList.child(orderPushKeyString).child("ProductList").child(keyProduct).setValue(addP).addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
-                                refUserUid.child("OrderTemp").child(keyOrderTemp).child("ProductList").addListenerForSingleValueEvent(new ValueEventListener() {
+                                refOrderList.child(orderPushKeyString).child("ProductList").addListenerForSingleValueEvent(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(DataSnapshot dataSnapshot) {
                                         Iterable<DataSnapshot> snapP = dataSnapshot.getChildren();
@@ -660,7 +734,7 @@ public class MainChatActivity extends AppCompatActivity {
                                             orderTotal += Float.parseFloat(currentP.getProductTotal());
                                             finalPayment = orderTotal+"";
 
-                                            tvTotal.setText(Utils.convertNumber(orderTotal+""));
+                                            tvTotal.setText(convertNumber(orderTotal+""));
                                         }
 
                                     }
@@ -685,7 +759,7 @@ public class MainChatActivity extends AppCompatActivity {
         });
     }
 
- */
+
 //dialogOrder
 
     private class ChatBoxViewHolder extends RecyclerView.ViewHolder {
@@ -708,21 +782,15 @@ public class MainChatActivity extends AppCompatActivity {
             });
         }
     }
-/*
-    public class ProductSameViewHolder extends RecyclerView.ViewHolder {
+
+    public class ProductViewHolder extends RecyclerView.ViewHolder {
         TextView productNameDia;
         TextView productPriceDia;
         TextView productTotalDia;
 
         EditText productQuantityDia;
 
-        TextView productNameAct;
-        TextView productPriceAct;
-        TextView productTotalAct;
-        TextView productQuantityAct;
-
-
-        public ProductSameViewHolder(View itemView) {
+        public ProductViewHolder(View itemView) {
             super(itemView);
 
             productNameDia = itemView.findViewById(R.id.tv_name_product_order_recently_dialog);
@@ -730,20 +798,14 @@ public class MainChatActivity extends AppCompatActivity {
             productTotalDia = itemView.findViewById(R.id.tv_total_money_order_recently_dialog);
             productQuantityDia = itemView.findViewById(R.id.edt_quantity_product_item_order_recently_dialog);
 
-            productNameAct = itemView.findViewById(R.id.tv_name_product);
-            productPriceAct = itemView.findViewById(R.id.tv_price_product);
-            productTotalAct = itemView.findViewById(R.id.tv_total_money);
-            productQuantityAct = itemView.findViewById(R.id.tv_quantity_product);
-
-
             productQuantityDia.setOnEditorActionListener(new TextView.OnEditorActionListener() {
                 @Override
                 public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                     int position = getAdapterPosition();
-                    Product clickedP = adapterFirebaseRecentlyOrderDia.getItem(position);
+                    Product clickedP = adapterFirebaseOrderQuickNew.getItem(position);
                     float productPrice = Float.parseFloat(clickedP.getProductPrice());
                     String productName = clickedP.getProductName();
-                    String productKey = adapterFirebaseRecentlyOrderDia.getRef(position).getKey();
+                    String productKey = adapterFirebaseOrderQuickNew.getRef(position).getKey();
 
                     if (actionId == EditorInfo.IME_ACTION_DONE) {
                         //Toast.makeText(getApplicationContext(), "ke", Toast.LENGTH_LONG).show();
@@ -757,10 +819,10 @@ public class MainChatActivity extends AppCompatActivity {
 
                             float productTotal = productPrice * Float.parseFloat(quantity);
                             Product updateP = new Product(productName, quantity, productPrice+"", productTotal+"");
-                            refUserUid.child("OrderTemp").child(keyOrderTemp).child("ProductList").child(productKey).setValue(updateP).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            refOrderList.child(orderPushKeyString).child("ProductList").child(productKey).setValue(updateP).addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void aVoid) {
-                                    refUserUid.child("OrderTemp").child(keyOrderTemp).child("ProductList").addListenerForSingleValueEvent(new ValueEventListener() {
+                                    refOrderList.child(orderPushKeyString).child("ProductList").addListenerForSingleValueEvent(new ValueEventListener() {
                                         @Override
                                         public void onDataChange(DataSnapshot dataSnapshot) {
                                             Iterable<DataSnapshot> snapP = dataSnapshot.getChildren();
@@ -770,7 +832,7 @@ public class MainChatActivity extends AppCompatActivity {
                                                 orderTotal += Float.parseFloat(currentP.getProductTotal());
                                                 finalPayment = orderTotal +"";
 
-                                                tvTotal.setText(Utils.convertNumber(orderTotal+""));
+                                                tvTotal.setText(convertNumber(orderTotal+""));
                                             }
 
                                         }
@@ -792,7 +854,7 @@ public class MainChatActivity extends AppCompatActivity {
 
     }
 
- */
+
 //ProductSameViewHolder
 
     public boolean onOptionsItemSelected(MenuItem item) {

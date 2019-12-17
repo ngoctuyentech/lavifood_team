@@ -29,11 +29,11 @@ public class Product {
         this.productName = productName;
     }
 
-    public Product(String productName, String unitPrice, String unitName, String product) {
+    public Product(String productName, String productQuantity, String productPrice, String productTotal) {
         this.productName = productName;
-        this.unitPrice = unitPrice;
-        this.unitName = unitName;
-        this.productCode = productCode;
+        this.productQuantity = productQuantity;
+        this.productPrice = productPrice;
+        this.productTotal = productTotal;
     }
 
     public Product(String productName, String productDiscount) {

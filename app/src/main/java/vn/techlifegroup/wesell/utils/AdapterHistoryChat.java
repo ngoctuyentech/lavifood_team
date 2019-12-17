@@ -36,6 +36,7 @@ public class AdapterHistoryChat extends RecyclerView.Adapter<AdapterHistoryChat.
     Context context;
 
     private String saleManEmail = FirebaseAuth.getInstance().getCurrentUser().getEmail().replace(".",",");
+    private String userUid      = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
     private List<ChatHistoryModel> item;
     private ChatHistoryModel chat;
@@ -46,8 +47,6 @@ public class AdapterHistoryChat extends RecyclerView.Adapter<AdapterHistoryChat.
     private HashMap<String, Integer> mapChatRoom = new HashMap<>();
 
     private List<ChatHistoryModel> historyChatList = new ArrayList<>();
-
-    public static String userUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
     public AdapterHistoryChat() {
         super();
@@ -74,7 +73,7 @@ public class AdapterHistoryChat extends RecyclerView.Adapter<AdapterHistoryChat.
 
         final String idFr = chat.getId();
 
-        refEmployees.child(saleManEmail).child("friend").child(idFr).addListenerForSingleValueEvent(new ValueEventListener() {
+        refEmployees.child(userUid).child("friend").child(idFr).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
@@ -91,16 +90,10 @@ public class AdapterHistoryChat extends RecyclerView.Adapter<AdapterHistoryChat.
             }
         });
 
-
-       // holder.tvTime.setText(Utils.getHourFromTimeStamp(Long.parseLong(timeStr)));
-      //  holder.tvDate.setText(Utils.getDateFromTimeStamp(Long.parseLong(timeStr)));
-
-        refEmployees.child(saleManEmail).child("friend").child(idFr).addListenerForSingleValueEvent(new ValueEventListener() {
+        refEmployees.child(userUid).child("friend").child(idFr).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 ChatHistoryModel valueChat = dataSnapshot.getValue(ChatHistoryModel.class);
-
-                //Glide.with(context).load(valueChat.getImageFr()).apply(RequestOptions.circleCropTransform()).into(holder.ivChatContact);
 
                 String name = valueChat.getNameFr();
                 String role = valueChat.getRoleFr();
@@ -109,6 +102,8 @@ public class AdapterHistoryChat extends RecyclerView.Adapter<AdapterHistoryChat.
                 holder.tvRole.setText(role);
 
                 Glide.with(getApplicationContext()).load(valueChat.getImageFr()).into(holder.ivChatContact);
+                //Glide.with(context).load(valueChat.getImageFr()).apply(RequestOptions.circleCropTransform()).into(holder.ivChatContact);
+
 
 
             }
@@ -119,7 +114,7 @@ public class AdapterHistoryChat extends RecyclerView.Adapter<AdapterHistoryChat.
             }
         });
 
-        refEmployees.child(saleManEmail).child("friend").child(idFr).addListenerForSingleValueEvent(new ValueEventListener() {
+        refEmployees.child(userUid).child("friend").child(idFr).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                     ChatHistoryModel chat = dataSnapshot.getValue(ChatHistoryModel.class);
@@ -178,7 +173,7 @@ public class AdapterHistoryChat extends RecyclerView.Adapter<AdapterHistoryChat.
 
                     String idFr = chat.getId();
 
-                    refEmployees.child(saleManEmail).child("friend").child(idFr).child("isRead").setValue(true);
+                    refEmployees.child(userUid).child("friend").child(idFr).child("isRead").setValue(true);
 
                     Intent it = new Intent(context, MainChatActivity.class);
 

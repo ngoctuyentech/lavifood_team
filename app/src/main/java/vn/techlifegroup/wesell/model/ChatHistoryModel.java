@@ -20,15 +20,15 @@ public class ChatHistoryModel {
     private String nameFr;
     private String roleFr;
 
+    public ChatHistoryModel(String id, String timeStamp) {
+        this.id = id;
+        this.timeStamp = timeStamp;
+    }
+
     public ChatHistoryModel(boolean isRead, String lastContent, String lastTimeStamp) {
         this.isRead = isRead;
         this.lastContent = lastContent;
         this.lastTimeStamp = lastTimeStamp;
-    }
-
-    public ChatHistoryModel(String id, String timeStamp) {
-        this.id = id;
-        this.timeStamp = timeStamp;
     }
 
     public String getId() {
