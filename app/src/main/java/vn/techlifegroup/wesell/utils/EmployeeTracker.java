@@ -25,7 +25,7 @@ public class EmployeeTracker extends Service {
     private static final int LOCATION_INTERVAL = 300*1000;
     private static final float LOCATION_DISTANCE = 0;
     private FirebaseAuth firebaseAuth= FirebaseAuth.getInstance();
-    private String emailLogin,saleEmail;
+    private String saleEmail;
 
     public EmployeeTracker() {
     }
@@ -54,7 +54,7 @@ public class EmployeeTracker extends Service {
 
 
             MapModel updateMap = new MapModel(location.getLatitude()+"",location.getLongitude()+"");
-            refDatabase.child(emailLogin).child("GeoFire").child(saleEmail.replace(".",",")).setValue(updateMap);
+            refDatabase.child("GeoFire").child(saleEmail.replace(".",",")).setValue(updateMap);
 
 
         }
@@ -94,7 +94,6 @@ public class EmployeeTracker extends Service {
     {
         //agent=(String) Objects.requireNonNull(intent.getExtras()).get("Agent");
         saleEmail = (String) Objects.requireNonNull(intent.getExtras()).get("SaleEmail");
-        emailLogin = (String) Objects.requireNonNull(intent.getExtras()).get("EmailLogin");
 
         Log.e(TAG, "onStartCommand");
         super.onStartCommand(intent, flags, startId);

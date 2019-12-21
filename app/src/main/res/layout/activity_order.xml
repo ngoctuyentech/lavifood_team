@@ -37,8 +37,10 @@
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar_order">
+        app:layout_constraintTop_toBottomOf="@+id/toolbar_order"
+        app:layout_constraintVertical_bias="1.0">
 
         <android.support.constraint.ConstraintLayout
             android:id="@+id/constraintLayout10"
@@ -64,14 +66,13 @@
             <android.support.constraint.ConstraintLayout
                 android:id="@+id/constraintLayout4"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="280dp"
                 android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
                 android:background="@drawable/box_white_dialog"
                 android:elevation="4dp"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textView198">
 
@@ -79,8 +80,9 @@
                     android:id="@+id/btn_order_choose_product"
                     android:layout_width="wrap_content"
                     android:layout_height="30dp"
+                    android:layout_marginTop="8dp"
                     android:layout_marginEnd="4dp"
-                    android:layout_marginBottom="4dp"
+                    android:layout_marginBottom="16dp"
                     android:background="@drawable/border_drug_cat_accent"
                     android:fontFamily="@font/utm_dax_bold"
                     android:paddingLeft="6dp"
@@ -89,13 +91,14 @@
                     android:textColor="@android:color/white"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/textView200" />
+                    app:layout_constraintTop_toBottomOf="@+id/edt_order_product_quantity" />
 
                 <EditText
                     android:id="@+id/edt_order_product_quantity"
                     android:layout_width="50dp"
                     android:layout_height="30dp"
-                    android:layout_marginEnd="4dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="24dp"
                     android:background="@drawable/box_white_edtext"
                     android:ems="10"
                     android:fontFamily="@font/utm_dax"
@@ -103,95 +106,88 @@
                     android:inputType="number"
                     android:textColor="@color/black"
                     android:textColorHint="@color/black"
-                    app:layout_constraintBottom_toBottomOf="@+id/spin_order_product"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="@+id/spin_order_product" />
+                    app:layout_constraintEnd_toStartOf="@+id/textView200"
+                    app:layout_constraintTop_toBottomOf="@+id/spin_order_product" />
 
                 <Spinner
                     android:id="@+id/spin_order_group"
-                    android:layout_width="150dp"
-                    android:layout_height="25dp"
-                    android:layout_marginTop="32dp"
-                    android:layout_marginBottom="2dp"
-                    android:background="@color/white"
+                    android:layout_width="200dp"
+                    android:layout_height="30dp"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/box_white_edtext"
                     android:gravity="left"
-                    app:layout_constraintBottom_toTopOf="@+id/spin_order_product"
-                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/rv_order_list_product" />
 
                 <Spinner
                     android:id="@+id/spin_order_product"
-                    android:layout_width="175dp"
+                    android:layout_width="0dp"
                     android:layout_height="30dp"
-                    android:layout_marginTop="2dp"
-                    android:layout_marginBottom="8dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
                     android:background="@drawable/box_white_edtext"
                     android:gravity="left"
                     android:visibility="visible"
-                    app:layout_constraintBottom_toTopOf="@+id/textView200"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/spin_order_group" />
-
-                <TextView
-                    android:id="@+id/tv_order_product_price"
-                    android:layout_width="60dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="32dp"
-                    android:ems="10"
-                    android:fontFamily="@font/utm_dax"
-                    android:hint="Đơn giá"
-                    android:inputType="number"
-                    android:textSize="16dp"
-                    app:layout_constraintBottom_toBottomOf="@+id/edt_order_product_quantity"
-                    app:layout_constraintStart_toEndOf="@+id/spin_order_product"
-                    app:layout_constraintTop_toTopOf="@+id/edt_order_product_quantity" />
 
                 <TextView
                     android:id="@+id/textView201"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="32dp"
                     android:fontFamily="@font/utm_dax"
                     android:text="Tồn kho"
                     android:visibility="gone"
-                    app:layout_constraintBottom_toBottomOf="@+id/tv_order_product_stock"
                     app:layout_constraintEnd_toEndOf="@+id/tv_order_product_stock"
-                    app:layout_constraintTop_toTopOf="@+id/tv_order_product_stock" />
+                    tools:layout_editor_absoluteY="302dp" />
 
                 <TextView
                     android:id="@+id/tv_order_product_stock"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="9dp"
+                    android:layout_marginEnd="16dp"
                     android:text="0"
                     android:textColor="@color/black"
-                    app:layout_constraintBottom_toBottomOf="@+id/textView200"
-                    app:layout_constraintEnd_toEndOf="@+id/edt_order_product_quantity"
-                    app:layout_constraintStart_toStartOf="@+id/edt_order_product_quantity"
-                    app:layout_constraintTop_toTopOf="@+id/textView200" />
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/spin_order_product" />
 
                 <TextView
                     android:id="@+id/textView200"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="2dp"
-                    android:layout_marginBottom="8dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="24dp"
                     android:fontFamily="@font/utm_dax"
                     android:text="Tồn kho"
-                    app:layout_constraintBottom_toTopOf="@+id/btn_order_choose_product"
-                    app:layout_constraintStart_toStartOf="parent"
+                    android:textColor="@android:color/black"
+                    app:layout_constraintEnd_toStartOf="@+id/tv_order_product_stock"
                     app:layout_constraintTop_toBottomOf="@+id/spin_order_product" />
 
                 <android.support.v7.widget.RecyclerView
                     android:id="@+id/rv_order_list_product"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="80dp"
                     android:layout_marginTop="8dp"
                     android:visibility="visible"
                     app:layout_constraintBottom_toTopOf="@+id/spin_order_group"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/tv_new_order_price"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="16dp"
+                    android:text="0"
+                    android:textColor="@android:color/black"
+                    android:textSize="18sp"
+                    app:layout_constraintEnd_toStartOf="@+id/edt_order_product_quantity"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/spin_order_product" />
 
             </android.support.constraint.ConstraintLayout>
 
@@ -206,51 +202,6 @@
                 android:textStyle="italic"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
-
-            <android.support.constraint.ConstraintLayout
-                android:id="@+id/constraintLayout13"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="4dp"
-                android:layout_marginEnd="8dp"
-                android:background="@drawable/box_white_dialog"
-                android:elevation="4dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView207">
-
-                <Button
-                    android:id="@+id/btn_order_choose_promotion"
-                    android:layout_width="wrap_content"
-                    android:layout_height="30dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="4dp"
-                    android:layout_marginBottom="8dp"
-                    android:background="@drawable/border_drug_cat_accent"
-                    android:fontFamily="@font/utm_dax_bold"
-                    android:paddingLeft="6dp"
-                    android:paddingRight="6dp"
-                    android:text="Thêm chương trình"
-                    android:textColor="@android:color/white"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/rv_program_list" />
-
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/rv_program_list"
-                    android:layout_width="0dp"
-                    android:layout_height="60dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="8dp"
-                    android:visibility="gone"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-            </android.support.constraint.ConstraintLayout>
 
             <android.support.constraint.ConstraintLayout
                 android:id="@+id/constraintLayout5"
@@ -417,18 +368,6 @@
                     app:layout_constraintTop_toBottomOf="@+id/tv_order_client_name" />
             </android.support.constraint.ConstraintLayout>
 
-            <TextView
-                android:id="@+id/textView207"
-                android:layout_width="150dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="8dp"
-                android:fontFamily="@font/utm_dax_bold"
-                android:text="Chương trình"
-                android:textStyle="italic"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/constraintLayout4" />
-
             <android.support.constraint.ConstraintLayout
                 android:id="@+id/constraintLayout16"
                 android:layout_width="0dp"
@@ -481,50 +420,29 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/edt_order_date_delivery" />
 
-                <Spinner
-                    android:id="@+id/spin_order_vat"
-                    android:layout_width="120dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="8dp"
-                    android:entries="@array/VAT_array"
-                    android:textAlignment="textEnd"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
                 <Switch
                     android:id="@+id/sw_order_payment"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
                     android:layout_marginEnd="8dp"
                     android:fontFamily="@font/utm_dax_bold"
                     android:text="Tiền mặt "
                     android:textOff="Tiền mặt"
                     android:textOn="Công nợ"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/spin_order_vat" />
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
                     android:id="@+id/textView199"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="16dp"
                     android:fontFamily="@font/utm_dax"
                     android:text="Thanh toán"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/textView205" />
+                    app:layout_constraintEnd_toStartOf="@+id/sw_order_payment"
+                    app:layout_constraintTop_toTopOf="@+id/sw_order_payment" />
 
-                <TextView
-                    android:id="@+id/textView205"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="8dp"
-                    android:fontFamily="@font/utm_dax"
-                    android:text="VAT (%)"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
             </android.support.constraint.ConstraintLayout>
 
             <TextView
@@ -537,7 +455,7 @@
                 android:text="Thông tin đơn hàng"
                 android:textStyle="italic"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/constraintLayout13" />
+                app:layout_constraintTop_toBottomOf="@+id/constraintLayout4" />
 
         </android.support.constraint.ConstraintLayout>
 

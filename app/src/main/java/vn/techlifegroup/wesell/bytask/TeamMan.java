@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.LayoutInflater;
@@ -67,6 +68,8 @@ public class TeamMan extends AppCompatActivity implements OnMapReadyCallback {
     private GoogleMap mMap;
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
 
+    private DatabaseReference refSale;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,11 +80,10 @@ public class TeamMan extends AppCompatActivity implements OnMapReadyCallback {
         assert mapFragment != null;
         mapFragment.getMapAsync(this);
 
-        Intent it = this.getIntent();
-        emailLogin = it.getStringExtra("EmailLogin");
         userEmail = FirebaseAuth.getInstance().getCurrentUser().getEmail().replace(".", ",");
 
-        DatabaseReference refSale = refDatabase.child(emailLogin).child("SaleManBySup").child(userEmail).child("Tất cả");
+
+        refSale = refDatabase.child("SaleManBySup").child(userEmail).child("Tất cả");
 
         getCurrentLatLong();
 
@@ -92,8 +94,8 @@ public class TeamMan extends AppCompatActivity implements OnMapReadyCallback {
 
         rvList = (RecyclerView) findViewById(R.id.rv_team_man_list);
         rvList.setHasFixedSize(true);
-        StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(4, StaggeredGridLayoutManager.VERTICAL);
-        rvList.setLayoutManager(staggeredGridLayoutManager);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false);
+        rvList.setLayoutManager(linearLayoutManager);
 
 
         adapterDetail = new FirebaseRecyclerAdapter<Employee, SaleViewHolder>(
@@ -107,9 +109,7 @@ public class TeamMan extends AppCompatActivity implements OnMapReadyCallback {
                 View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_saleman, parent, false);
                 return new SaleViewHolder(v);
             }
-
-
-            @Override
+        @Override
             protected void populateViewHolder(SaleViewHolder viewHolder, Employee model, int position) {
                 viewHolder.saleName.setText(model.getEmployeeName());
 
@@ -165,7 +165,7 @@ public class TeamMan extends AppCompatActivity implements OnMapReadyCallback {
         //if(distanceMap!=null) distanceMap.clear();
         // if(sortTopProduct!=null) sortTopProduct.clear();
 
-        refDatabase.child(emailLogin).child("GeoFire").addListenerForSingleValueEvent(new ValueEventListener() {
+        refDatabase.child("GeoFire").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Iterable<DataSnapshot> saleLocSnap = dataSnapshot.getChildren();
@@ -199,7 +199,7 @@ public class TeamMan extends AppCompatActivity implements OnMapReadyCallback {
                             double value = entry.getValue();
 
                             if(value == minDis){
-                                refDatabase.child(emailLogin).child("GeoFire").child(key).addListenerForSingleValueEvent(new ValueEventListener() {
+                                refDatabase.child("GeoFire").child(key).addListenerForSingleValueEvent(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(DataSnapshot dataSnapshot) {
                                         MapModel saleLoc = dataSnapshot.getValue(MapModel.class);
@@ -250,25 +250,38 @@ public class TeamMan extends AppCompatActivity implements OnMapReadyCallback {
                     MapStyleOptions.loadRawResourceStyle(
                             this, R.string.style_json));
 
-
-
         } catch (Resources.NotFoundException e) {
 
         }
 
-        refDatabase.child(emailLogin).child("GeoFire").addListenerForSingleValueEvent(new ValueEventListener() {
+
+        refSale.limitToFirst(1).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-               Iterator<DataSnapshot> it = dataSnapshot.getChildren().iterator();
+                Iterable<DataSnapshot> snapSale = dataSnapshot.getChildren();
+                for(DataSnapshot itemSale:snapSale){
+                    String saleEmail = itemSale.getValue(Employee.class).getEmployeeEmail();
 
-                MapModel map = it.next().getValue(MapModel.class);
+                    refDatabase.child("GeoFire").child(saleEmail).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
 
-                LatLng onMapClient = new LatLng(Double.parseDouble(map.getLatitude()),Double.parseDouble(map.getLongitude()));
+                            MapModel map = dataSnapshot.getValue(MapModel.class);
 
-                mMap.addMarker(new MarkerOptions().position(onMapClient));
+                            LatLng onMapClient = new LatLng(Double.parseDouble(map.getLatitude()),Double.parseDouble(map.getLongitude()));
 
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(onMapClient,16.0f));
+                            mMap.addMarker(new MarkerOptions().position(onMapClient));
 
+                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(onMapClient,16.0f));
+
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+                }
             }
 
             @Override
@@ -276,6 +289,8 @@ public class TeamMan extends AppCompatActivity implements OnMapReadyCallback {
 
             }
         });
+
+
 
 
         getLocationPermission();
@@ -320,7 +335,7 @@ public class TeamMan extends AppCompatActivity implements OnMapReadyCallback {
 
                     Employee employee = adapterDetail.getItem(choosenEmployee);
                     String employeeEmail = employee.getEmployeeEmail();
-                    refDatabase.child(emailLogin).child("GeoFire").child(employeeEmail).addListenerForSingleValueEvent(new ValueEventListener() {
+                    refDatabase.child("GeoFire").child(employeeEmail).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             MapModel map = dataSnapshot.getValue(MapModel.class);

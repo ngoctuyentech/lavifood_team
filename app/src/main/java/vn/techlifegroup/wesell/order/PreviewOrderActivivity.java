@@ -42,7 +42,6 @@ import java.util.List;
 import vn.techlifegroup.wesell.MainActivity;
 import vn.techlifegroup.wesell.R;
 import vn.techlifegroup.wesell.bytask.OrderManActivity;
-import vn.techlifegroup.wesell.list.ClientListBySaleTeam;
 import vn.techlifegroup.wesell.model.Client;
 import vn.techlifegroup.wesell.model.Employee;
 import vn.techlifegroup.wesell.model.OrderDetail;
@@ -71,7 +70,7 @@ public class PreviewOrderActivivity extends AppCompatActivity {
     private boolean discountVAT,outRoute,viewOnly,saleMan;
 
     private TextView tvClientName, tvClientType, tvPayment, tvDelivery, tvNotVAT,tvPromotionStorage,tvProductStorage,
-            tvVAT,tvNotVATDiscount, tvFinalPayment,tvClientAddress, tvDeliveryName,tvNote,tvPromotionChoosen,tvProductChoosen,tvSaleName;
+            tvVAT,tvNotVATDiscount, tvFinalPayment,tvClientAddress, tvDeliveryName,tvNote,tvPromotionChoosen,tvProductChoosen,tvSaleName,tvTotal,tvDiscount;
     private String orderPushKey,orderName,employeeName,clientType,clientCode,paymentType,deliveryDate,choosenVAT,emailLogin,discount;
 
     private float VAT,notVAT;
@@ -104,10 +103,7 @@ public class PreviewOrderActivivity extends AppCompatActivity {
         outRoute = intent.getBooleanExtra("OutRoute",false);
         saleMan = intent.getBooleanExtra("SaleMan",false);
 
-        discount = intent.getStringExtra("OrderDiscount");
-        choosenVAT = intent.getStringExtra("VAT");
-        //clientCode = intent.getStringExtra("ClientCode");
-        emailLogin = intent.getStringExtra("EmailLogin");
+
         viewOnly = intent.getBooleanExtra("ViewOnly",false);
 
         refOrderList = refDatabase.child("OrderList");
@@ -141,9 +137,9 @@ public class PreviewOrderActivivity extends AppCompatActivity {
         recyclerViewPromotion = (RecyclerView)findViewById(R.id.order_recycler_promotion_preview);
         tvClientName = (TextView)findViewById(R.id.tv_approve_sale_client_name);
         tvClientType = (TextView)findViewById(R.id.tv_approve_sale_client_type);
-        tvPayment = (TextView)findViewById(R.id.tv_approve_sale_payment_type);
-        tvNotVAT = (TextView)findViewById(R.id.tv_detail_notVAT_preview);
-        tvVAT = (TextView)findViewById(R.id.tv_detail_VAT_preview);
+        tvTotal = (TextView)findViewById(R.id.tv_preview_total_payment);
+        tvDiscount = (TextView)findViewById(R.id.tv_preview_discount);
+        tvPayment = findViewById(R.id.tv_approve_sale_payment_type);
         tvFinalPayment = (TextView)findViewById(R.id.tv_preview_final_payment);
         tvClientAddress = (TextView)findViewById(R.id.tv_preview_order_address);
         tvDelivery = findViewById(R.id.tv_preview_delivery_date);
@@ -249,18 +245,13 @@ public class PreviewOrderActivivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 VatModel currentVat = dataSnapshot.getValue(VatModel.class);
                 if(currentVat!=null){
-                    notVAT = currentVat.getNotVat();
-                    VAT = currentVat.getIncludedVat();
-                    //b.putString("NotVAT",currentVat.getNotVat());
-                    //b.putString("IncludedVAT",currentVat.getIncludedVat());
+                    String VAT = currentVat.getIncludedVat();
+                    tvTotal.setText(Utils.convertNumber(VAT+""));
 
-                    //String notVATValue = currentVat.getNotVat();
-                    tvNotVAT.setText(Utils.convertNumber(notVAT+""));
+                    String discount = currentVat.getDiscount();
+                    tvDiscount.setText(Utils.convertNumber(discount+""));
 
-                    //String vatValue = currentVat.getIncludedVat();
-                    tvVAT.setText(Utils.convertNumber(VAT+""));
-
-                    float finalPayment = currentVat.getFinalPayment();
+                    String finalPayment = currentVat.getFinalPayment();
                     tvFinalPayment.setText(Utils.convertNumber(finalPayment+""));
 
                 }
@@ -885,15 +876,7 @@ public class PreviewOrderActivivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        if(!viewOnly){
-            refDatabase.child("OrderList").child(orderPushKey).setValue(null);
-            startActivity(new Intent(this,MainActivity.class));
-        }
 
-    }
 
     public void showProgressDialog() {
         if (mProgressDialog == null) {

@@ -750,33 +750,9 @@ public class OrderManActivity extends AppCompatActivity {
         }
 
         if(supervisor){
-            refApproved = refCompany.child("Order/OrderBySale").child(userEmail).child("Approved");
 
-            adapterFirebaseApproved = new FirebaseRecyclerAdapter<OrderDetail, OrderViewHolderApproved>(
-                    OrderDetail.class,
-                    R.id.order_cardview,
-                    OrderViewHolderApproved.class,
-                    refApproved
-            ) {
-                @Override
-                public OrderViewHolderApproved onCreateViewHolder(ViewGroup parent, int viewType) {
-                    View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_order, parent, false);
-                    return new OrderViewHolderApproved(v);
-                }
+            getOrderList(refOrder.child("OrderBySale").child(userEmail).child("Approved"));
 
-
-                @Override
-                protected void populateViewHolder(OrderViewHolderApproved viewHolder, OrderDetail model, int position) {
-                    viewHolder.orderName.setText(model.getOrderName());
-                    if(admin){
-                        viewHolder.ivApprove.setVisibility(View.VISIBLE);
-                    }
-
-                }
-            };
-
-            recyclerViewApproved.setAdapter(adapterFirebaseApproved);
-            adapterFirebaseApproved.notifyDataSetChanged();
         }
 
 
@@ -848,9 +824,7 @@ public class OrderManActivity extends AppCompatActivity {
 
                     recyclerViewUnApproved.setAdapter(adapterFirebaseUnapproved);
                     adapterFirebaseUnapproved.notifyDataSetChanged();
-
- */
-
+*/
                 }
 
                 @Override
@@ -861,35 +835,10 @@ public class OrderManActivity extends AppCompatActivity {
         }
 
         if(supervisor){
-            refUnapproved = refCompany.child("Order/OrderBySale").child(userEmail).child("UnApproved");
 
-            adapterFirebaseUnapproved = new FirebaseRecyclerAdapter<OrderDetail, OrderViewHolderUnapproved>(
-                    OrderDetail.class,
-                    R.id.order_cardview,
-                    OrderViewHolderUnapproved.class,
-                    refUnapproved
-            ) {
-                @Override
-                public OrderViewHolderUnapproved onCreateViewHolder(ViewGroup parent, int viewType) {
-                    View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_order, parent, false);
-                    return new OrderViewHolderUnapproved(v);
-                }
+            getOrderList(refOrder.child("OrderBySale").child(userEmail).child("UnApproved"));
 
-
-                @Override
-                protected void populateViewHolder(OrderViewHolderUnapproved viewHolder, OrderDetail model, int position) {
-                    viewHolder.orderName.setText(model.getOrderName());
-                    if(supervisor || asm){
-                        viewHolder.ivApprove.setVisibility(View.VISIBLE);
-                    }
-                }
-            };
-
-            recyclerViewUnApproved.setAdapter(adapterFirebaseUnapproved);
-            adapterFirebaseUnapproved.notifyDataSetChanged();
         }
-
-
 
     }
 
@@ -943,32 +892,8 @@ public class OrderManActivity extends AppCompatActivity {
         }
 
         if(supervisor){
-            refDenied = refCompany.child("Order/OrderBySale").child(userEmail).child("OutRoute");
+            getOrderList(refOrder.child("OrderBySale").child(userEmail).child("OutRoute"));
 
-            adapterFirebaseDenied = new FirebaseRecyclerAdapter<OrderDetail, OutRouteViewHolder>(
-                    OrderDetail.class,
-                    R.id.order_cardview,
-                    OutRouteViewHolder.class,
-                    refDenied
-            ) {
-                @Override
-                public OutRouteViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-                    View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_order, parent, false);
-                    return new OutRouteViewHolder(v);
-                }
-
-
-                @Override
-                protected void populateViewHolder(OutRouteViewHolder viewHolder, OrderDetail model, int position) {
-                    viewHolder.orderName.setText(model.getOrderName());
-                    if(supervisor || asm){
-                        viewHolder.ivApprove.setVisibility(View.VISIBLE);
-                    }
-                }
-            };
-
-            recyclerViewDenied.setAdapter(adapterFirebaseDenied);
-            adapterFirebaseDenied.notifyDataSetChanged();
         }
 
     }
@@ -1442,6 +1367,16 @@ public class OrderManActivity extends AppCompatActivity {
                 public void onClick(View v) {
 
                     v.startAnimation(Constants.buttonClick);
+
+                    final int position = getLayoutPosition();
+                    final String keyOrder = adapterOrder.getRef(position).getKey();
+
+                    Intent it = new Intent(getApplicationContext(),PreviewOrderActivivity.class);
+                    it.putExtra("OrderPushKey", keyOrder);
+                    startActivity(it);
+
+
+                  /*
                     final int position = getLayoutPosition();
                     final String keyOrder = adapterOrder.getRef(position).getKey();
 
@@ -1504,12 +1439,6 @@ public class OrderManActivity extends AppCompatActivity {
                         }
                     });
 
-
-
-
-
-
-
                     RecyclerView rvOrderDetail = dialog.findViewById(R.id.rv_order_detail);
                     rvOrderDetail.setHasFixedSize(true);
                     LinearLayoutManager linearLayoutManagerOrDe = new LinearLayoutManager(getApplicationContext());
@@ -1545,6 +1474,8 @@ public class OrderManActivity extends AppCompatActivity {
 
                     rvOrderDetail.setAdapter(adapterFirebaseOrderDetail);
                     adapterFirebaseOrderDetail.notifyDataSetChanged();
+
+                    */
 
                 }
             });
@@ -1844,7 +1775,7 @@ public class OrderManActivity extends AppCompatActivity {
                                         @Override
                                         public void onDataChange(DataSnapshot dataSnapshot) {
                                             VatModel vatModel = dataSnapshot.getValue(VatModel.class);
-                                            final float finalPayment = vatModel.getFinalPayment();
+                                            final String finalPayment = vatModel.getFinalPayment();
 
                                             Constants.refDatabase.child(emailLogin).child("ClientOrder").child(clientCode).child(orderKey).setValue(timeStamp);
                                             refCompany.child("SaleOrder").child(saleEmail).child(orderKey).setValue(timeStamp);
@@ -1860,7 +1791,7 @@ public class OrderManActivity extends AppCompatActivity {
                                                             @Override
                                                             public void onDataChange(DataSnapshot dataSnapshot) {
                                                                 float currentSale = Float.parseFloat(dataSnapshot.getValue().toString());
-                                                                float updateSale = currentSale + finalPayment;
+                                                                float updateSale = currentSale + Float.parseFloat(finalPayment);
 
                                                                 refCompany.child("TotalByTime").child(clientCode).child(year+"-"+month+"-"+date).setValue(updateSale+"");
                                                             }
@@ -1880,7 +1811,7 @@ public class OrderManActivity extends AppCompatActivity {
                                                             @Override
                                                             public void onDataChange(DataSnapshot dataSnapshot) {
                                                                 float currentSale = Float.parseFloat(dataSnapshot.getValue().toString());
-                                                                float updateSale = currentSale + finalPayment;
+                                                                float updateSale = currentSale + Float.parseFloat(finalPayment);
 
                                                                 refCompany.child("TotalByTime").child(clientCode).child(year+"-"+month).setValue(updateSale+"");
                                                             }
@@ -1900,7 +1831,7 @@ public class OrderManActivity extends AppCompatActivity {
                                                             @Override
                                                             public void onDataChange(DataSnapshot dataSnapshot) {
                                                                 float currentSale = Float.parseFloat(dataSnapshot.getValue().toString());
-                                                                float updateSale = currentSale + finalPayment;
+                                                                float updateSale = currentSale + Float.parseFloat(finalPayment);
 
                                                                 refCompany.child("TotalByTime").child(clientCode).child(year).setValue(updateSale+"");
                                                             }
@@ -1931,7 +1862,7 @@ public class OrderManActivity extends AppCompatActivity {
                                                             @Override
                                                             public void onDataChange(DataSnapshot dataSnapshot) {
                                                                 float currentSale = Float.parseFloat(dataSnapshot.getValue().toString());
-                                                                float updateSale = currentSale + finalPayment;
+                                                                float updateSale = currentSale + Float.parseFloat(finalPayment);
 
                                                                 refCompany.child("TotalByClient").child(clientCode).child(year+"-"+month+"-"+date).setValue(updateSale+"");
                                                             }
@@ -1951,7 +1882,7 @@ public class OrderManActivity extends AppCompatActivity {
                                                             @Override
                                                             public void onDataChange(DataSnapshot dataSnapshot) {
                                                                 float currentSale = Float.parseFloat(dataSnapshot.getValue().toString());
-                                                                float updateSale = currentSale + finalPayment;
+                                                                float updateSale = currentSale + Float.parseFloat(finalPayment);
 
                                                                 refCompany.child("TotalByClient").child(clientCode).child(year+"-"+month).setValue(updateSale+"");
                                                             }
@@ -1971,7 +1902,7 @@ public class OrderManActivity extends AppCompatActivity {
                                                             @Override
                                                             public void onDataChange(DataSnapshot dataSnapshot) {
                                                                 float currentSale = Float.parseFloat(dataSnapshot.getValue().toString());
-                                                                float updateSale = currentSale + finalPayment;
+                                                                float updateSale = currentSale + Float.parseFloat(finalPayment);
 
                                                                 refCompany.child("TotalByClient").child(clientCode).child(year).setValue(updateSale+"");
                                                             }
@@ -2001,7 +1932,7 @@ public class OrderManActivity extends AppCompatActivity {
                                                             @Override
                                                             public void onDataChange(DataSnapshot dataSnapshot) {
                                                                 float currentSale = Float.parseFloat(dataSnapshot.getValue().toString());
-                                                                float updateSale = currentSale + finalPayment;
+                                                                float updateSale = currentSale + Float.parseFloat(finalPayment);
 
                                                                 refCompany.child("TotalBySale").child(saleEmail).child(year+"-"+month+"-"+date).setValue(updateSale+"");
                                                             }
@@ -2021,7 +1952,7 @@ public class OrderManActivity extends AppCompatActivity {
                                                             @Override
                                                             public void onDataChange(DataSnapshot dataSnapshot) {
                                                                 float currentSale = Float.parseFloat(dataSnapshot.getValue().toString());
-                                                                float updateSale = currentSale + finalPayment;
+                                                                float updateSale = currentSale + Float.parseFloat(finalPayment);
 
                                                                 refCompany.child("TotalBySale").child(saleEmail).child(year+"-"+month).setValue(updateSale+"");
                                                             }
@@ -2041,7 +1972,7 @@ public class OrderManActivity extends AppCompatActivity {
                                                             @Override
                                                             public void onDataChange(DataSnapshot dataSnapshot) {
                                                                 float currentSale = Float.parseFloat(dataSnapshot.getValue().toString());
-                                                                float updateSale = currentSale + finalPayment;
+                                                                float updateSale = currentSale + Float.parseFloat(finalPayment);
 
                                                                 refCompany.child("TotalBySale").child(saleEmail).child(year).setValue(updateSale+"");
                                                             }
@@ -3033,12 +2964,7 @@ public class OrderManActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    public void onBackPressed() {
-        b.clear();
-        startActivity(new Intent(this,MainActivity.class));
-        super.onBackPressed();
-    }
+
     public void showProgressDialog() {
         if (mProgressDialog == null) {
             mProgressDialog = new ProgressDialog(this);

@@ -507,7 +507,7 @@ public class SaleRoute extends AppCompatActivity implements OnMapReadyCallback {
         if (distanceMap != null) distanceMap.clear();
         if (sortTopProduct != null) sortTopProduct.clear();
 
-        refDatabase.child(emailLogin).child("SaleRoute").child(userEmail).child(choosenDay).addListenerForSingleValueEvent(new ValueEventListener() {
+        refDatabase.child("SaleRoute").child(userEmail).child(choosenDay).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Iterable<DataSnapshot> snapClient = dataSnapshot.getChildren();
@@ -548,7 +548,7 @@ public class SaleRoute extends AppCompatActivity implements OnMapReadyCallback {
                         //Toast.makeText(getApplicationContext(),minDis+"", Toast.LENGTH_LONG).show();
 
                         if(i == sortTopProduct.size()){
-                            AdapterMeetClient adapterMeetClient = new AdapterMeetClient(getApplicationContext(), listVisits, SaleRoute.this, emailLogin);
+                            AdapterMeetClient adapterMeetClient = new AdapterMeetClient(getApplicationContext(), listVisits, SaleRoute.this);
                             rvClientList.setAdapter(adapterMeetClient);
                             adapterMeetClient.notifyDataSetChanged();
                         }
@@ -559,7 +559,7 @@ public class SaleRoute extends AppCompatActivity implements OnMapReadyCallback {
 
                             if (value == minDis) {
 
-                                refDatabase.child(emailLogin).child("SaleRoute").child(userEmail).child(choosenDay).child(key).addListenerForSingleValueEvent(new ValueEventListener() {
+                                refDatabase.child("SaleRoute").child(userEmail).child(choosenDay).child(key).addListenerForSingleValueEvent(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(DataSnapshot dataSnapshot) {
                                         Client addListClient = dataSnapshot.getValue(Client.class);
@@ -958,7 +958,6 @@ public class SaleRoute extends AppCompatActivity implements OnMapReadyCallback {
                     getCurrentLatLong();
                     mMap.setMyLocationEnabled(true);
                     Intent itService = new Intent(getApplicationContext(), EmployeeTracker.class);
-                    itService.putExtra("EmailLogin", emailLogin);
                     itService.putExtra("SaleEmail", userEmail);
                     startService(itService);
 

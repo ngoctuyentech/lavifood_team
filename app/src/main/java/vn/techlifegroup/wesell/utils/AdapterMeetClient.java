@@ -70,7 +70,7 @@ public class AdapterMeetClient extends RecyclerView.Adapter<AdapterMeetClient.Cl
 
     }
 
-    public AdapterMeetClient(Context context, List<Client> items,Activity activity,String emailLogin) {
+    public AdapterMeetClient(Context context, List<Client> items,Activity activity) {
         this.context = context;
         this.items = items;
         this.activity = activity;
@@ -192,7 +192,7 @@ public class AdapterMeetClient extends RecyclerView.Adapter<AdapterMeetClient.Cl
                     monthSale.setBackground(activity.getResources().getDrawable(R.drawable.border_drug_cat));
                     thisMonthSale.setBackground(activity.getResources().getDrawable(R.drawable.border_drug_cat_accent));
 
-                    refDatabase.child(emailLogin).child("Client").child(clientCode).addListenerForSingleValueEvent(new ValueEventListener() {
+                    refDatabase.child("Client").child(clientCode).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             Client clientInfo = dataSnapshot.getValue(Client.class);
@@ -216,7 +216,7 @@ public class AdapterMeetClient extends RecyclerView.Adapter<AdapterMeetClient.Cl
 
                     final List<BarEntry> monthEntries = new ArrayList<>();
 
-                    refDatabase.child(emailLogin).child("TotalByClient").child(clientCode).addListenerForSingleValueEvent(new ValueEventListener() {
+                    refDatabase.child("TotalByClient").child(clientCode).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             Iterable<DataSnapshot> snapTimeSale = dataSnapshot.getChildren();
@@ -279,7 +279,6 @@ public class AdapterMeetClient extends RecyclerView.Adapter<AdapterMeetClient.Cl
                         public void onClick(View v) {
                             v.startAnimation(buttonClick);
                             Intent it = new Intent(context, UpdateOrderActivity.class);
-                            it.putExtra("EmailLogin", SaleRoute.emailLogin);
                             it.putExtra("ClientCode", clientCode);
                             it.putExtra("SaleMan",true);
                             it.putExtra("OutRoute",true);
@@ -293,7 +292,7 @@ public class AdapterMeetClient extends RecyclerView.Adapter<AdapterMeetClient.Cl
                         public void onClick(View v) {
                             v.startAnimation(buttonClick);
 
-                            refDatabase.child(emailLogin).child("Client").child(clientCode).child("clientPhone").addListenerForSingleValueEvent(new ValueEventListener() {
+                            refDatabase.child("Client").child(clientCode).child("clientPhone").addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     String phone = dataSnapshot.getValue().toString();
@@ -323,7 +322,7 @@ public class AdapterMeetClient extends RecyclerView.Adapter<AdapterMeetClient.Cl
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     MapModel updateMap = new MapModel(latitude+"",SaleRoute.longitude+"");
-                                    refDatabase.child(emailLogin).child("Client").child(clientCode).child("map").setValue(updateMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    refDatabase.child("Client").child(clientCode).child("map").setValue(updateMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
                                             Toast.makeText(context, "Cập nhật hoàn tất!", Toast.LENGTH_LONG).show();
@@ -341,8 +340,6 @@ public class AdapterMeetClient extends RecyclerView.Adapter<AdapterMeetClient.Cl
                         public void onClick(View v) {
                             v.startAnimation(buttonClick);
 
-
-
                             yearSale.setBackground(context.getResources().getDrawable(R.drawable.border_drug_cat_accent));
                             monthSale.setBackground(context.getResources().getDrawable(R.drawable.border_drug_cat));
                             thisMonthSale.setBackground(context.getResources().getDrawable(R.drawable.border_drug_cat));
@@ -350,7 +347,7 @@ public class AdapterMeetClient extends RecyclerView.Adapter<AdapterMeetClient.Cl
                             final List<BarEntry> yearEntries = new ArrayList<>();
                             final ArrayList<String> barEntryLabels = new ArrayList<>();;
 
-                            refDatabase.child(emailLogin).child("TotalByClient").child(clientCode).addListenerForSingleValueEvent(new ValueEventListener() {
+                            refDatabase.child("TotalByClient").child(clientCode).addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     Iterable<DataSnapshot> snapTimeSale = dataSnapshot.getChildren();
@@ -417,7 +414,7 @@ public class AdapterMeetClient extends RecyclerView.Adapter<AdapterMeetClient.Cl
 
                             final List<BarEntry> monthEntries = new ArrayList<>();
 
-                            refDatabase.child(emailLogin).child("TotalByClient").child(clientCode).addListenerForSingleValueEvent(new ValueEventListener() {
+                            refDatabase.child("TotalByClient").child(clientCode).addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     Iterable<DataSnapshot> snapTimeSale = dataSnapshot.getChildren();
@@ -489,7 +486,7 @@ public class AdapterMeetClient extends RecyclerView.Adapter<AdapterMeetClient.Cl
 
                             final List<BarEntry> monthEntries = new ArrayList<>();
 
-                            refDatabase.child(emailLogin).child("TotalByClient").child(clientCode).addListenerForSingleValueEvent(new ValueEventListener() {
+                            refDatabase.child("TotalByClient").child(clientCode).addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     Iterable<DataSnapshot> snapTimeSale = dataSnapshot.getChildren();

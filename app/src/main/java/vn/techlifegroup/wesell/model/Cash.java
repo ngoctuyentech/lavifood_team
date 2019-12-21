@@ -10,6 +10,9 @@ public class Cash {
     String cashOut;
     String cashTotal;
     String timeStamp;
+    String cashValue;
+    String userPhone;
+    String userUid;
 
     public Cash() {
     }
@@ -44,5 +47,17 @@ public class Cash {
 
     public String getTimeStamp() {
         return timeStamp;
+    }
+
+    public String getCashValue() {
+        return cashValue;
+    }
+
+    public String getUserPhone() {
+        return userPhone;
+    }
+
+    public String getUserUid() {
+        return userUid;
     }
 }

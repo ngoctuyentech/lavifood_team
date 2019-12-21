@@ -5,33 +5,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="vn.techlifegroup.wesell.MainActivity"
-    android:background="@color/colorPrimary">
+    android:background="@drawable/welcome">
 
     <TextView
-        android:id="@+id/textView213"
+        android:id="@+id/textView205"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/app_name"
-        android:textColor="@android:color/white"
-        android:textSize="30sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/textView212"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="8dp"
-        android:text="Đang xử lý...\n(Vui lòng kết nối Internet)"
-        android:textAlignment="center"
-        android:textColor="@android:color/white"
+        android:layout_marginTop="100dp"
+        android:fontFamily="@font/utm_dax_bold"
+        android:text="Đang tải..."
+        android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView213" />
-
+        app:layout_constraintTop_toTopOf="parent" />
 </android.support.constraint.ConstraintLayout>

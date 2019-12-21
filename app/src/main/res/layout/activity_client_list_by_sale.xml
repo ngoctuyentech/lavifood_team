@@ -31,7 +31,7 @@
         app:layout_constraintBottom_toBottomOf="@+id/rv_sale_list_group"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/rv_sale_list_group"
-        app:srcCompat="@drawable/ic_add_black_24dp" />
+        app:srcCompat="@drawable/icon_plus" />
 
     <android.support.constraint.ConstraintLayout
         android:id="@+id/cs_client_list"
@@ -151,7 +151,7 @@
         android:clickable="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/icon_plus" />
+        app:srcCompat="@drawable/icon_plus_white" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rv_sale_list_detail"

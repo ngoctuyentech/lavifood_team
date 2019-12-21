@@ -146,18 +146,11 @@ public class ApproveOrderActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 VatModel currentVat = dataSnapshot.getValue(VatModel.class);
                 if(currentVat!=null){
-                    notVAT = currentVat.getNotVat();
-                    VAT = currentVat.getIncludedVat();
-                    //b.putString("NotVAT",currentVat.getNotVat());
-                    //b.putString("IncludedVAT",currentVat.getIncludedVat());
+                    String VAT = currentVat.getIncludedVat();
 
-                    //String notVATValue = currentVat.getNotVat();
-                    tvNotVAT.setText(Utils.convertNumber(notVAT+""));
-
-                    //String vatValue = currentVat.getIncludedVat();
                     tvVAT.setText(Utils.convertNumber(VAT+""));
 
-                    float finalPayment = currentVat.getFinalPayment();
+                    String finalPayment = currentVat.getFinalPayment();
                     tvFinalPayment.setText(Utils.convertNumber(finalPayment+""));
 
                 }

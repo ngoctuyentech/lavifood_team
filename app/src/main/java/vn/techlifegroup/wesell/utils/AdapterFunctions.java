@@ -28,6 +28,7 @@ import vn.techlifegroup.wesell.bytask.PromotionList;
 import vn.techlifegroup.wesell.bytask.warehouse.WarehouseManActivity;
 import vn.techlifegroup.wesell.list.ClientListBySaleTeam;
 import vn.techlifegroup.wesell.list.HistoryChatActivity;
+import vn.techlifegroup.wesell.list.SaleList;
 import vn.techlifegroup.wesell.model.Functions;
 import vn.techlifegroup.wesell.model.Group;
 import vn.techlifegroup.wesell.model.Functions;
@@ -51,18 +52,18 @@ public class AdapterFunctions extends RecyclerView.Adapter<AdapterFunctions.Func
 
     private String userEmail = FirebaseAuth.getInstance().getCurrentUser().getEmail().replace(".", ",");
 
-
+    private String role;
 
     public AdapterFunctions() {
         super();
 
     }
 
-    public AdapterFunctions(Context context, List<Functions> items, Activity activity){
+    public AdapterFunctions(Context context, List<Functions> items, Activity activity,String role){
         this.context = context;
         this.items = items;
         this.activity = activity;
-
+        this.role = role;
     }
 
     @Override
@@ -98,8 +99,6 @@ public class AdapterFunctions extends RecyclerView.Adapter<AdapterFunctions.Func
             name = itemView.findViewById(R.id.tv_chuc_nang);
             logo = itemView.findViewById(R.id.iv_chuc_nang);
 
-
-
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -109,195 +108,89 @@ public class AdapterFunctions extends RecyclerView.Adapter<AdapterFunctions.Func
                     Functions function = items.get(position);
                     String functionName = function.getName();
 
+                    if(role.equals("SaleMan")){
+                        if (functionName.equals("đơn hàng")) {
 
-                    if (functionName.equals("đơn hàng")) {
+                            Intent it = new Intent(context, OrderManActivity.class);
+                            it.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            it.putExtra("SaleMan", true);
+                            context.startActivity(it);
+                        }
 
-                        refRole.addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                if (dataSnapshot.hasChild(userEmail)) {
-                                    refRole.child(userEmail).addListenerForSingleValueEvent(new ValueEventListener() {
-                                        @Override
-                                        public void onDataChange(DataSnapshot dataSnapshot) {
-                                            final String userRole = dataSnapshot.getValue().toString();
-                                            switch (userRole) {
+                        if (functionName.equals("khách hàng")) {
+                            //Toast.makeText(getApplicationContext(), userUid, Toast.LENGTH_LONG).show();
+                            //context.startActivity(new Intent(context, ProductPromotionActitvity.class));
 
-                                                case "SaleMan":
+                            Intent it = new Intent(context, ClientListBySaleTeam.class);
+                            it.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            it.putExtra("SaleMan", true);
+                            context.startActivity(it);
+                        }
 
-                                                    Intent it = new Intent(context, OrderManActivity.class);
-                                                    it.putExtra("EmailLogin", userEmail);
-                                                    it.putExtra("SaleMan", true);
-                                                    context.startActivity(it);
-                                                    break;
+                        if (functionName.equals("chương trình")) {
 
-                                                default: {
-                                                    Intent intent = new Intent(context, OrderManActivity.class);
-                                                    intent.putExtra("EmailLogin", userEmail);
-                                                    intent.putExtra("SaleMan", true);
-                                                    context.startActivity(intent);
-                                                    break;
-                                                }
-                                            }
+                            Intent it = new Intent(context, PromotionList.class);
+                            it.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-                                        }
+                            it.putExtra("EmailLogin", userEmail);
+                            it.putExtra("SaleMan", true);
+                            context.startActivity(it);
+                        }
 
-                                        @Override
-                                        public void onCancelled(DatabaseError databaseError) {
+                        if (functionName.equals("thông báo")) {
+                            Intent it = new Intent(context, HistoryChatActivity.class);
 
-                                        }
-                                    });
+                            it.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            it.putExtra("SaleMan", true);
+                            context.startActivity(it);
+                        }
+                    }else{
 
-                                }
-                            }
+                        if (functionName.equals("đơn hàng")) {
 
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
+                            Intent it = new Intent(context, OrderManActivity.class);
+                            it.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            it.putExtra("Supervisor", true);
+                            context.startActivity(it);
+                        }
 
-                            }
-                        });
+                        if (functionName.equals("khách hàng")) {
+                            //Toast.makeText(getApplicationContext(), userUid, Toast.LENGTH_LONG).show();
+                            //context.startActivity(new Intent(context, ProductPromotionActitvity.class));
 
+                            Intent it = new Intent(context, ClientListBySaleTeam.class);
+                            it.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            it.putExtra("Supervisor", true);
+                            context.startActivity(it);
+                        }
+
+                        if (functionName.equals("chương trình")) {
+
+                            Intent it = new Intent(context, PromotionList.class);
+                            it.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+                            it.putExtra("Supervisor", true);
+                            context.startActivity(it);
+                        }
+
+                        if (functionName.equals("thông báo")) {
+                            Intent it = new Intent(context, HistoryChatActivity.class);
+
+                            it.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            it.putExtra("Supervisor", true);
+                            context.startActivity(it);
+                        }
+
+                        if (functionName.equals("đội ngũ")) {
+                            Intent it = new Intent(getApplicationContext(), SaleList.class);
+                            it.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+                            it.putExtra("Supervisor",true);
+
+                            context.startActivity(it);
+                        }
                     }
 
-                    if (functionName.equals("khách hàng")) {
-                        //Toast.makeText(getApplicationContext(), userUid, Toast.LENGTH_LONG).show();
-                        //context.startActivity(new Intent(context, ProductPromotionActitvity.class));
-
-                        refRole.addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                if (dataSnapshot.hasChild(userEmail)) {
-                                    refRole.child(userEmail).addListenerForSingleValueEvent(new ValueEventListener() {
-                                        @Override
-                                        public void onDataChange(DataSnapshot dataSnapshot) {
-                                            final String userRole = dataSnapshot.getValue().toString();
-                                            switch (userRole) {
-
-                                                case "SaleMan":
-
-                                                    Intent it = new Intent(context, ClientListBySaleTeam.class);
-                                                    it.putExtra("EmailLogin", userEmail);
-                                                    it.putExtra("SaleMan", true);
-                                                    context.startActivity(it);
-                                                    break;
-
-                                                default: {
-                                                    Intent intent = new Intent(context, OrderManActivity.class);
-                                                    intent.putExtra("EmailLogin", userEmail);
-                                                    intent.putExtra("SaleMan", true);
-                                                    context.startActivity(intent);
-                                                    break;
-                                                }
-                                            }
-
-                                        }
-
-                                        @Override
-                                        public void onCancelled(DatabaseError databaseError) {
-
-                                        }
-                                    });
-
-                                }
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-
-                            }
-                        });
-                    }
-
-                    if (functionName.equals("chương trình")) {
-                        refRole.addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                if (dataSnapshot.hasChild(userEmail)) {
-                                    refRole.child(userEmail).addListenerForSingleValueEvent(new ValueEventListener() {
-                                        @Override
-                                        public void onDataChange(DataSnapshot dataSnapshot) {
-                                            final String userRole = dataSnapshot.getValue().toString();
-                                            switch (userRole) {
-
-                                                case "SaleMan":
-
-                                                    Intent it = new Intent(context, PromotionList.class);
-                                                    it.putExtra("EmailLogin", userEmail);
-                                                    it.putExtra("SaleMan", true);
-                                                    context.startActivity(it);
-                                                    break;
-
-                                                default: {
-                                                    Intent intent = new Intent(context, PromotionList.class);
-                                                    intent.putExtra("EmailLogin", userEmail);
-                                                    intent.putExtra("SaleMan", true);
-                                                    context.startActivity(intent);
-                                                    break;
-                                                }
-                                            }
-
-                                        }
-
-                                        @Override
-                                        public void onCancelled(DatabaseError databaseError) {
-
-                                        }
-                                    });
-
-                                }
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-
-                            }
-                        });
-                    }
-
-                    if (functionName.equals("thông báo")) {
-                        refRole.addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                if (dataSnapshot.hasChild(userEmail)) {
-                                    refRole.child(userEmail).addListenerForSingleValueEvent(new ValueEventListener() {
-                                        @Override
-                                        public void onDataChange(DataSnapshot dataSnapshot) {
-                                            final String userRole = dataSnapshot.getValue().toString();
-                                            switch (userRole) {
-
-                                                case "SaleMan":
-
-                                                    Intent it = new Intent(context, HistoryChatActivity.class);
-                                                    //it.putExtra("EmailLogin", userEmail);
-                                                    it.putExtra("SaleMan", true);
-                                                    context.startActivity(it);
-                                                    break;
-
-                                                default: {
-                                                    Intent intent = new Intent(context, HistoryChatActivity.class);
-                                                    //intent.putExtra("EmailLogin", userEmail);
-                                                    intent.putExtra("SaleMan", true);
-                                                    context.startActivity(intent);
-                                                    break;
-                                                }
-                                            }
-
-                                        }
-
-                                        @Override
-                                        public void onCancelled(DatabaseError databaseError) {
-
-                                        }
-                                    });
-
-                                }
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-
-                            }
-                        });
-                    }
                 }
             });
 
