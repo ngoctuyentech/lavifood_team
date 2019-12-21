@@ -371,7 +371,7 @@
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="8dp"
                     android:fontFamily="@font/utm_dax"
-                    android:text="Chưa VAT"
+                    android:text="Tổng cộng"
                     android:textSize="12sp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
@@ -383,7 +383,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:fontFamily="@font/utm_dax"
-                    android:text="Có VAT"
+                    android:text="Chiết khấu"
                     android:textSize="12sp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/tv_notvat"
@@ -397,7 +397,7 @@
                     android:layout_marginStart="8dp"
                     android:layout_marginBottom="8dp"
                     android:fontFamily="@font/utm_dax"
-                    android:text="Thanh toán thực (trừ chương trình)"
+                    android:text="Thanh toán"
                     android:textSize="12sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -406,7 +406,7 @@
                     tools:layout_constraintLeft_creator="1" />
 
                 <TextView
-                    android:id="@+id/tv_detail_notVAT_preview"
+                    android:id="@+id/tv_preview_total_payment"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginRight="8dp"
@@ -418,7 +418,7 @@
                     tools:layout_constraintRight_creator="1" />
 
                 <TextView
-                    android:id="@+id/tv_detail_VAT_preview"
+                    android:id="@+id/tv_preview_discount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginRight="8dp"
@@ -426,7 +426,7 @@
                     android:text="Chưa xác định"
                     android:textSize="12sp"
                     app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/tv_detail_notVAT_preview"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_preview_total_payment"
                     tools:layout_constraintRight_creator="1"
                     tools:layout_constraintTop_creator="1" />
 
@@ -440,7 +440,7 @@
                     android:textColor="@color/colorAccent"
                     android:textSize="12sp"
                     app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/tv_detail_VAT_preview"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_preview_discount"
                     tools:layout_constraintLeft_creator="1"
                     tools:layout_constraintRight_creator="1"
                     tools:layout_constraintTop_creator="1" />

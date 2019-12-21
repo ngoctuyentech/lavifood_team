@@ -22,24 +22,18 @@ public class Constants {
     public static DatabaseReference refLogin = FirebaseDatabase.getInstance().getReference().child("Login");
     public static DatabaseReference refRole= FirebaseDatabase.getInstance().getReference().child("Role");
 
-    public static DatabaseReference refProductList = FirebaseDatabase.getInstance().getReference().child("ProductList");
+    public static DatabaseReference refProductGroup = FirebaseDatabase.getInstance().getReference().child("ProductGroup");
     public static DatabaseReference refProductListByGroup = FirebaseDatabase.getInstance().getReference().child("ProductListByGroup");
     public static DatabaseReference refUsers = FirebaseDatabase.getInstance().getReference().child("Users");
 
 
     public static DatabaseReference refOrder = FirebaseDatabase.getInstance().getReference().child("Order");
-    public static DatabaseReference refOrderDetail = FirebaseDatabase.getInstance().getReference().child("OrderDetail");
     public static DatabaseReference refOrderList = FirebaseDatabase.getInstance().getReference().child("OrderList");
-    public static DatabaseReference refOrderStatus = FirebaseDatabase.getInstance().getReference().child("OrderStatus");
-    public static DatabaseReference refTotalByTime= FirebaseDatabase.getInstance().getReference().child("TotalByTime");
-    public static DatabaseReference refSaleByChannel= FirebaseDatabase.getInstance().getReference().child("SaleByChannel");
-    public static DatabaseReference refProductSale= FirebaseDatabase.getInstance().getReference().child("ProductSale");
-    public static DatabaseReference refClientSale= FirebaseDatabase.getInstance().getReference().child("ClientSale");
+
     public static DatabaseReference refProductPOS= FirebaseDatabase.getInstance().getReference().child("Z_POS_Product");
     public static DatabaseReference refBillPOS= FirebaseDatabase.getInstance().getReference().child("Z_POS_Bill");
     public static DatabaseReference refEmployeeBill= FirebaseDatabase.getInstance().getReference().child("Z_POS_EmployeeBill");
-    public static DatabaseReference refEmployeePOS= FirebaseDatabase.getInstance().getReference().child("Z_POS_Employee");
-    public static DatabaseReference refEmployeeCash= FirebaseDatabase.getInstance().getReference().child("Z_POS_EmployeeCash");
+
 
     public static DatabaseReference refShopPOS= FirebaseDatabase.getInstance().getReference().child("Z_POS_Shop");
     public static DatabaseReference refBillByTime= FirebaseDatabase.getInstance().getReference().child("SaleMan").child("Z_POS_BillByTime");
@@ -51,17 +45,7 @@ public class Constants {
     public static DatabaseReference refPOSPromotionQuantity= FirebaseDatabase.getInstance().getReference().child("SaleMan").child("Z_POS_PromotionQuantity");
 
     public static DatabaseReference refPOSProductSaleHistory= FirebaseDatabase.getInstance().getReference().child("SaleMan").child("Z_POS_ProductSaleHistory");
-    public static DatabaseReference refPOSProductOrder= FirebaseDatabase.getInstance().getReference().child("SaleMan").child("Z_POS_ProductOrder");
-    public static DatabaseReference refPOSStoreSale= FirebaseDatabase.getInstance().getReference().child("SaleMan").child("Z_POS_StoreSale");
-    public static DatabaseReference refPOSStoreSaleHistory= FirebaseDatabase.getInstance().getReference().child("SaleMan").child("Z_POS_StoreSaleHistory");
-    public static DatabaseReference refPOSStoreOrder= FirebaseDatabase.getInstance().getReference().child("SaleMan").child("Z_POS_StoreOrder");
-    public static DatabaseReference refPOSBillSaved= FirebaseDatabase.getInstance().getReference().child("SaleMan").child("Z_POS_BillSaved");
-    public static DatabaseReference refPOSShopStorage= FirebaseDatabase.getInstance().getReference().child("Z_POS_ShopStorage");
-    public static DatabaseReference refPOSShopStorageHistory= FirebaseDatabase.getInstance().getReference().child("StorageHistory").child("Z_POS_ShopStorageHistory");
-    public static DatabaseReference refPOSShopStorageInHistory= FirebaseDatabase.getInstance().getReference().child("StorageHistory").child("Z_POS_ShopStorageInHistory");
-    public static DatabaseReference refPOSShopStorageOutHistory= FirebaseDatabase.getInstance().getReference().child("StorageHistory").child("Z_POS_ShopStorageOutHistory");
 
-    public static DatabaseReference refPOSShopStorageCheck= FirebaseDatabase.getInstance().getReference().child("Z_POS_ShopStorageCheck");
     public static DatabaseReference refPOSBillCheck= FirebaseDatabase.getInstance().getReference().child("Z_POS_BillCheck");
     public static DatabaseReference refPOSShopCashOutCheck= FirebaseDatabase.getInstance().getReference().child("Z_POS_ShopCashOutCheck");
     public static DatabaseReference refPOSShopCashOutHistory= FirebaseDatabase.getInstance().getReference().child("Z_POS_ShopCashOutHistory");

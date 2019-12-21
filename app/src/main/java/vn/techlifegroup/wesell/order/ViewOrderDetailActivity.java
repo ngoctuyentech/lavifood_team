@@ -61,7 +61,7 @@ public class ViewOrderDetailActivity extends AppCompatActivity {
     private String clientName;
     private String clientCode;
     private HashMap<String,Float> productStock = new HashMap<>();
-    private float VAT,notVAT;
+    private String VAT,notVAT;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -171,18 +171,11 @@ public class ViewOrderDetailActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 VatModel currentVat = dataSnapshot.getValue(VatModel.class);
                 if(currentVat!=null){
-                    notVAT = currentVat.getNotVat();
                     VAT = currentVat.getIncludedVat();
-                    //b.putString("NotVAT",currentVat.getNotVat());
-                    //b.putString("IncludedVAT",currentVat.getIncludedVat());
 
-                    //String notVATValue = currentVat.getNotVat();
-                    tvNotVAT.setText(Utils.convertNumber(notVAT+""));
-
-                    //String vatValue = currentVat.getIncludedVat();
                     tvVAT.setText(Utils.convertNumber(VAT+""));
 
-                    float finalPayment = currentVat.getFinalPayment();
+                    String finalPayment = currentVat.getFinalPayment();
                     tvFinalPayment.setText(Utils.convertNumber(finalPayment+""));
 
                 }
@@ -884,9 +877,9 @@ public class ViewOrderDetailActivity extends AppCompatActivity {
                                             public void onDataChange(DataSnapshot dataSnapshot) {
                                                 VatModel vat = dataSnapshot.getValue(VatModel.class);
                                                 assert vat != null;
-                                                float finalPayment = vat.getFinalPayment();
+                                                String finalPayment = vat.getFinalPayment();
 
-                                                float updateClientDebt = Float.parseFloat(clientDebt) + finalPayment;
+                                                float updateClientDebt = Float.parseFloat(clientDebt) + Float.parseFloat(finalPayment);
                                                 //float updateClientDebt = Float.parseFloat(clientDebt) + Float.parseFloat(finalPayment);
                                                 String timeStamp = (Calendar.getInstance().getTime().getTime())+"";
                                                 DebtHistory debtHistory = new DebtHistory(clientName,clientDebt,finalPayment+"","0",updateClientDebt+"");

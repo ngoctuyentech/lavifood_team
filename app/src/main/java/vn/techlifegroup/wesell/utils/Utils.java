@@ -55,6 +55,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.channels.FileChannel;
+import java.security.MessageDigest;
 import java.text.DateFormat;
 import java.text.Normalizer;
 import java.text.NumberFormat;
@@ -97,7 +98,23 @@ public class Utils {
             this.mLinearLayoutManager = linearLayoutManager;
         }
 
-
+        public static String applySha256(String input){
+            try {
+                MessageDigest digest = MessageDigest.getInstance("SHA-256");
+                //Applies sha256 to our input,
+                byte[] hash = digest.digest(input.getBytes("UTF-8"));
+                StringBuffer hexString = new StringBuffer(); // This will contain hash as hexidecimal
+                for (int i = 0; i < hash.length; i++) {
+                    String hex = Integer.toHexString(0xff & hash[i]);
+                    if(hex.length() == 1) hexString.append('0');
+                    hexString.append(hex);
+                }
+                return hexString.toString();
+            }
+            catch(Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
 
         @Override
         public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
@@ -170,27 +187,6 @@ public class Utils {
         return sortedHashMap;
     }
 
-    public static Bitmap getBitmapFromView(View view) {
-        //Define a bitmap with the same size as the view
-        Bitmap returnedBitmap = Bitmap.createBitmap(view.getWidth() , view.getHeight() ,Bitmap.Config.ARGB_8888);
-        //Bind a canvas to it
-        Canvas canvas = new Canvas(returnedBitmap);
-        view.layout(0, 0, view.getWidth(), view.getHeight());
-
-        //Get the view's background
-        Drawable bgDrawable =view.getBackground();
-        if (bgDrawable!=null)
-            //has background drawable, then draw it on the canvas
-            bgDrawable.draw(canvas);
-        else
-            //does not have background drawable, then draw white background on the canvas
-            canvas.drawColor(Color.WHITE);
-        // draw the view on the canvas
-        view.draw(canvas);
-        //return the bitmap
-        return returnedBitmap;
-    }
-
     public static void addImage(Document document, byte[] byteArray)
     {
         Image image = null;
@@ -226,15 +222,6 @@ public class Utils {
         catch(Exception ex){
             return "";
         }
-    }
-
-    public static String getThisDateString(){
-
-        String thisYear = (Calendar.getInstance().get(Calendar.YEAR)) + "";
-        String thisMonth = (Calendar.getInstance().get(Calendar.MONTH) + 1) + "";
-        String thisDate = (Calendar.getInstance().get(Calendar.DATE)) + "";
-
-        return thisYear+"-"+thisMonth+"-"+thisDate;
     }
 
     public static String getHourDateFromTimeStamp(long time) {
@@ -285,15 +272,6 @@ public class Utils {
         return sortedHashMap;
     }
 
-
-    public static Bitmap getScaledBitmap(Bitmap b, int reqWidth, int reqHeight)   {
-
-        Matrix m = new Matrix();
-        m.setRectToRect(new RectF(0, 0, b.getWidth(), b.getHeight()), new RectF(0, 0, reqWidth, reqHeight), Matrix.ScaleToFit.CENTER);
-
-        return Bitmap.createBitmap(b, 0, 0, b.getWidth(), b.getHeight(), m, true);
-    }
-
     public static String getDateCurrentTimeZone(long timestamp) {
         try{
             Calendar c = Calendar.getInstance();
@@ -317,13 +295,24 @@ public class Utils {
         return false;
     }
 
-    public static Bitmap scaleBitmapAndKeepRation(Bitmap TargetBmp,int reqHeightInPixels,int reqWidthInPixels)
-    {
-        Matrix m = new Matrix();
-        m.setRectToRect(new RectF(0, 0, TargetBmp.getWidth(), TargetBmp.getHeight()), new RectF(0, 0, reqWidthInPixels, reqHeightInPixels), Matrix.ScaleToFit.CENTER);
-        Bitmap scaledBitmap = Bitmap.createBitmap(TargetBmp, 0, 0, TargetBmp.getWidth(), TargetBmp.getHeight(), m, true);
-        return scaledBitmap;
+    public static String applySha256(String input){
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            //Applies sha256 to our input,
+            byte[] hash = digest.digest(input.getBytes("UTF-8"));
+            StringBuffer hexString = new StringBuffer(); // This will contain hash as hexidecimal
+            for (int i = 0; i < hash.length; i++) {
+                String hex = Integer.toHexString(0xff & hash[i]);
+                if(hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+            return hexString.toString();
+        }
+        catch(Exception e) {
+            throw new RuntimeException(e);
+        }
     }
+
 
     public static File createFileFromInputStream(InputStream inputStream,String pathName) {
 
@@ -348,89 +337,6 @@ public class Utils {
         return null;
     }
 
-    public static void createPDF(Context context, Bitmap bmp){
-        File pdfDir = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_DOCUMENTS), "FreshLife");
-        if (!pdfDir.exists()){
-            //noinspection ResultOfMethodCallIgnored
-            pdfDir.mkdir();
-        }
-
-        // fix
-        //noinspection ResultOfMethodCallIgnored
-        pdfDir.setExecutable(true);
-        //noinspection ResultOfMethodCallIgnored
-        pdfDir.setReadable(true);
-        //noinspection ResultOfMethodCallIgnored
-        pdfDir.setWritable(true);
-
-        MediaScannerConnection.scanFile(context, new String[] {pdfDir.toString()}, null, null);
-        String timeStampString = (Calendar.getInstance().getTime().getTime())+"";
-
-        //Now create the name of your PDF file that you will generate
-        final File pdfFile = new File(pdfDir, timeStampString+"Order.pdf");
-
-        try {
-            Document document = new Document();
-
-            PdfWriter.getInstance(document, new FileOutputStream(pdfFile));
-            document.open();
-            ByteArrayOutputStream stream = new ByteArrayOutputStream();
-            bmp.compress(Bitmap.CompressFormat.PNG, 100, stream);
-            byte[] byteArray = stream.toByteArray();
-            Utils.addImage(document,byteArray);
-            document.close();
-
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    public static void createTextPDF(String string){
-        File fontFile = new File(Environment.getExternalStorageDirectory(),"resources/fonts/vuArial.ttf");
-
-        File pdfDir = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_DOCUMENTS), "FreshLife");
-        if (!pdfDir.exists()){
-            //noinspection ResultOfMethodCallIgnored
-            pdfDir.mkdir();
-        }
-
-        // fix
-        //noinspection ResultOfMethodCallIgnored
-        pdfDir.setExecutable(true);
-        //noinspection ResultOfMethodCallIgnored
-        pdfDir.setReadable(true);
-        //noinspection ResultOfMethodCallIgnored
-        pdfDir.setWritable(true);
-
-       // MediaScannerConnection.scanFile(context, new String[] {pdfDir.toString()}, null, null);
-        String timeStampString = (Calendar.getInstance().getTime().getTime())+"";
-
-        //Now create the name of your PDF file that you will generate
-        final File pdfFile = new File(pdfDir, timeStampString+"TextPDF.pdf");
-
-        try {
-            Document document = new Document();
-
-            PdfWriter.getInstance(document, new FileOutputStream(pdfFile));
-            document.open();
-
-            BaseFont bf = BaseFont.createFont(fontFile.getAbsolutePath(), BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
-            Font font = new Font(bf,22);
-            Paragraph p = new Paragraph(string, font);
-            p.setAlignment(Element.ALIGN_CENTER);
-            document.add(p);
-            document.close();
-
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-
     public static Bitmap getImageFromAssetsFile(Context ctx, String fileName) {
         Bitmap image = null;
         AssetManager am = ctx.getResources().getAssets();
@@ -444,72 +350,6 @@ public class Utils {
 
         return image;
 
-    }
-
-    public static File getFileFromAsset(Context ctx, String fileName) {
-
-        try{
-            InputStream is = ctx.getAssets().open(fileName);
-            File f = File.createTempFile("","NestArt");
-            //File f = new File(getCac);
-            OutputStream outputStream = new FileOutputStream(f);
-            byte buffer[] = new byte[1024];
-            int length = 0;
-
-            while((length=is.read(buffer)) > 0) {
-                outputStream.write(buffer,0,length);
-            }
-
-            outputStream.close();
-            is.close();
-
-            return f;
-        }catch (IOException e) {
-            //Logging exception
-        }
-
-        return null;
-    }
-
-    public static void copyFdToFile(FileDescriptor src, File dst) throws IOException {
-        FileChannel inChannel = new FileInputStream(src).getChannel();
-        FileChannel outChannel = new FileOutputStream(dst).getChannel();
-        try {
-            inChannel.transferTo(0, inChannel.size(), outChannel);
-        } finally {
-            if (inChannel != null)
-                inChannel.close();
-            outChannel.close();
-        }
-    }
-
-    public static boolean copyAsset(AssetManager assetManager,
-                                     String fromAssetPath, String toPath) {
-        InputStream in = null;
-        OutputStream out = null;
-        try {
-            in = assetManager.open(fromAssetPath);
-            new File(toPath).createNewFile();
-            out = new FileOutputStream(toPath);
-            copyFile(in, out);
-            in.close();
-            in = null;
-            out.flush();
-            out.close();
-            out = null;
-            return true;
-        } catch(Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    public static void copyFile(InputStream in, OutputStream out) throws IOException {
-        byte[] buffer = new byte[1024];
-        int read;
-        while((read = in.read(buffer)) != -1){
-            out.write(buffer, 0, read);
-        }
     }
 
      public static class NumberTextWatcherForThousand implements TextWatcher {
@@ -602,61 +442,6 @@ public class Utils {
             i++;
         }
 
-    }
-
-    public static String covertStringToURL(String str) {
-        try {
-            String temp = Normalizer.normalize(str, Normalizer.Form.NFD);
-            Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
-            return pattern.matcher(temp).replaceAll("").toLowerCase().replaceAll("đ", "d");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return "";
-    }
-
-    public static void animateMarker(GoogleMap map, final int position, final LatLng startPosition, final LatLng toPosition,
-                              final boolean hideMarker) {
-
-
-        final Marker marker = map.addMarker(new MarkerOptions()
-                .position(startPosition)
-                //.title(mCarParcelableListCurrentLation.get(position).mCarName)
-               // .snippet(mCarParcelableListCurrentLation.get(position).mAddress)
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.deliveryman)));
-
-
-        final Handler handler = new Handler();
-        final long start = SystemClock.uptimeMillis();
-
-        final long duration = 1000;
-        final Interpolator interpolator = new LinearInterpolator();
-
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                long elapsed = SystemClock.uptimeMillis() - start;
-                float t = interpolator.getInterpolation((float) elapsed
-                        / duration);
-                double lng = t * toPosition.longitude + (1 - t)
-                        * startPosition.longitude;
-                double lat = t * toPosition.latitude + (1 - t)
-                        * startPosition.latitude;
-
-                marker.setPosition(new LatLng(lat, lng));
-
-                if (t < 1.0) {
-                    // Post again 16ms later.
-                    handler.postDelayed(this, 16);
-                } else {
-                    if (hideMarker) {
-                        marker.setVisible(false);
-                    } else {
-                        marker.setVisible(true);
-                    }
-                }
-            }
-        });
     }
 
     public static LatLng getLocationFromAddress(Context context,String strAddress) {

@@ -11,6 +11,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
@@ -30,6 +31,7 @@ import vn.techlifegroup.wesell.pos.ShopChainActivity;
 import vn.techlifegroup.wesell.pos.ShopManagerActivity;
 import vn.techlifegroup.wesell.utils.Constants;
 
+import static vn.techlifegroup.wesell.utils.Constants.refDatabase;
 import static vn.techlifegroup.wesell.utils.Constants.refRole;
 
 public class MainActivity extends AppCompatActivity {
@@ -38,10 +40,15 @@ public class MainActivity extends AppCompatActivity {
     private String defaultTrial,default_saleman,userToken;
     private String userName;
     private String userEmail;
-    private String userPhone;
     private String userPass;
     private FirebaseUser user;
 
+    public static String userUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+    public static String userPhone = FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber();
+    public static DatabaseReference refUserUid = refDatabase.child("Users").child(userUid);
+    public static DatabaseReference refBlockChain = refDatabase.child("BlockChain");
+    public static int POINT_VALUE = 1000;
+    public static int BLOCK_HEIGHT = 100;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -84,7 +84,7 @@ public class PrintPreviewActivity extends AppCompatActivity {
     private ImageView ivLogo;
     public static int MY_REQUEST_CODE = 1;
     private Bitmap logo;
-    private float VAT,notVAT;
+    private String VAT,notVAT;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -1188,18 +1188,12 @@ public class PrintPreviewActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 VatModel currentVat = dataSnapshot.getValue(VatModel.class);
                 if(currentVat!=null){
-                    notVAT = currentVat.getNotVat();
+
                     VAT = currentVat.getIncludedVat();
-                    //b.putString("NotVAT",currentVat.getNotVat());
-                    //b.putString("IncludedVAT",currentVat.getIncludedVat());
 
-                    //String notVATValue = currentVat.getNotVat();
-                    tvNotVAT.setText(Utils.convertNumber(notVAT+""));
-
-                    //String vatValue = currentVat.getIncludedVat();
                     tvVAT.setText(Utils.convertNumber(VAT+""));
 
-                    float finalPayment = currentVat.getFinalPayment();
+                    String finalPayment = currentVat.getFinalPayment();
                     tvFinalPayment.setText(Utils.convertNumber(finalPayment+""));
 
                 }

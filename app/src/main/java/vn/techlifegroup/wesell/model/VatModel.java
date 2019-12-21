@@ -5,31 +5,28 @@ package vn.techlifegroup.wesell.model;
  */
 
 public class VatModel {
-    float notVat;
-    float includedVat;
+    String notVat;
+    String includedVat;
 
-    float finalPayment;
+
+    String finalPayment;
     String discount;
 
 
     public VatModel() {
     }
 
-    public VatModel(float notVat, float includedVat, float finalPayment) {
-        this.notVat = notVat;
+    public VatModel(String includedVat, String finalPayment, String discount) {
         this.includedVat = includedVat;
         this.finalPayment = finalPayment;
+        this.discount = discount;
     }
 
-    public float getNotVat() {
-        return notVat;
-    }
-
-    public float getIncludedVat() {
+    public String getIncludedVat() {
         return includedVat;
     }
 
-    public float getFinalPayment() {
+    public String getFinalPayment() {
         return finalPayment;
     }
 

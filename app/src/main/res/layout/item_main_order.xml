@@ -8,7 +8,7 @@
     android:layout_marginTop="8dp"
     android:layout_marginRight="24dp"
     android:layout_marginBottom="8dp"
-    android:background="@drawable/box_white_edtext"
+    android:background="@drawable/box_white"
     android:elevation="4dp">
 
 

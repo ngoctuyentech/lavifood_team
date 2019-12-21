@@ -10,7 +10,10 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PagerSnapHelper;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SnapHelper;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -21,6 +24,12 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.util.Util;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.components.Description;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.data.BarEntry;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -29,6 +38,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import org.joda.time.DateTime;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -64,6 +74,7 @@ public class ActionList extends AppCompatActivity {
     private SharedPreferences.Editor editor;
     private SharedPreferences sharedPref;
     private int pos;
+    private BarChart barTime;
 
     DatabaseReference refCompany;
 
@@ -71,6 +82,9 @@ public class ActionList extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_action_list);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_main);
+        setSupportActionBar(toolbar);
 
         Intent it = this.getIntent();
         emailLogin = it.getStringExtra("EmailLogin");
@@ -84,8 +98,7 @@ public class ActionList extends AppCompatActivity {
 
         sharedPref = getPreferences(Context.MODE_PRIVATE);
         editor = sharedPref.edit();
-        //Toast.makeText(getApplicationContext(), userEmail, Toast.LENGTH_LONG).show();
-        //pos = sharedPref.getInt("LayoutPosition", 0);
+
 
         DateTime dt = new DateTime();
         day = dt.dayOfWeek().getAsText();
@@ -93,41 +106,10 @@ public class ActionList extends AppCompatActivity {
         year = dt.getYear()+"";
         month = dt.getMonthOfYear()+"";
 
-         ivOrder     = findViewById(R.id.iv_bar_order);
-         ivClient    = findViewById(R.id.iv_bar_client);
-         ivClientSup = findViewById(R.id.iv_bar_client_sup);
-
-         ivPromotion      = findViewById(R.id.iv_bar_promotion);
-         ivAnnouncement   = findViewById(R.id.iv_bar_announcement);
-         ivTeam           = findViewById(R.id.iv_bar_sale_sup);
-         ivOrderSup       = findViewById(R.id.iv_bar_order_sup);
-         ivPromotionSup   = findViewById(R.id.iv_bar_promotion_sup);
-         ivAnnoucementSup = findViewById(R.id.iv_bar_announcement_sup);
-         ivSaleLogout     = findViewById(R.id.iv_bar_sale_logout);
-         ivSupLogout      = findViewById(R.id.iv_bar_sup_logout);
-
-         ivPromotionASM    = findViewById(R.id.iv_bar_promotion_asm);
-         ivReportASM       = findViewById(R.id.iv_bar_report_asm);
-         ivAnnouncementASM = findViewById(R.id.iv_bar_announcement_asm);
-         ivLogoutASM       = findViewById(R.id.iv_bar_asm_logout);
-         ivSupASM          = findViewById(R.id.iv_bar_sup_asm);
+        barTime = findViewById(R.id.barchart_action_list);
 
 
-         ivCreateAcc      = findViewById(R.id.iv_bar_account_admin);
-         ivLogoutAdmin    = findViewById(R.id.iv_bar_admin_logout);
-         ivAdminProduct   = findViewById(R.id.iv_bar_account_admin_product);
-         ivAdminOrder     = findViewById(R.id.iv_bar_account_admin_order);
-         ivAdminPayroll   = findViewById(R.id.iv_bar_account_admin_product_payroll);
-         ivAdminPromotion = findViewById(R.id.iv_bar_account_admin_promotion);
-
-         tvName = findViewById(R.id.tv_action_list_account_name);
-         tvRole = findViewById(R.id.tv_action_list_account_role);
-
-
-         lnSup     = findViewById(R.id.ln_sup);
-         lnSaleMan = findViewById(R.id.ln_sale_man);
-         lnASM     = findViewById(R.id.ln_asm);
-         lnAdmin   = findViewById(R.id.ln_admin);
+         tvRole = findViewById(R.id.tv_activity_main_hello);
 
     }
 
@@ -145,7 +127,7 @@ public class ActionList extends AppCompatActivity {
 
                 String name = employee.getEmployeeName();
 
-                tvHello.setText("Xin chào " + " " + name);
+                tvHello.setText("Xin chào " + name);
 
             }
 
@@ -154,589 +136,208 @@ public class ActionList extends AppCompatActivity {
 
             }
         });
-/*
-        refDatabase.child("Employee").child(userEmail).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Employee employee = dataSnapshot.getValue(Employee.class);
-                //tvName.setText(employee.getEmployeeName());
-                //if(saleMan) tvRole.setText("Bán hàng");
-                if(supervisor) tvRole.setText("Giám sát");
-                if(asm) tvRole.setText("ASM");
-                if(admin) tvRole.setText("Admin");
-                if(rsm) tvRole.setText("RSM");
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-
- */
-
 
         if(saleMan){
 
             getDay();
 
-            List<Functions> functions = Arrays.asList(
-                    new Functions(R.drawable.icon_cart,"đơn hàng"),
-                    new Functions(R.drawable.icon_promotion,"khách hàng"),
-                    new Functions(R.drawable.icon_product,"chương trình"),
-                    new Functions(R.drawable.icon_chat,"thông báo")
-            );
+            getSaleFunc();
 
-            RecyclerView rvFunction = findViewById(R.id.rv_function);
-
-            rvFunction.setHasFixedSize(true);
-
-            //StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.HORIZONTAL);
-            LinearLayoutManager linearLayoutManagerFunc = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-            rvFunction.setLayoutManager(linearLayoutManagerFunc);
-
-            AdapterFunctions adapterFunctions = new AdapterFunctions(getApplicationContext(), functions, ActionList.this);
-            rvFunction.setAdapter(adapterFunctions);
-            adapterFunctions.notifyDataSetChanged();
-
-            FirebaseRecyclerAdapter<Client, ClientViewHolder> adapterDetail;
-            RecyclerView rvClientList;
-
-            //Toast.makeText(getApplicationContext(), currentDay+"", Toast.LENGTH_SHORT).show();
-
-
-            rvClientList = findViewById(R.id.rv_client_list);
-            rvClientList.setHasFixedSize(true);
-
-            LinearLayoutManager linearLayoutManagerClient = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-            rvClientList.setLayoutManager(linearLayoutManagerClient);
-
-
-            adapterDetail = new FirebaseRecyclerAdapter<Client, ClientViewHolder>(
-                    Client.class,
-                    R.layout.item_client_route,
-                    ClientViewHolder.class,
-                    refDatabase.child("SaleRoute").child(userEmail).child(currentDay)
-            ) {
-                @Override
-                public ClientViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-                    View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_client_route, parent, false);
-                    return new ClientViewHolder(v);
-                }
-
-
-                @Override
-                protected void populateViewHolder(ClientViewHolder viewHolder, Client model, int position) {
-                    viewHolder.clientName.setText(model.getClientName());
-                    viewHolder.circleClient.setImageDrawable(getResources().getDrawable(R.drawable.icon_client2));
-
-                    Glide.with(getApplicationContext()).load(model.getClientUrl()).into(viewHolder.circleClient);
-
-                }
-            };
-
-            rvClientList.setAdapter(adapterDetail);
-            adapterDetail.notifyDataSetChanged();
+            getSaleRev();
 
 
 
-
-
-/*
-            lnSup.setVisibility(View.GONE);
-            lnSaleMan.setVisibility(View.VISIBLE);
-            lnASM.setVisibility(View.GONE);
-            lnAdmin.setVisibility(View.GONE);
-
-            ivOrder.setBackgroundColor(getResources().getColor(R.color.colorOrder));
-
-            rvAction = (RecyclerView) findViewById(R.id.rv_sale_action);
-            rvAction.setHasFixedSize(true);
-            final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(ActionList.this,LinearLayoutManager.HORIZONTAL,false);
-            rvAction.setLayoutManager(linearLayoutManager);
-            final SnapHelper snapHelper = new PagerSnapHelper();
-            if (rvAction.getOnFlingListener() == null)
-                snapHelper.attachToRecyclerView(rvAction);
-
-            rvAction.addOnScrollListener(new RecyclerView.OnScrollListener() {
-
-                @Override
-                public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                    super.onScrollStateChanged(recyclerView, newState);
-                    if(newState == RecyclerView.SCROLL_STATE_IDLE) {
-                        View centerView = snapHelper.findSnapView(linearLayoutManager);
-                        if(centerView != null){
-                            pos = linearLayoutManager.getPosition(centerView);
-
-
-                            if(pos == 0){
-                                ivOrder.setBackgroundColor(getResources().getColor(R.color.colorOrder));
-                                ivClient.setBackgroundColor(getResources().getColor(R.color.transparent));
-                                ivPromotion.setBackgroundColor(getResources().getColor(R.color.transparent));
-                                ivAnnouncement.setBackgroundColor(getResources().getColor(R.color.transparent));
-
-                            }
-
-                            if(pos == 1){
-                                ivClient.setBackgroundColor(getResources().getColor(R.color.colorClient));
-                                ivOrder.setBackgroundColor(getResources().getColor(R.color.transparent));
-                                ivPromotion.setBackgroundColor(getResources().getColor(R.color.transparent));
-                                ivAnnouncement.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            }
-
-                            if(pos == 2){
-                                ivPromotion.setBackgroundColor(getResources().getColor(R.color.colorPromotion));
-                                ivClient.setBackgroundColor(getResources().getColor(R.color.transparent));
-                                ivOrder.setBackgroundColor(getResources().getColor(R.color.transparent));
-                                ivAnnouncement.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            }
-
-                            if(pos == 3){
-                                ivAnnouncement.setBackgroundColor(getResources().getColor(R.color.colorAnnouncement));
-                                ivPromotion.setBackgroundColor(getResources().getColor(R.color.transparent));
-                                ivClient.setBackgroundColor(getResources().getColor(R.color.transparent));
-                                ivOrder.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            }
-                        }
-
-                    }
-                }
-            });
-
-            adapter = new FirebaseRecyclerAdapter<Employee,EmployeeViewHolder>(
-                    Employee.class,
-                    R.layout.item_menu,
-                    EmployeeViewHolder.class,
-                    refDatabase.child("1-System/MainMenu/SaleMan")
-            ) {
-                @Override
-                public EmployeeViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-                    View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_menu, parent, false);
-                    return new EmployeeViewHolder(v);
-                }
-
-
-                @Override
-                protected void populateViewHolder(EmployeeViewHolder viewHolder, Employee model, int position) {
-                    Glide.with(getApplicationContext()).load(model.getMenuOrderUrl()).into(viewHolder.ivOrderPic);
-                }
-            };
-
-
-            rvAction.setAdapter(adapter);
-            adapter.notifyDataSetChanged();
-
-            actionOnClick();
-
- */
         }
 
         if(supervisor){
-
-            getSupSale();
-
-            lnSup.setVisibility(View.VISIBLE);
-            lnSaleMan.setVisibility(View.GONE);
-            lnASM.setVisibility(View.GONE);
-            lnAdmin.setVisibility(View.GONE);
-
-            rvAction = (RecyclerView) findViewById(R.id.rv_sale_action);
-            rvAction.setHasFixedSize(true);
-            final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(ActionList.this,LinearLayoutManager.HORIZONTAL,false);
-            rvAction.setLayoutManager(linearLayoutManager);
-            //rvAction.smoothScrollToPosition();
-            final SnapHelper snapHelper = new PagerSnapHelper();
-            if (rvAction.getOnFlingListener() == null)
-                snapHelper.attachToRecyclerView(rvAction);
-            ivTeam.setBackgroundColor(getResources().getColor(R.color.colorGroup));
-
-            rvAction.addOnScrollListener(new RecyclerView.OnScrollListener() {
-
-                @Override
-                public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-                    super.onScrollStateChanged(recyclerView, newState);
-                    if(newState == RecyclerView.SCROLL_STATE_IDLE) {
-                        View centerView = snapHelper.findSnapView(linearLayoutManager);
-                        if(centerView != null){
-                            pos = linearLayoutManager.getPosition(centerView);
-                            //editor.putInt("LayoutPosition", pos).apply();
-
-                            //Toast.makeText(getApplicationContext(), pos+"", Toast.LENGTH_LONG).show();
-                            if(pos == 0){
-                                ivTeam.setBackgroundColor(getResources().getColor(R.color.colorGroup));
-                                ivOrderSup.setBackgroundColor(getResources().getColor(R.color.transparent));
-                                ivClientSup.setBackgroundColor(getResources().getColor(R.color.transparent));
-                                ivPromotionSup.setBackgroundColor(getResources().getColor(R.color.transparent));
-                                ivAnnoucementSup.setBackgroundColor(getResources().getColor(R.color.transparent));
-
-                            }
-
-                            if(pos == 1){
-                                ivTeam.setBackgroundColor(getResources().getColor(R.color.transparent));
-
-                                ivClientSup.setBackgroundColor(getResources().getColor(R.color.colorClient));
-                                ivOrderSup.setBackgroundColor(getResources().getColor(R.color.transparent));
-                                ivPromotionSup.setBackgroundColor(getResources().getColor(R.color.transparent));
-                                ivAnnoucementSup.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            }
-
-                            if(pos == 2){
-                                ivTeam.setBackgroundColor(getResources().getColor(R.color.transparent));
-
-                                ivPromotionSup.setBackgroundColor(getResources().getColor(R.color.transparent));
-                                ivClientSup.setBackgroundColor(getResources().getColor(R.color.transparent));
-                                ivOrderSup.setBackgroundColor(getResources().getColor(R.color.colorOrder));
-                                ivAnnoucementSup.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            }
-
-                            if(pos == 3){
-                                ivTeam.setBackgroundColor(getResources().getColor(R.color.transparent));
-
-                                ivAnnoucementSup.setBackgroundColor(getResources().getColor(R.color.transparent));
-                                ivPromotionSup.setBackgroundColor(getResources().getColor(R.color.colorPromotion));
-                                ivClientSup.setBackgroundColor(getResources().getColor(R.color.transparent));
-                                ivOrderSup.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            }
-
-                            if(pos == 4){
-                                ivTeam.setBackgroundColor(getResources().getColor(R.color.transparent));
-
-                                ivAnnoucementSup.setBackgroundColor(getResources().getColor(R.color.colorAnnouncement));
-                                ivPromotionSup.setBackgroundColor(getResources().getColor(R.color.transparent));
-                                ivClientSup.setBackgroundColor(getResources().getColor(R.color.transparent));
-                                ivOrderSup.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            }
-                        }
-
-                    }
-                }
-            });
-
-            adapter = new FirebaseRecyclerAdapter<Employee,EmployeeViewHolder>(
-                    Employee.class,
-                    R.layout.item_menu,
-                    EmployeeViewHolder.class,
-                    refDatabase.child("1-System/MainMenu/Supervisor")
-            ) {
-                @Override
-                public EmployeeViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-                    View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_menu, parent, false);
-                    return new EmployeeViewHolder(v);
-                }
-
-
-                @Override
-                protected void populateViewHolder(EmployeeViewHolder viewHolder, Employee model, int position) {
-                    Glide.with(getApplicationContext()).load(model.getMenuOrderUrl()).into(viewHolder.ivOrderPic);
-                }
-            };
-
-
-            rvAction.setAdapter(adapter);
-            adapter.notifyDataSetChanged();
-
-            actionSupOnClick();
+            getDay();
+            getSupFunc();
+            //actionSupOnClick();
+            getSaleRev();
         }
 
-        if(asm){
 
-            getASMSale();
+    }
 
-            lnSup.setVisibility(View.GONE);
-            lnSaleMan.setVisibility(View.GONE);
-            lnASM.setVisibility(View.VISIBLE);
-            lnAdmin.setVisibility(View.GONE);
+    private void getSupFunc() {
+        List<Functions> functions = Arrays.asList(
+                new Functions(R.drawable.icon_func_team,"đội ngũ"),
+                new Functions(R.drawable.icon_func_shop,"khách hàng"),
+                new Functions(R.drawable.icon_cart,"đơn hàng"),
+                new Functions(R.drawable.icon_promotion,"chương trình"),
+                new Functions(R.drawable.icon_chat,"thông báo")
 
-            rvAction = (RecyclerView) findViewById(R.id.rv_sale_action);
-            rvAction.setHasFixedSize(true);
-            final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(ActionList.this,LinearLayoutManager.HORIZONTAL,false);
-            rvAction.setLayoutManager(linearLayoutManager);
-            final SnapHelper snapHelper = new PagerSnapHelper();
+        );
 
-            if (rvAction.getOnFlingListener() == null)
-                snapHelper.attachToRecyclerView(rvAction);
+        RecyclerView rvFunction = findViewById(R.id.rv_function);
 
-            ivSupASM.setBackgroundColor(getResources().getColor(R.color.colorSupervisor));
+        rvFunction.setHasFixedSize(true);
 
-            rvAction.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        //StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.HORIZONTAL);
+        LinearLayoutManager linearLayoutManagerFunc = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        rvFunction.setLayoutManager(linearLayoutManagerFunc);
 
-                @Override
-                public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                    super.onScrollStateChanged(recyclerView, newState);
-                    if(newState == RecyclerView.SCROLL_STATE_IDLE) {
-                        View centerView = snapHelper.findSnapView(linearLayoutManager);
-                        if(centerView != null){
-                            int pos = linearLayoutManager.getPosition(centerView);
+        AdapterFunctions adapterFunctions = new AdapterFunctions(getApplicationContext(), functions, ActionList.this,"Supervisor");
+        rvFunction.setAdapter(adapterFunctions);
+        adapterFunctions.notifyDataSetChanged();
 
-                            //Toast.makeText(getApplicationContext(), pos+"", Toast.LENGTH_LONG).show();
-                            if(pos == 0){
-                                ivSupASM.setBackgroundColor(getResources().getColor(R.color.colorSupervisor));
-                                ivReportASM.setBackgroundColor(getResources().getColor(R.color.transparent));
-                                ivPromotionASM.setBackgroundColor(getResources().getColor(R.color.transparent));
-                                ivAnnouncementASM.setBackgroundColor(getResources().getColor(R.color.transparent));
+        FirebaseRecyclerAdapter<Employee, EmployeeViewHolder> adapterDetail;
+        RecyclerView rvClientList;
 
-                            }
-
-                            if(pos == 1){
-                                ivSupASM.setBackgroundColor(getResources().getColor(R.color.transparent));
-
-                                ivReportASM.setBackgroundColor(getResources().getColor(R.color.transparent));
-                                ivPromotionASM.setBackgroundColor(getResources().getColor(R.color.colorPromotion));
-                                ivAnnouncementASM.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            }
-
-                            if(pos == 2){
-                                ivSupASM.setBackgroundColor(getResources().getColor(R.color.transparent));
-
-                                ivPromotionASM.setBackgroundColor(getResources().getColor(R.color.transparent));
-                                ivReportASM.setBackgroundColor(getResources().getColor(R.color.colorReport));
-                                ivAnnouncementASM.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            }
-
-                            if(pos == 3){
-                                ivSupASM.setBackgroundColor(getResources().getColor(R.color.transparent));
-
-                                ivAnnouncementASM.setBackgroundColor(getResources().getColor(R.color.colorAnnouncement));
-                                ivPromotionASM.setBackgroundColor(getResources().getColor(R.color.transparent));
-                                ivReportASM.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            }
-
-                        }
-
-                    }
-                }
-            });
-
-            adapter = new FirebaseRecyclerAdapter<Employee,EmployeeViewHolder>(
-                    Employee.class,
-                    R.layout.item_menu,
-                    EmployeeViewHolder.class,
-                    refDatabase.child("1-System/MainMenu/ASM")
-            ) {
-                @Override
-                public EmployeeViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-                    View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_menu, parent, false);
-                    return new EmployeeViewHolder(v);
-                }
+        rvClientList = findViewById(R.id.rv_client_list);
+        rvClientList.setHasFixedSize(true);
 
 
-                @Override
-                protected void populateViewHolder(EmployeeViewHolder viewHolder, Employee model, int position) {
-                    Glide.with(getApplicationContext()).load(model.getMenuOrderUrl()).into(viewHolder.ivOrderPic);
-                }
-            };
+        rvClientList = findViewById(R.id.rv_client_list);
+        rvClientList.setHasFixedSize(true);
+
+        LinearLayoutManager linearLayoutManagerClient = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        rvClientList.setLayoutManager(linearLayoutManagerClient);
 
 
-            rvAction.setAdapter(adapter);
-            adapter.notifyDataSetChanged();
+        adapterDetail = new FirebaseRecyclerAdapter<Employee, EmployeeViewHolder>(
+                Employee.class,
+                R.layout.item_saleman,
+                EmployeeViewHolder.class,
+                refDatabase.child("SaleManBySup").child(userEmail).child("Tất cả")
+        ) {
+            @Override
+            public EmployeeViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+                View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_saleman, parent, false);
+                return new EmployeeViewHolder(v);
+            }
 
-            actionASM();
-        }
 
-        if(rsm){
+            @Override
+            protected void populateViewHolder(EmployeeViewHolder viewHolder, Employee model, int position) {
+                viewHolder.name.setText(model.getEmployeeName());
 
-            getASMSale();
-            
-            lnSup.setVisibility(View.GONE);
-            lnSaleMan.setVisibility(View.GONE);
-            lnASM.setVisibility(View.VISIBLE);
-            lnAdmin.setVisibility(View.GONE);
+            }
+        };
 
-            rvAction = (RecyclerView) findViewById(R.id.rv_sale_action);
-            rvAction.setHasFixedSize(true);
-            final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(ActionList.this,LinearLayoutManager.HORIZONTAL,false);
-            rvAction.setLayoutManager(linearLayoutManager);
-            final SnapHelper snapHelper = new PagerSnapHelper();
-            if (rvAction.getOnFlingListener() == null)
-                snapHelper.attachToRecyclerView(rvAction);
-            ivSupASM.setBackgroundColor(getResources().getColor(R.color.colorSupervisor));
+        rvClientList.setAdapter(adapterDetail);
+        adapterDetail.notifyDataSetChanged();
 
-            rvAction.addOnScrollListener(new RecyclerView.OnScrollListener() {
 
-                @Override
-                public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                    super.onScrollStateChanged(recyclerView, newState);
-                    if(newState == RecyclerView.SCROLL_STATE_IDLE) {
-                        View centerView = snapHelper.findSnapView(linearLayoutManager);
+    }
 
-                        if(centerView != null){
-                            int pos = linearLayoutManager.getPosition(centerView);
+    private void getSaleRev() {
 
-                            if(pos == 0){
-                                ivSupASM.setBackgroundColor(getResources().getColor(R.color.colorSupervisor));
-                                ivReportASM.setBackgroundColor(getResources().getColor(R.color.transparent));
-                                ivPromotionASM.setBackgroundColor(getResources().getColor(R.color.transparent));
-                                ivAnnouncementASM.setBackgroundColor(getResources().getColor(R.color.transparent));
+        final List<BarEntry> monthEntries = new ArrayList<>();
 
-                            }
+        refDatabase.child("TotalBySale").child(userEmail).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Iterable<DataSnapshot> snapTimeSale = dataSnapshot.getChildren();
 
-                            if(pos == 1){
-                                ivSupASM.setBackgroundColor(getResources().getColor(R.color.transparent));
 
-                                ivReportASM.setBackgroundColor(getResources().getColor(R.color.transparent));
-                                ivPromotionASM.setBackgroundColor(getResources().getColor(R.color.colorPromotion));
-                                ivAnnouncementASM.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            }
+                for(DataSnapshot itemTime:snapTimeSale){
 
-                            if(pos == 2){
-                                ivSupASM.setBackgroundColor(getResources().getColor(R.color.transparent));
+                    String timeKey = itemTime.getKey();
 
-                                ivPromotionASM.setBackgroundColor(getResources().getColor(R.color.transparent));
-                                ivReportASM.setBackgroundColor(getResources().getColor(R.color.colorReport));
-                                ivAnnouncementASM.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            }
+                    String value = itemTime.getValue().toString();
 
-                            if(pos == 3){
-                                ivSupASM.setBackgroundColor(getResources().getColor(R.color.transparent));
+                    if(timeKey.length()>7 ){
 
-                                ivAnnouncementASM.setBackgroundColor(getResources().getColor(R.color.colorAnnouncement));
-                                ivPromotionASM.setBackgroundColor(getResources().getColor(R.color.transparent));
-                                ivReportASM.setBackgroundColor(getResources().getColor(R.color.transparent));
-                            }
+                        if(timeKey.contains(year+"-"+month)){
 
+                            monthEntries.add(new BarEntry(Integer.parseInt(timeKey.substring(timeKey.lastIndexOf("-")+1)), Float.parseFloat(value)));
+
+                            BarDataSet set = new BarDataSet(monthEntries,"Doanh số theo ngày");
+
+                            BarData data = new BarData(set);
+
+                            Description description = new Description();
+                            description.setText("");
+
+                            barTime.getAxisRight().setDrawGridLines(false);
+                            barTime.getAxisLeft().setDrawGridLines(false);
+                            barTime.getXAxis().setDrawGridLines(false);
+                            barTime.getXAxis().setGranularityEnabled(true);
+                            //barTime.getXAxis().setDrawLabels(false);
+                            barTime.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
+
+                            //barTime.getXAxis().setValueFormatter(new IndexAxisValueFormatter(barEntryLabels));
+                            barTime.setDescription(description);
+                            barTime.getAxisRight().setEnabled(false);
+                            barTime.setTouchEnabled(true);
+                            //barTime.setMarker(mv);
+                            barTime.setData(data);
+                            barTime.animateXY(1000,2000);
+                            barTime.setFitBars(true); // make the x-axis fit exactly all bars
+                            barTime.invalidate(); // refresh
 
                         }
-
-
-
-                        //Toast.makeText(getApplicationContext(), pos+"", Toast.LENGTH_LONG).show();
+                        //barEntryLabels.add(timeKey.substring(5));
 
                     }
-                }
-            });
 
-            adapter = new FirebaseRecyclerAdapter<Employee,EmployeeViewHolder>(
-                    Employee.class,
-                    R.layout.item_menu,
-                    EmployeeViewHolder.class,
-                    refDatabase.child("1-System/MainMenu/ASM")
-            ) {
-                @Override
-                public EmployeeViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-                    View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_menu, parent, false);
-                    return new EmployeeViewHolder(v);
+
                 }
 
+            }
 
-                @Override
-                protected void populateViewHolder(EmployeeViewHolder viewHolder, Employee model, int position) {
-                    Glide.with(getApplicationContext()).load(model.getMenuOrderUrl()).into(viewHolder.ivOrderPic);
-                }
-            };
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
 
+            }
+        });
+    }
 
-            rvAction.setAdapter(adapter);
-            adapter.notifyDataSetChanged();
+    private void getSaleFunc() {
 
-            actionASM();
-        }
+        List<Functions> functions = Arrays.asList(
+                new Functions(R.drawable.icon_cart,"đơn hàng"),
+                new Functions(R.drawable.icon_func_shop,"khách hàng"),
+                new Functions(R.drawable.icon_promotion,"chương trình"),
+                new Functions(R.drawable.icon_chat,"thông báo")
+        );
 
-        if(admin){
-            lnSup.setVisibility(View.GONE);
-            lnSaleMan.setVisibility(View.GONE);
-            lnASM.setVisibility(View.GONE);
-            lnAdmin.setVisibility(View.VISIBLE);
+        RecyclerView rvFunction = findViewById(R.id.rv_function);
 
-            rvAction = (RecyclerView) findViewById(R.id.rv_sale_action);
-            rvAction.setHasFixedSize(true);
-            final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(ActionList.this,LinearLayoutManager.HORIZONTAL,false);
-            rvAction.setLayoutManager(linearLayoutManager);
-            final SnapHelper snapHelper = new PagerSnapHelper();
-            if (rvAction.getOnFlingListener() == null)
-                snapHelper.attachToRecyclerView(rvAction);
-            ivAdminOrder.setBackgroundColor(getResources().getColor(R.color.colorOrderAdmin));
+        rvFunction.setHasFixedSize(true);
 
-            rvAction.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        //StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.HORIZONTAL);
+        LinearLayoutManager linearLayoutManagerFunc = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        rvFunction.setLayoutManager(linearLayoutManagerFunc);
 
-                @Override
-                public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                    super.onScrollStateChanged(recyclerView, newState);
-                    if(newState == RecyclerView.SCROLL_STATE_IDLE) {
-                        View centerView = snapHelper.findSnapView(linearLayoutManager);
+        AdapterFunctions adapterFunctions = new AdapterFunctions(getApplicationContext(), functions, ActionList.this,"SaleMan");
+        rvFunction.setAdapter(adapterFunctions);
+        adapterFunctions.notifyDataSetChanged();
 
-                        if( centerView!= null) {
-                            int pos = linearLayoutManager.getPosition(centerView);
+        FirebaseRecyclerAdapter<Client, ClientViewHolder> adapterDetail;
+        RecyclerView rvClientList;
 
-                            if(pos == 0){
-                                ivAdminOrder.setBackgroundColor(getResources().getColor(R.color.colorOrderAdmin));
-                                ivCreateAcc.setBackgroundColor(getResources().getColor(R.color.transparent));
-                                ivAdminProduct.setBackgroundColor(getResources().getColor(R.color.transparent));
-                                ivAdminPayroll.setBackgroundColor(getResources().getColor(R.color.transparent));
-                                ivAdminPromotion.setBackgroundColor(getResources().getColor(R.color.transparent));
+        rvClientList = findViewById(R.id.rv_client_list);
+        rvClientList.setHasFixedSize(true);
+
+        LinearLayoutManager linearLayoutManagerClient = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        rvClientList.setLayoutManager(linearLayoutManagerClient);
 
 
-                            }
-                            if(pos == 1){
-                                ivAdminOrder.setBackgroundColor(getResources().getColor(R.color.transparent));
-                                ivCreateAcc.setBackgroundColor(getResources().getColor(R.color.transparent));
-                                ivAdminProduct.setBackgroundColor(getResources().getColor(R.color.transparent));
-                                ivAdminPayroll.setBackgroundColor(getResources().getColor(R.color.transparent));
-                                ivAdminPromotion.setBackgroundColor(getResources().getColor(R.color.colorPromotion));
-
-                            }
-
-
-                            if(pos == 2){
-                                ivAdminOrder.setBackgroundColor(getResources().getColor(R.color.transparent));
-                                ivCreateAcc.setBackgroundColor(getResources().getColor(R.color.colorAccount));
-                                ivAdminProduct.setBackgroundColor(getResources().getColor(R.color.transparent));
-                                ivAdminPayroll.setBackgroundColor(getResources().getColor(R.color.transparent));
-                                ivAdminPromotion.setBackgroundColor(getResources().getColor(R.color.transparent));
-
-                            }
-
-                            if(pos == 3){
-                                ivAdminOrder.setBackgroundColor(getResources().getColor(R.color.transparent));
-                                ivCreateAcc.setBackgroundColor(getResources().getColor(R.color.transparent));
-                                ivAdminProduct.setBackgroundColor(getResources().getColor(R.color.colorProduct));
-                                ivAdminPayroll.setBackgroundColor(getResources().getColor(R.color.transparent));
-                                ivAdminPromotion.setBackgroundColor(getResources().getColor(R.color.transparent));
-
-                            }
-                            if(pos == 4){
-                                ivAdminOrder.setBackgroundColor(getResources().getColor(R.color.transparent));
-                                ivCreateAcc.setBackgroundColor(getResources().getColor(R.color.transparent));
-                                ivAdminProduct.setBackgroundColor(getResources().getColor(R.color.transparent));
-                                ivAdminPayroll.setBackgroundColor(getResources().getColor(R.color.colorPayroll));
-                                ivAdminPromotion.setBackgroundColor(getResources().getColor(R.color.transparent));
-
-                            }
+        adapterDetail = new FirebaseRecyclerAdapter<Client, ClientViewHolder>(
+                Client.class,
+                R.layout.item_client_route,
+                ClientViewHolder.class,
+                refDatabase.child("SaleRoute").child(userEmail).child(currentDay)
+        ) {
+            @Override
+            public ClientViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+                View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_client_route, parent, false);
+                return new ClientViewHolder(v);
+            }
 
 
-                        }
+            @Override
+            protected void populateViewHolder(ClientViewHolder viewHolder, Client model, int position) {
+                viewHolder.clientName.setText(model.getClientName());
+                viewHolder.circleClient.setImageDrawable(getResources().getDrawable(R.drawable.icon_client2));
 
-                        //Toast.makeText(getApplicationContext(), pos+"", Toast.LENGTH_LONG).show();
+            }
+        };
 
-
-                    }
-                }
-            });
-
-            adapter = new FirebaseRecyclerAdapter<Employee,EmployeeViewHolder>(
-                    Employee.class,
-                    R.layout.item_menu,
-                    EmployeeViewHolder.class,
-                    refDatabase.child("1-System/MainMenu/Admin")
-            ) {
-                @Override
-                public EmployeeViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-                    View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_menu, parent, false);
-                    return new EmployeeViewHolder(v);
-                }
-
-
-                @Override
-                protected void populateViewHolder(EmployeeViewHolder viewHolder, Employee model, int position) {
-                    Glide.with(getApplicationContext()).load(model.getMenuOrderUrl()).into(viewHolder.ivOrderPic);
-                }
-            };
-
-
-            rvAction.setAdapter(adapter);
-            adapter.notifyDataSetChanged();
-
-            actionAdmin();
-        }
+        rvClientList.setAdapter(adapterDetail);
+        adapterDetail.notifyDataSetChanged();
     }
 
     private void getSupSale() {
@@ -922,243 +523,6 @@ public class ActionList extends AppCompatActivity {
         });
 
     }
-
-    private void actionASM() {
-
-        ivSupASM.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent it = new Intent(getApplicationContext(), SaleList.class);
-                it.putExtra("EmailLogin",emailLogin);
-                it.putExtra("ASM",true);
-                startActivity(it);
-
-            }
-        });
-
-        ivPromotionASM.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent it = new Intent(getApplicationContext(), PromotionList.class);
-                it.putExtra("EmailLogin",emailLogin);
-                it.putExtra("ASM",true);
-                startActivity(it);
-            }
-        });
-
-        ivReportASM.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent it = new Intent(getApplicationContext(), SaleReport.class);
-                it.putExtra("EmailLogin",emailLogin);
-                it.putExtra("ASM",true);
-                startActivity(it);
-            }
-        });
-
-
-        ivAnnouncementASM.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent it = new Intent(getApplicationContext(), AnnounceList.class);
-                it.putExtra("EmailLogin",emailLogin);
-                startActivity(it);
-            }
-        });
-
-        ivLogoutASM.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                FirebaseAuth.getInstance().signOut();
-                Intent it = new Intent(getApplicationContext(), LoginActivity.class);
-                it.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(it);
-            }
-        });
-    }
-
-    private void actionAdmin() {
-
-        ivCreateAcc.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent it = new Intent(getApplicationContext(), AccountList.class);
-                it.putExtra("EmailLogin",emailLogin);
-                it.putExtra("Admin",true);
-                startActivity(it);
-            }
-        });
-
-        ivAdminProduct.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent it = new Intent(getApplicationContext(), CreateProduct.class);
-                it.putExtra("EmailLogin",emailLogin);
-                it.putExtra("Admin",true);
-                startActivity(it);
-            }
-        });
-
-        ivAdminOrder.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent it = new Intent(getApplicationContext(),OrderManActivity.class);
-                it.putExtra("EmailLogin",emailLogin);
-                it.putExtra("Admin",true);
-                startActivity(it);
-            }
-        });
-
-        ivAdminPromotion.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent it = new Intent(getApplicationContext(),PromotionList.class);
-                it.putExtra("EmailLogin",emailLogin);
-                it.putExtra("Admin",true);
-                startActivity(it);
-            }
-        });
-
-        ivLogoutAdmin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                FirebaseAuth.getInstance().signOut();
-                Intent it = new Intent(getApplicationContext(), LoginActivity.class);
-                it.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(it);
-            }
-        });
-    }
-
-    private void actionSupOnClick() {
-        ivOrderSup.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent it = new Intent(getApplicationContext(),OrderManActivity.class);
-                it.putExtra("EmailLogin",emailLogin);
-                it.putExtra("Supervisor",supervisor);
-                startActivity(it);
-            }
-        });
-
-        ivClientSup.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent it = new Intent(getApplicationContext(), ClientListBySaleTeam.class);
-                it.putExtra("EmailLogin",emailLogin);
-                it.putExtra("Supervisor",supervisor);
-
-                startActivity(it);
-
-            }
-        });
-
-        ivTeam.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent it = new Intent(getApplicationContext(), SaleList.class);
-                it.putExtra("EmailLogin",emailLogin);
-                it.putExtra("Supervisor",supervisor);
-
-                startActivity(it);
-
-            }
-        });
-
-        ivPromotionSup.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent it = new Intent(getApplicationContext(),PromotionList.class);
-                it.putExtra("EmailLogin",emailLogin);
-                it.putExtra("Supervisor",supervisor);
-                startActivity(it);
-            }
-        });
-
-
-        ivAnnoucementSup.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent it = new Intent(getApplicationContext(), AnnounceList.class);
-                it.putExtra("EmailLogin",emailLogin);
-                startActivity(it);
-            }
-        });
-
-        ivSupLogout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                FirebaseAuth.getInstance().signOut();
-                Intent it = new Intent(getApplicationContext(), LoginActivity.class);
-                it.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(it);
-
-            }
-        });
-
-    }
-
-    private void actionOnClick() {
-
-        ivOrder.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent it = new Intent(getApplicationContext(),OrderManActivity.class);
-                it.putExtra("EmailLogin",emailLogin);
-                it.putExtra("SaleMan",saleMan);
-                startActivity(it);
-            }
-        });
-
-        ivClient.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent it = new Intent(getApplicationContext(), ClientListBySaleTeam.class);
-                it.putExtra("EmailLogin",emailLogin);
-                it.putExtra("SaleMan",saleMan);
-
-                startActivity(it);
-
-            }
-        });
-
-        ivPromotion.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent it = new Intent(getApplicationContext(), PromotionList.class);
-                //it.putExtra("EmailLogin",emailLogin);
-                startActivity(it);
-            }
-        });
-
-
-        ivAnnouncement.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent it = new Intent(getApplicationContext(), AnnounceList.class);
-                it.putExtra("EmailLogin",emailLogin);
-                startActivity(it);
-            }
-        });
-
-        ivSaleLogout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                FirebaseAuth.getInstance().signOut();
-                Intent it = new Intent(getApplicationContext(), LoginActivity.class);
-                it.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(it);
-
-            }
-        });
-
-    }
-
-
 
     private void getASMSale() {
         final HashMap<String,Float> salesMonth = new HashMap<>();
@@ -1346,11 +710,11 @@ public class ActionList extends AppCompatActivity {
 
 
     public class EmployeeViewHolder extends RecyclerView.ViewHolder {
-         ImageView ivOrderPic;
+         TextView name;
 
         public EmployeeViewHolder(View itemView) {
             super(itemView);
-            ivOrderPic = itemView.findViewById(R.id.iv_item_menu);
+            name = itemView.findViewById(R.id.tv_item_sale_circle_name);
 
         }
     }
@@ -1424,6 +788,19 @@ public class ActionList extends AppCompatActivity {
 
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_action_list, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
 
-
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if(id == R.id.action_log_out){
+            FirebaseAuth.getInstance().signOut();
+            startActivity(new Intent(getApplicationContext(),LoginActivity.class));
+        }
+        return super.onOptionsItemSelected(item);
+    }
 }

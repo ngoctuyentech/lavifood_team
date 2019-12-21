@@ -21,6 +21,7 @@ public class Product {
 
     String productQuantity;
     String productPrice;
+    String productPackaging;
 
     public Product() {
     }
@@ -122,5 +123,9 @@ public class Product {
 
     public String getProductPrice() {
         return productPrice;
+    }
+
+    public String getProductPackaging() {
+        return productPackaging;
     }
 }

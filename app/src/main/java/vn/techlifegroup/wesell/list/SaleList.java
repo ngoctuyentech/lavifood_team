@@ -92,7 +92,7 @@ public class SaleList extends AppCompatActivity {
         asm = it.getBooleanExtra("ASM", false);
         supervisor = it.getBooleanExtra("Supervisor", false);
 
-        refCompany = refDatabase.child(emailLogin);
+        refCompany = refDatabase;
 
         userEmail = FirebaseAuth.getInstance().getCurrentUser().getEmail().replace(".", ",");
         btnRoute = findViewById(R.id.btn_sale_client_route);
@@ -104,8 +104,8 @@ public class SaleList extends AppCompatActivity {
         month = dt.getMonthOfYear()+"";
 
         if(supervisor){
-            DatabaseReference refSale = refDatabase.child(emailLogin).child("SaleManBySup").child(userEmail).child("Tất cả");
-            DatabaseReference refGroup = refDatabase.child(emailLogin).child("SaleManBySup").child(userEmail).child("Group");
+            DatabaseReference refSale = refDatabase.child("SaleManBySup").child(userEmail).child("Tất cả");
+            DatabaseReference refGroup = refDatabase.child("SaleManBySup").child(userEmail).child("Group");
             groupList(refGroup);
             detailList(refSale);
             gotoRoute();
@@ -114,14 +114,6 @@ public class SaleList extends AppCompatActivity {
 
         addGroup();
 
-        if(asm){
-            DatabaseReference refSale = refDatabase.child(emailLogin).child("SupByASM").child(userEmail).child("Tất cả");
-            DatabaseReference refGroup = refDatabase.child(emailLogin).child("SupByASM").child(userEmail).child("Group");
-            groupList(refGroup);
-            detailList(refSale);
-            btnRoute.setVisibility(View.GONE);
-
-        }
 
         getKPI();
     }
@@ -133,7 +125,7 @@ public class SaleList extends AppCompatActivity {
         final TextView tvKPISale = findViewById(R.id.tv_sale_list_kpi_sale);
         final TextView tvKPINew = findViewById(R.id.tv_sale_list_kpi_new);
 
-        refDatabase.child(emailLogin).child("KPI").child(userEmail).addListenerForSingleValueEvent(new ValueEventListener() {
+        refDatabase.child("KPI").child(userEmail).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Iterable<DataSnapshot> snapKPI = dataSnapshot.getChildren();
@@ -149,7 +141,7 @@ public class SaleList extends AppCompatActivity {
 
                         final int kpiTarget = Integer.parseInt(kpi.getKpiTarget());
 
-                        refDatabase.child(emailLogin).child("TotalBySale").child(userEmail).child(year+"-"+month).addListenerForSingleValueEvent(new ValueEventListener() {
+                        refDatabase.child("TotalBySale").child(userEmail).child(year+"-"+month).addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
                                 float kpiReach = Float.parseFloat(dataSnapshot.getValue().toString());
@@ -271,9 +263,9 @@ public class SaleList extends AppCompatActivity {
                         }
                        else{
                             if(supervisor)
-                                refDatabase.child(emailLogin).child("SaleManBySup").child(userEmail).child("Group").push().child("groupName").setValue(newGroupName);
+                                refDatabase.child("SaleManBySup").child(userEmail).child("Group").push().child("groupName").setValue(newGroupName);
                             else
-                                refDatabase.child(emailLogin).child("SupByASM").child(userEmail).child("Group").push().child("groupName").setValue(newGroupName);
+                                refDatabase.child("SupByASM").child(userEmail).child("Group").push().child("groupName").setValue(newGroupName);
                         }
 
                     }
@@ -372,9 +364,9 @@ public class SaleList extends AppCompatActivity {
                     Group group = adapterGroup.getItem(itemCat);
                     String groupName = group.getGroupName();
                     if(supervisor)
-                    detailList(refDatabase.child(emailLogin).child("SaleManBySup").child(userEmail).child(groupName));
+                    detailList(refDatabase.child("SaleManBySup").child(userEmail).child(groupName));
                     else
-                        detailList(refDatabase.child(emailLogin).child("SupByASM").child(userEmail).child(groupName));
+                        detailList(refDatabase.child("SupByASM").child(userEmail).child(groupName));
 
                 }
             });
@@ -460,7 +452,7 @@ public class SaleList extends AppCompatActivity {
                             final List<BarEntry> yearEntries = new ArrayList<>();
                             final ArrayList<String> barEntryLabels = new ArrayList<>();;
 
-                            refDatabase.child(emailLogin).child("TotalBySale").child(saleEmail).addListenerForSingleValueEvent(new ValueEventListener() {
+                            refDatabase.child("TotalBySale").child(saleEmail).addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     Iterable<DataSnapshot> snapTimeSale = dataSnapshot.getChildren();
@@ -528,7 +520,7 @@ public class SaleList extends AppCompatActivity {
 
                             final List<BarEntry> monthEntries = new ArrayList<>();
 
-                            refDatabase.child(emailLogin).child("TotalBySale").child(saleEmail).addListenerForSingleValueEvent(new ValueEventListener() {
+                            refDatabase.child("TotalBySale").child(saleEmail).addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     Iterable<DataSnapshot> snapTimeSale = dataSnapshot.getChildren();
@@ -600,7 +592,7 @@ public class SaleList extends AppCompatActivity {
 
                             final List<BarEntry> monthEntries = new ArrayList<>();
 
-                            refDatabase.child(emailLogin).child("TotalBySale").child(saleEmail).addListenerForSingleValueEvent(new ValueEventListener() {
+                            refDatabase.child("TotalBySale").child(saleEmail).addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     Iterable<DataSnapshot> snapTimeSale = dataSnapshot.getChildren();
@@ -664,7 +656,7 @@ public class SaleList extends AppCompatActivity {
                     final List<BarEntry> monthEntries = new ArrayList<>();
 
 
-                    refDatabase.child(emailLogin).child("TotalBySale").child(saleEmail).addListenerForSingleValueEvent(new ValueEventListener() {
+                    refDatabase.child("TotalBySale").child(saleEmail).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             Iterable<DataSnapshot> snapTimeSale = dataSnapshot.getChildren();
@@ -728,7 +720,7 @@ public class SaleList extends AppCompatActivity {
                     final TextView tvKPISale = dialogView.findViewById(R.id.tv_dialog_saleman_kpi_sale);
                     final TextView tvKPINew = dialogView.findViewById(R.id.tv_dialog_saleman_kpi_new);
 
-                    refDatabase.child(emailLogin).child("KPI").child(saleEmail).addListenerForSingleValueEvent(new ValueEventListener() {
+                    refDatabase.child("KPI").child(saleEmail).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             Iterable<DataSnapshot> snapKPI = dataSnapshot.getChildren();
@@ -744,7 +736,7 @@ public class SaleList extends AppCompatActivity {
 
                                     final int kpiTarget = Integer.parseInt(kpi.getKpiTarget());
 
-                                    refDatabase.child(emailLogin).child("TotalBySale").child(saleEmail).child(year+"-"+month).addListenerForSingleValueEvent(new ValueEventListener() {
+                                    refDatabase.child("TotalBySale").child(saleEmail).child(year+"-"+month).addListenerForSingleValueEvent(new ValueEventListener() {
                                         @Override
                                         public void onDataChange(DataSnapshot dataSnapshot) {
                                             float kpiReach = Float.parseFloat(dataSnapshot.getValue().toString());
@@ -909,7 +901,7 @@ public class SaleList extends AppCompatActivity {
 
                                     }
                                     else{
-                                        refDatabase.child(emailLogin).child("SupByASM").child(userEmail).child("Group").addListenerForSingleValueEvent(new ValueEventListener() {
+                                        refDatabase.child("SupByASM").child(userEmail).child("Group").addListenerForSingleValueEvent(new ValueEventListener() {
                                             @Override
                                             public void onDataChange(DataSnapshot dataSnapshot) {
                                                 Iterable<DataSnapshot> snapGroup = dataSnapshot.getChildren();
@@ -925,11 +917,11 @@ public class SaleList extends AppCompatActivity {
 
                                                     if(i == itemCount){
                                                         if(names.contains(newGroupName)){
-                                                            refDatabase.child(emailLogin).child("SaleManBySup").child(userEmail).child(newGroupName).child(saleEmail).setValue(employee);
+                                                            refDatabase.child("SaleManBySup").child(userEmail).child(newGroupName).child(saleEmail).setValue(employee);
 
                                                         }else{
-                                                            refDatabase.child(emailLogin).child("SupByASM").child(userEmail).child("Group").push().child("groupName").setValue(newGroupName);
-                                                            refDatabase.child(emailLogin).child("SupByASM").child(userEmail).child(newGroupName).child(saleEmail).setValue(employee);
+                                                            refDatabase.child("SupByASM").child(userEmail).child("Group").push().child("groupName").setValue(newGroupName);
+                                                            refDatabase.child("SupByASM").child(userEmail).child(newGroupName).child(saleEmail).setValue(employee);
                                                         }
 
                                                         /*
@@ -1067,11 +1059,11 @@ public class SaleList extends AppCompatActivity {
                                         final KPI updateClientKPI = new KPI(year+"-"+choosenMonth,"New ",newClient);
                                         final KPI updateSaleKPI = new KPI(year+"-"+choosenMonth,"TotalSale",sale);
 
-                                        refDatabase.child(emailLogin).child("KPI").addListenerForSingleValueEvent(new ValueEventListener() {
+                                        refDatabase.child("KPI").addListenerForSingleValueEvent(new ValueEventListener() {
                                             @Override
                                             public void onDataChange(DataSnapshot dataSnapshot) {
                                                 if(dataSnapshot.hasChild(saleEmail)){
-                                                    refDatabase.child(emailLogin).child("KPI").child(saleEmail).addListenerForSingleValueEvent(new ValueEventListener() {
+                                                    refDatabase.child("KPI").child(saleEmail).addListenerForSingleValueEvent(new ValueEventListener() {
                                                         @Override
                                                         public void onDataChange(DataSnapshot dataSnapshot) {
                                                             Iterable<DataSnapshot> snapKPI = dataSnapshot.getChildren();
@@ -1114,8 +1106,8 @@ public class SaleList extends AppCompatActivity {
                                                     });
 
                                                 }else{
-                                                    refDatabase.child(emailLogin).child("KPI").child(saleEmail).push().setValue(updateSaleKPI);
-                                                    refDatabase.child(emailLogin).child("KPI").child(saleEmail).push().setValue(updateClientKPI);
+                                                    refDatabase.child("KPI").child(saleEmail).push().setValue(updateSaleKPI);
+                                                    refDatabase.child("KPI").child(saleEmail).push().setValue(updateClientKPI);
 
                                                 }
                                             }
@@ -1189,7 +1181,7 @@ public class SaleList extends AppCompatActivity {
                             final List<BarEntry> yearEntries = new ArrayList<>();
                             final ArrayList<String> barEntryLabels = new ArrayList<>();;
 
-                            refDatabase.child(emailLogin).child("TotalBySale").child(saleEmail).addListenerForSingleValueEvent(new ValueEventListener() {
+                            refDatabase.child("TotalBySale").child(saleEmail).addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     Iterable<DataSnapshot> snapTimeSale = dataSnapshot.getChildren();
@@ -1257,7 +1249,7 @@ public class SaleList extends AppCompatActivity {
 
                             final List<BarEntry> monthEntries = new ArrayList<>();
 
-                            refDatabase.child(emailLogin).child("TotalBySale").child(saleEmail).addListenerForSingleValueEvent(new ValueEventListener() {
+                            refDatabase.child("TotalBySale").child(saleEmail).addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     Iterable<DataSnapshot> snapTimeSale = dataSnapshot.getChildren();
@@ -1329,7 +1321,7 @@ public class SaleList extends AppCompatActivity {
 
                             final List<BarEntry> monthEntries = new ArrayList<>();
 
-                            refDatabase.child(emailLogin).child("TotalBySale").child(saleEmail).addListenerForSingleValueEvent(new ValueEventListener() {
+                            refDatabase.child("TotalBySale").child(saleEmail).addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     Iterable<DataSnapshot> snapTimeSale = dataSnapshot.getChildren();
@@ -1392,7 +1384,7 @@ public class SaleList extends AppCompatActivity {
 
                     final List<BarEntry> monthEntries = new ArrayList<>();
 
-                    refDatabase.child(emailLogin).child("TotalBySale").child(saleEmail).addListenerForSingleValueEvent(new ValueEventListener() {
+                    refDatabase.child("TotalBySale").child(saleEmail).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             Iterable<DataSnapshot> snapTimeSale = dataSnapshot.getChildren();
@@ -1456,7 +1448,7 @@ public class SaleList extends AppCompatActivity {
                     final TextView tvKPISale = dialogView.findViewById(R.id.tv_dialog_saleman_kpi_sale);
                     final TextView tvKPINew = dialogView.findViewById(R.id.tv_dialog_saleman_kpi_new);
 
-                    refDatabase.child(emailLogin).child("KPI").child(saleEmail).addListenerForSingleValueEvent(new ValueEventListener() {
+                    refDatabase.child("KPI").child(saleEmail).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             Iterable<DataSnapshot> snapKPI = dataSnapshot.getChildren();
@@ -1472,7 +1464,7 @@ public class SaleList extends AppCompatActivity {
 
                                     final int kpiTarget = Integer.parseInt(kpi.getKpiTarget());
 
-                                    refDatabase.child(emailLogin).child("TotalBySale").child(saleEmail).child(year+"-"+month).addListenerForSingleValueEvent(new ValueEventListener() {
+                                    refDatabase.child("TotalBySale").child(saleEmail).child(year+"-"+month).addListenerForSingleValueEvent(new ValueEventListener() {
                                         @Override
                                         public void onDataChange(DataSnapshot dataSnapshot) {
                                             float kpiReach = Float.parseFloat(dataSnapshot.getValue().toString());
@@ -1581,7 +1573,7 @@ public class SaleList extends AppCompatActivity {
                         public void onClick(View v) {
                             v.startAnimation(buttonClick);
 
-                            refDatabase.child(emailLogin).child("Employee").child(saleEmail).child("employeePhone").addListenerForSingleValueEvent(new ValueEventListener() {
+                            refDatabase.child("Employee").child(saleEmail).child("employeePhone").addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
                                     String phone = dataSnapshot.getValue().toString();
@@ -1780,11 +1772,11 @@ public class SaleList extends AppCompatActivity {
                                          final KPI updateClientKPI = new KPI(year+"-"+choosenMonth,"New Client",newClient);
                                          final KPI updateSaleKPI = new KPI(year+"-"+choosenMonth,"TotalSale",sale);
 
-                                        refDatabase.child(emailLogin).child("KPI").addListenerForSingleValueEvent(new ValueEventListener() {
+                                        refDatabase.child("KPI").addListenerForSingleValueEvent(new ValueEventListener() {
                                             @Override
                                             public void onDataChange(DataSnapshot dataSnapshot) {
                                                 if(dataSnapshot.hasChild(saleEmail)){
-                                                    refDatabase.child(emailLogin).child("KPI").child(saleEmail).addListenerForSingleValueEvent(new ValueEventListener() {
+                                                    refDatabase.child("KPI").child(saleEmail).addListenerForSingleValueEvent(new ValueEventListener() {
                                                         @Override
                                                         public void onDataChange(DataSnapshot dataSnapshot) {
                                                             Iterable<DataSnapshot> snapKPI = dataSnapshot.getChildren();
@@ -1827,8 +1819,8 @@ public class SaleList extends AppCompatActivity {
                                                     });
 
                                                 }else{
-                                                    refDatabase.child(emailLogin).child("KPI").child(saleEmail).push().setValue(updateSaleKPI);
-                                                    refDatabase.child(emailLogin).child("KPI").child(saleEmail).push().setValue(updateClientKPI);
+                                                    refDatabase.child("KPI").child(saleEmail).push().setValue(updateSaleKPI);
+                                                    refDatabase.child("KPI").child(saleEmail).push().setValue(updateClientKPI);
 
                                                 }
                                             }

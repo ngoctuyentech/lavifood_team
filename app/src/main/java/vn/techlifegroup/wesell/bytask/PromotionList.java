@@ -85,7 +85,7 @@ public class PromotionList extends AppCompatActivity {
         //StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         recyclerViewPromotion.setLayoutManager(linearLayoutManager);
 
-        DatabaseReference refPromotion = refDatabase.child("PromotionMan");
+        DatabaseReference refPromotion = refDatabase.child("Program");
 
         adapterFirebasePromotion = new FirebaseRecyclerAdapter<Promotion, PromotionViewHolder>(
                 Promotion.class,
@@ -102,10 +102,10 @@ public class PromotionList extends AppCompatActivity {
 
             @Override
             protected void populateViewHolder(PromotionViewHolder viewHolder, Promotion model, int position) {
-                viewHolder.mPromotionName.setText(model.getPromotionName());
-                viewHolder.startDate.setText(model.getPromotionStartDate());
-                viewHolder.endDate.setText(model.getPromotionEndDate());
-
+                viewHolder.mPromotionName.setText(model.getProgramName());
+                viewHolder.startDate.setText(model.getStartDate());
+                viewHolder.endDate.setText(model.getEndDate());
+                viewHolder.content.setText(model.getContent());
             }
         };
 
@@ -114,7 +114,7 @@ public class PromotionList extends AppCompatActivity {
     }
 
     public class PromotionViewHolder extends RecyclerView.ViewHolder {
-        TextView mPromotionName,startDate,endDate;
+        TextView mPromotionName,startDate,endDate,content;
         ImageView del,save;
 
         public PromotionViewHolder(View itemView) {
@@ -122,46 +122,8 @@ public class PromotionList extends AppCompatActivity {
             mPromotionName = (TextView) itemView.findViewById(R.id.tv_item_promotion_detail_name);
             startDate = itemView.findViewById(R.id.tv_item_promotion_start);
             endDate = itemView.findViewById(R.id.tv_item_promotion_end);
+            content = itemView.findViewById(R.id.tv_item_promotion_content);
             //del = itemView.findViewById(R.id.iv_item_promotion_del);
-            save = itemView.findViewById(R.id.iv_item_promotion_save);
-
-            save.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    v.startAnimation(buttonClick);
-
-                    int pos = getAdapterPosition();
-                    final DatabaseReference refPromotionMan = adapterFirebasePromotion.getRef(pos);
-                    final Promotion p = adapterFirebasePromotion.getItem(pos);
-                    final String promotionKey = adapterFirebasePromotion.getRef(pos).getKey();
-
-                    AlertDialog.Builder builder = new AlertDialog.Builder(PromotionList.this);
-                    builder.setMessage("Lưu và ẩn chương trình này?");
-                    builder.setPositiveButton("Ẩn", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-
-                            DateTimeFormatter fmt = DateTimeFormat.forPattern("dd-MM-yyyy");
-
-                            DateTime promotionEnd = fmt.parseDateTime(p.getPromotionEndDate());
-                            DateTime dt = new DateTime();
-
-
-                            if(dt.toDate().before( promotionEnd.toDate())){
-                                Toast.makeText(getApplicationContext(), "Chương trình vẫn còn hiệu lực, vui lòng giữ lại để theo dõi!", Toast.LENGTH_LONG).show();
-                            }else{
-                                refPromotionMan.setValue(null);
-                                refDatabase.child("PromotionHistory").child(promotionKey).setValue(p);
-                            }
-                        }
-                    }).setNegativeButton("Không", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-
-                        }
-                    }).show();
-                }
-            });
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override

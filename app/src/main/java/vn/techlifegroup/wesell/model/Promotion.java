@@ -19,6 +19,10 @@ public class Promotion {
     String promotionGetQuantity;
     String promotionGetCode;
     String promotionCode;
+    String startDate;
+    String endDate;
+    String programName;
+    String content;
 
     public Promotion() {
     }
@@ -40,6 +44,22 @@ public class Promotion {
         this.promotionBuyQuantity = promotionBuyQuantity;
         this.promotionGetQuantity = promotionGetQuantity;
         this.promotionGetCode = promotionGetCode;
+    }
+
+    public String getStartDate() {
+        return startDate;
+    }
+
+    public String getEndDate() {
+        return endDate;
+    }
+
+    public String getProgramName() {
+        return programName;
+    }
+
+    public String getContent() {
+        return content;
     }
 
     public String getPromotionName() {
