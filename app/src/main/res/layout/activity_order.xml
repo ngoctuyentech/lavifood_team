@@ -111,7 +111,7 @@
                     android:id="@+id/spin_order_group"
                     android:layout_width="150dp"
                     android:layout_height="25dp"
-                    android:layout_marginTop="32dp"
+                    android:layout_marginTop="8dp"
                     android:layout_marginBottom="2dp"
                     android:background="@color/white"
                     android:gravity="left"
@@ -185,10 +185,9 @@
                 <android.support.v7.widget.RecyclerView
                     android:id="@+id/rv_order_list_product"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_height="100dp"
+                    android:layout_marginTop="4dp"
                     android:visibility="visible"
-                    app:layout_constraintBottom_toTopOf="@+id/spin_order_group"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />

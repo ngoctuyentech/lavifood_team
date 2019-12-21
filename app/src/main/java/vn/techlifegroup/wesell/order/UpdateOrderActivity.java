@@ -597,8 +597,10 @@ public class UpdateOrderActivity extends AppCompatActivity {
         rvProductList = findViewById(R.id.rv_order_list_product);
 
         rvProductList.setHasFixedSize(true);
+        //linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         linearLayoutManager = new LinearLayoutManager(getApplicationContext());
         rvProductList.setLayoutManager(linearLayoutManager);
+
 
         DatabaseReference refProduct = refDatabase.child("OrderList").child(orderPushKeyString).child("ProductList");
 
