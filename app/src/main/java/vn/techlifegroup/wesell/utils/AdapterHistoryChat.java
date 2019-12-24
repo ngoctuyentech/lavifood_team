@@ -176,7 +176,7 @@ public class AdapterHistoryChat extends RecyclerView.Adapter<AdapterHistoryChat.
                     refEmployees.child(userUid).child("friend").child(idFr).child("isRead").setValue(true);
 
                     Intent it = new Intent(context, MainChatActivity.class);
-
+                    it.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     it.putExtra("ID Friend", idFr);
 
                     context.startActivity(it);

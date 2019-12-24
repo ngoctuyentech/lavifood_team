@@ -183,6 +183,8 @@ public class UpdateOrderActivity extends AppCompatActivity {
     }
 
     private void addProductToList() {
+
+        rvProductList.setVisibility(View.VISIBLE);
         final String productQuantity = edtproductQuantity.getText().toString();
         //final String productPrice = edtproductPrice.getText().toString().replace(",","");
 
@@ -307,6 +309,8 @@ public class UpdateOrderActivity extends AppCompatActivity {
         mYear = c.get(Calendar.YEAR);
         mMonth = c.get(Calendar.MONTH);
         mDay = c.get(Calendar.DAY_OF_MONTH);
+
+        edtdeliveryDate.setFocusable(false);
 
         edtdeliveryDate.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -462,37 +466,7 @@ public class UpdateOrderActivity extends AppCompatActivity {
             }
         });
 
-        rvProductList = findViewById(R.id.rv_order_list_product);
-
-        rvProductList.setHasFixedSize(true);
-        linearLayoutManager = new LinearLayoutManager(getApplicationContext());
-        rvProductList.setLayoutManager(linearLayoutManager);
-
-        DatabaseReference refProduct = refDatabase.child("OrderList").child(orderPushKeyString).child("ProductList");
-
-        adapterProductOrder = new FirebaseRecyclerAdapter<Product, ProductOrderViewHolder>(
-                Product.class,
-                R.id.item_product,
-                ProductOrderViewHolder.class,
-                refProduct
-        ) {
-            @Override
-            public ProductOrderViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-                View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_product, parent, false);
-                return new ProductOrderViewHolder(v);
-            }
-
-
-            @Override
-            protected void populateViewHolder(ProductOrderViewHolder viewHolder, Product model, int position) {
-                viewHolder.name.setText(model.getProductName());
-                viewHolder.price.setText(model.getUnitPrice());
-                viewHolder.quantity.setText(model.getUnitQuantity());
-            }
-        };
-
-        rvProductList.setAdapter(adapterProductOrder);
-        adapterProductOrder.notifyDataSetChanged();
+        getOrderProduct();
 
         if (saleMan) {
             btnChooseEmployee.setVisibility(View.GONE);
@@ -595,6 +569,41 @@ public class UpdateOrderActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void getOrderProduct() {
+
+        rvProductList = findViewById(R.id.rv_order_list_product);
+
+        rvProductList.setHasFixedSize(true);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext());
+        rvProductList.setLayoutManager(linearLayoutManager);
+
+        DatabaseReference refProduct = refDatabase.child("OrderList").child(orderPushKeyString).child("ProductList");
+
+        adapterProductOrder = new FirebaseRecyclerAdapter<Product, ProductOrderViewHolder>(
+                Product.class,
+                R.id.item_product,
+                ProductOrderViewHolder.class,
+                refProduct
+        ) {
+            @Override
+            public ProductOrderViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+                View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_product, parent, false);
+                return new ProductOrderViewHolder(v);
+            }
+
+
+            @Override
+            protected void populateViewHolder(ProductOrderViewHolder viewHolder, Product model, int position) {
+                viewHolder.name.setText(model.getProductName());
+                viewHolder.price.setText(Utils.convertNumber(model.getUnitPrice()));
+                viewHolder.quantity.setText(model.getUnitQuantity());
+            }
+        };
+
+        rvProductList.setAdapter(adapterProductOrder);
+        adapterProductOrder.notifyDataSetChanged();
     }
 
     private void productListDialog() {

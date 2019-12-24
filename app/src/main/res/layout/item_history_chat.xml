@@ -18,7 +18,7 @@
         android:layout_marginTop="10dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/logo_chat" />
+        />
 
     <TextView
         android:id="@+id/tv_item_history_chat_time"
@@ -27,7 +27,7 @@
         android:layout_marginBottom="2dp"
         android:fontFamily="@font/utm_dax"
         android:gravity="bottom"
-        android:text="Time"
+        android:text=""
         android:textColor="@color/gray"
         android:textSize="12dp"
         app:layout_constraintBottom_toTopOf="@+id/tv_item_history_chat_date"
@@ -42,7 +42,7 @@
         android:layout_marginStart="22dp"
         android:layout_marginTop="12dp"
         android:fontFamily="@font/utm_dax"
-        android:text="Recent Message"
+        android:text=""
         android:textColor="@color/black"
         android:textSize="14dp"
         app:layout_constraintStart_toEndOf="@+id/iv_logo_chat"
@@ -54,7 +54,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="2dp"
         android:fontFamily="@font/utm_dax_bold"
-        android:text="name"
+        android:text=""
         android:textColor="@color/black"
         android:textSize="12dp"
         app:layout_constraintEnd_toEndOf="@+id/iv_logo_chat"
@@ -68,7 +68,7 @@
         android:layout_marginTop="2dp"
         android:layout_marginBottom="8dp"
         android:fontFamily="@font/utm_dax"
-        android:text="role"
+        android:text=""
         android:textSize="12dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/tv_item_history_chat_name"
@@ -82,7 +82,7 @@
         android:layout_marginTop="2dp"
         android:layout_marginEnd="8dp"
         android:fontFamily="@font/utm_dax"
-        android:text="date"
+        android:text=""
         android:textColor="@color/gray"
         android:textSize="12dp"
         app:layout_constraintBottom_toBottomOf="parent"
