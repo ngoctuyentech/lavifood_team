@@ -4,11 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/item_product"
     android:layout_width="match_parent"
-<<<<<<< HEAD
     android:layout_height="wrap_content"
-=======
-    android:layout_height="40dp"
->>>>>>> 3fc6b3a6408a2fd6bfcd26038f23e37cec591106
     android:layout_marginBottom="2dp"
     android:background="@android:color/white"
     android:elevation="2dp"
@@ -17,21 +13,16 @@
 
     <TextView
         android:id="@+id/tv_item_product_name"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="2dp"
+        android:layout_marginEnd="150dp"
         android:fontFamily="@font/utm_dax"
-<<<<<<< HEAD
         android:text="name"
         android:textSize="12dp"
         app:layout_constraintBottom_toBottomOf="parent"
-=======
-        android:text="Kẹo Tusssz Hộp Kẹo Tusssz Hộp Kẹo Tusssz Hộp Kẹo Tusssz Hộp "
-        android:textSize="12sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
->>>>>>> 3fc6b3a6408a2fd6bfcd26038f23e37cec591106
-        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:layout_constraintBottom_creator="1"
         tools:layout_constraintLeft_creator="1"
@@ -41,18 +32,11 @@
         android:id="@+id/tv_item_product_price"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-<<<<<<< HEAD
         android:layout_marginTop="2dp"
         android:layout_marginRight="70dp"
         android:fontFamily="@font/utm_dax"
         android:text="0"
-        android:textSize="14dp"
-=======
-        android:layout_marginRight="46dp"
-        android:fontFamily="@font/utm_dax"
-        android:text="0"
         android:textSize="12sp"
->>>>>>> 3fc6b3a6408a2fd6bfcd26038f23e37cec591106
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -67,15 +51,10 @@
         android:layout_marginEnd="16dp"
         android:fontFamily="@font/utm_dax"
         android:text="20"
-<<<<<<< HEAD
-        android:textSize="14dp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-=======
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent"
->>>>>>> 3fc6b3a6408a2fd6bfcd26038f23e37cec591106
         app:layout_constraintTop_toTopOf="parent"
         tools:layout_constraintBaseline_creator="1"
         tools:layout_constraintRight_creator="1" />
