@@ -347,6 +347,7 @@ public class PreviewOrderActivivity extends AppCompatActivity {
         recyclerViewPromotion.setAdapter(adapterFirebasePromotion);
         adapterFirebasePromotion.notifyDataSetChanged();
     }
+
     private void initializeRecyclerViewProduct() {
         recyclerViewProduct.setHasFixedSize(true);
         linearLayoutManager = new LinearLayoutManager(getApplicationContext());

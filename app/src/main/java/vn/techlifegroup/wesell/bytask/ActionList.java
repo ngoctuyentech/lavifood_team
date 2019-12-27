@@ -54,12 +54,16 @@ import vn.techlifegroup.wesell.model.Client;
 import vn.techlifegroup.wesell.model.Employee;
 import vn.techlifegroup.wesell.model.Functions;
 import vn.techlifegroup.wesell.utils.AdapterFunctions;
+import vn.techlifegroup.wesell.utils.Constants;
 
 import static vn.techlifegroup.wesell.utils.Constants.refDatabase;
 
 public class ActionList extends AppCompatActivity {
     private RecyclerView rvAction;
     private FirebaseRecyclerAdapter<Employee,EmployeeViewHolder> adapter ;
+    private FirebaseRecyclerAdapter<Client, ClientViewHolder> adapterDetail;
+
+
     private ImageView ivOrder, ivClient,ivPromotion,ivAnnouncement,ivTeam,
             ivOrderSup,ivPromotionSup,ivAnnoucementSup,ivSaleLogout,ivSupLogout,ivClientSup,
             ivSupASM,ivPromotionASM,ivReportASM,ivAnnouncementASM,ivLogoutASM,ivSaleASM,
@@ -305,7 +309,6 @@ public class ActionList extends AppCompatActivity {
         rvFunction.setAdapter(adapterFunctions);
         adapterFunctions.notifyDataSetChanged();
 
-        FirebaseRecyclerAdapter<Client, ClientViewHolder> adapterDetail;
         RecyclerView rvClientList;
 
         rvClientList = findViewById(R.id.rv_client_list);
@@ -731,7 +734,13 @@ public class ActionList extends AppCompatActivity {
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(getApplicationContext(), "Chon khach hang", Toast.LENGTH_SHORT).show();
+
+                    v.startAnimation(Constants.buttonClick);
+                    int position = getAdapterPosition();
+                    String ClientnKey = adapterDetail.getRef(position).getKey();
+
+
+
                 }
             });
 

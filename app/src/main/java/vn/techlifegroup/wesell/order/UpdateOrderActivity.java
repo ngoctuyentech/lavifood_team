@@ -78,14 +78,14 @@ public class UpdateOrderActivity extends AppCompatActivity {
     private TextView edtproductPrice;
     private Switch switchPayment;
     private Button btnChooseEmployee, btnChooseProduct, btnChoosePromotion, btnPreview;
-    private DatabaseReference orderPushKey;
+    private DatabaseReference orderPushKey, refPromotion;
     private FirebaseRecyclerAdapter<Employee, EmployeeViewHolder> adapterFirebase;
     private FirebaseRecyclerAdapter<Product, ProductViewHolder> adapterFirebaseProduct;
     private FirebaseRecyclerAdapter<Promotion, PromotionViewHolder> adapterFirebasePromotion;
     private FirebaseRecyclerAdapter<Product, ProductOrderViewHolder> adapterProductOrder;
 
     private LinearLayoutManager linearLayoutManager;
-    private RecyclerView employeeList, programList, programListOrder;
+    private RecyclerView employeeList, programList, programListOrder, recyclerViewPromotion;
     private AlertDialog.Builder dialogBuilder;
     private View dialogView;
     private LayoutInflater inflater;
@@ -599,6 +599,36 @@ public class UpdateOrderActivity extends AppCompatActivity {
 
     }
 
+    private void initializeRecyclerViewPromotion() {
+        recyclerViewPromotion.setHasFixedSize(true);
+        linearLayoutManager = new LinearLayoutManager(getApplicationContext());
+        recyclerViewPromotion.setLayoutManager(linearLayoutManager);
+
+        refPromotion = refDatabase.child("Promotion");
+
+        adapterFirebasePromotion = new FirebaseRecyclerAdapter<Promotion, PromotionViewHolder>(
+                Promotion.class,
+                R.layout.item_promotion,
+                PromotionViewHolder.class,
+                refPromotion
+        ) {
+            @Override
+            public PromotionViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+                View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_promotion,parent,false);
+                return new PromotionViewHolder(v);
+            }
+
+
+            @Override
+            protected void populateViewHolder(PromotionViewHolder viewHolder, Promotion model, int position) {
+                viewHolder.promotionName.setText(model.getContent());
+            }
+        };
+
+        recyclerViewPromotion.setAdapter(adapterFirebasePromotion);
+        adapterFirebasePromotion.notifyDataSetChanged();
+    }
+
     private void productListDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         inflater = this.getLayoutInflater();
@@ -639,7 +669,6 @@ public class UpdateOrderActivity extends AppCompatActivity {
 
         dialogProductList.show();
     }
-
 
     private void employeeListDialog() {
 
