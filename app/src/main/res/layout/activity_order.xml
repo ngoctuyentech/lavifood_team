@@ -34,17 +34,12 @@
 
     <ScrollView
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-<<<<<<< HEAD
         app:layout_constraintTop_toBottomOf="@+id/toolbar_order">
-=======
-        app:layout_constraintTop_toBottomOf="@+id/toolbar_order"
-        app:layout_constraintVertical_bias="0.0">
->>>>>>> 3fc6b3a6408a2fd6bfcd26038f23e37cec591106
 
         <android.support.constraint.ConstraintLayout
             android:id="@+id/constraintLayout10"
@@ -140,11 +135,7 @@
             <android.support.constraint.ConstraintLayout
                 android:id="@+id/constraintLayout4"
                 android:layout_width="0dp"
-<<<<<<< HEAD
                 android:layout_height="320dp"
-=======
-                android:layout_height="wrap_content"
->>>>>>> 3fc6b3a6408a2fd6bfcd26038f23e37cec591106
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp"
                 android:background="@drawable/box_white_dialog"
@@ -174,13 +165,8 @@
                     android:id="@+id/edt_order_product_quantity"
                     android:layout_width="50dp"
                     android:layout_height="30dp"
-<<<<<<< HEAD
                     android:layout_marginEnd="24dp"
                     android:layout_marginBottom="8dp"
-=======
-                    android:layout_marginTop="4dp"
-                    android:layout_marginEnd="140dp"
->>>>>>> 3fc6b3a6408a2fd6bfcd26038f23e37cec591106
                     android:background="@drawable/box_white_edtext"
                     android:ems="10"
                     android:fontFamily="@font/utm_dax"
@@ -188,24 +174,14 @@
                     android:inputType="number"
                     android:textColor="@color/black"
                     android:textColorHint="@color/black"
-<<<<<<< HEAD
                     app:layout_constraintBottom_toTopOf="@+id/btn_order_choose_product"
                     app:layout_constraintEnd_toStartOf="@+id/textView200" />
-=======
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/spin_order_product" />
->>>>>>> 3fc6b3a6408a2fd6bfcd26038f23e37cec591106
 
                 <Spinner
                     android:id="@+id/spin_order_group"
                     android:layout_width="200dp"
                     android:layout_height="30dp"
-<<<<<<< HEAD
                     android:layout_marginBottom="4dp"
-=======
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="8dp"
->>>>>>> 3fc6b3a6408a2fd6bfcd26038f23e37cec591106
                     android:background="@drawable/box_white_edtext"
                     android:gravity="left"
                     app:layout_constraintBottom_toTopOf="@+id/spin_order_product"
@@ -216,23 +192,13 @@
                     android:layout_width="0dp"
                     android:layout_height="30dp"
                     android:layout_marginStart="8dp"
-<<<<<<< HEAD
                     android:layout_marginBottom="8dp"
-=======
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="8dp"
->>>>>>> 3fc6b3a6408a2fd6bfcd26038f23e37cec591106
                     android:background="@drawable/box_white_edtext"
                     android:gravity="left"
                     android:visibility="visible"
                     app:layout_constraintBottom_toTopOf="@+id/edt_order_product_quantity"
                     app:layout_constraintEnd_toEndOf="parent"
-<<<<<<< HEAD
                     app:layout_constraintStart_toStartOf="parent" />
-=======
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/spin_order_group" />
->>>>>>> 3fc6b3a6408a2fd6bfcd26038f23e37cec591106
 
                 <TextView
                     android:id="@+id/tv_order_product_stock"
@@ -248,45 +214,24 @@
                     android:id="@+id/textView200"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-<<<<<<< HEAD
                     android:layout_marginEnd="24dp"
                     android:fontFamily="@font/utm_dax"
                     android:text="Tồn kho"
                     android:textColor="@android:color/black"
                     app:layout_constraintEnd_toStartOf="@+id/tv_order_product_stock"
                     app:layout_constraintTop_toTopOf="@+id/edt_order_product_quantity" />
-=======
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="80dp"
-                    android:fontFamily="@font/utm_dax"
-                    android:text="Tồn kho"
-                    android:textColor="@android:color/black"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/spin_order_product" />
-
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/rv_order_list_product"
-                    android:layout_width="0dp"
-                    android:layout_height="80dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="4dp"
-                    android:layout_marginEnd="8dp"
-                    android:visibility="gone"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
->>>>>>> 3fc6b3a6408a2fd6bfcd26038f23e37cec591106
 
                 <TextView
                     android:id="@+id/tv_new_order_price"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="220dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="16dp"
                     android:text="0"
                     android:textColor="@android:color/black"
                     android:textSize="18sp"
-                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/edt_order_product_quantity"
+                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/spin_order_product" />
 
                 <android.support.v7.widget.RecyclerView
