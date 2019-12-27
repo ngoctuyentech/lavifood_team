@@ -1,9 +1,12 @@
 package vn.techlifegroup.wesell;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -45,6 +48,8 @@ public class MainActivity extends AppCompatActivity {
 
     public static String userUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
     public static String userPhone = FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber();
+    public static DatabaseReference refUser = refDatabase.child("Users");
+
     public static DatabaseReference refUserUid = refDatabase.child("Users").child(userUid);
     public static DatabaseReference refBlockChain = refDatabase.child("BlockChain");
     public static int POINT_VALUE = 1000;
@@ -88,23 +93,12 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             final String userRole = dataSnapshot.getValue().toString();
-                            switch (userRole) {
-                                case "DebtMan":
-                                    Intent intent = new Intent(MainActivity.this, DebtManActivity.class);
-                                    intent.putExtra("EmailLogin",userEmail);
-                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                    startActivity(intent);                                                        break;
+                            Intent intent = new Intent();
 
-                                case "DeliveryMan":
-                                    intent = new Intent(MainActivity.this, DeliveryManActivity.class);
-                                    intent.putExtra("EmailLogin",userEmail);
-                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                    startActivity(intent);
-                                    break;
+                            switch (userRole) {
 
                                 case "SaleMan":
                                     intent = new Intent(MainActivity.this, ActionList.class);
-                                    intent.putExtra("EmailLogin",userEmail);
                                     intent.putExtra("SaleMan",true);
                                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                     startActivity(intent);
@@ -112,81 +106,16 @@ public class MainActivity extends AppCompatActivity {
 
                                 case "Supervisor":
                                     intent = new Intent(MainActivity.this, ActionList.class);
-                                    intent.putExtra("EmailLogin",userEmail);
                                     intent.putExtra("Supervisor",true);
                                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                     startActivity(intent);
                                     break;
 
-                                case "ASM":
-                                    intent = new Intent(MainActivity.this, ActionList.class);
-                                    intent.putExtra("EmailLogin",userEmail);
-                                    intent.putExtra("ASM",true);
-                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                    startActivity(intent);
-                                    break;
 
-                                case "RSM":
-                                    intent = new Intent(MainActivity.this, ActionList.class);
-                                    intent.putExtra("EmailLogin",userEmail);
-                                    intent.putExtra("RSM",true);
-                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                    startActivity(intent);
-                                    break;
-
-                                case "Admin":
-                                    intent = new Intent(MainActivity.this, ActionList.class);
-                                    intent.putExtra("EmailLogin",userEmail);
-                                    intent.putExtra("Admin",true);
-                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                    startActivity(intent);
-                                    break;
-
-                                case "OrderMan":
-                                    intent = new Intent(MainActivity.this, ActionList.class);
-                                    intent.putExtra("EmailLogin",userEmail);
-                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                    startActivity(intent);
-                                    break;
-
-                                case "Seller":
-                                    intent = new Intent(MainActivity.this, PosActivity.class);
-                                    intent.putExtra("EmailLogin",userEmail);
-                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                    startActivity(intent);
-                                    break;
-
-                                case "ShopMan":
-                                    intent = new Intent(MainActivity.this, ShopManagerActivity.class);
-                                    intent.putExtra("EmailLogin",userEmail);
-                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                    startActivity(intent);
-                                    break;
-
-                                case "ChainMan":
-                                    intent = new Intent(MainActivity.this, ShopChainActivity.class);
-                                    intent.putExtra("EmailLogin",userEmail);
-                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                    startActivity(intent);
-                                    break;
-
-                                case "GeneralMan":
-                                    intent = new Intent(MainActivity.this, DistributionManActivity.class);
-                                    intent.putExtra("EmailLogin",userEmail);
-                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                    startActivity(intent);
-                                    break;
-
-                                case "DistributionMan":
-                                    intent = new Intent(MainActivity.this, DistributionManActivity.class);
-                                    intent.putExtra("EmailLogin",userEmail);
-                                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                    startActivity(intent);
-                                    break;
 
                                 default: {
-                                    intent = new Intent(MainActivity.this, WarehouseManActivity.class);
-                                    intent.putExtra("EmailLogin",userEmail);
+                                    intent = new Intent(MainActivity.this, ActionList.class);
+                                    intent.putExtra("SaleMan",true);
                                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                     startActivity(intent);
                                     break;
@@ -200,6 +129,20 @@ public class MainActivity extends AppCompatActivity {
 
                         }
                     });
+
+                }else{
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                    builder.setMessage("Tài khoản không tồn tại! Vui lòng liên hệ với Quản trị hệ thống!");
+                    builder.setPositiveButton("Đồng ý", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            FirebaseAuth.getInstance().signOut();
+                            Intent it = new Intent(getApplicationContext(),MainActivity.class);
+                            it.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(it);
+                        }
+                    }).show();
+
 
                 }
             }

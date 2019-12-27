@@ -1373,6 +1373,7 @@ public class OrderManActivity extends AppCompatActivity {
 
                     Intent it = new Intent(getApplicationContext(),PreviewOrderActivivity.class);
                     it.putExtra("OrderPushKey", keyOrder);
+                    it.putExtra("ViewOnly", true);
                     startActivity(it);
 
 

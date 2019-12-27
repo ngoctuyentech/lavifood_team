@@ -72,6 +72,7 @@ import java.util.List;
 
 import vn.techlifegroup.wesell.MainActivity;
 import vn.techlifegroup.wesell.R;
+import vn.techlifegroup.wesell.ScanCodeActivity;
 import vn.techlifegroup.wesell.bytask.SaleRoute;
 import vn.techlifegroup.wesell.model.Client;
 import vn.techlifegroup.wesell.model.Employee;
@@ -106,7 +107,7 @@ public class ClientListBySaleTeam extends AppCompatActivity {
     private String currentDay,date,day,year,month;
     private double latitude,longitude;
     private boolean saleMan,supervisor;
-    private int choosenEmployee;
+    private int choosenEmployee = 0;
     private String choosenEmployeeEmail,managedByEmail,choosenEmployeeName,choosenClientCode,choosenGroup;
     private  int MY_REQUEST_READ = 1;
     private ProgressBar barKPISale, barKPINewClient;
@@ -637,6 +638,7 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                 }
 
                 private void clientSupClick() {
+
                     int position = getAdapterPosition();
                     final Client client = adapterDetail.getItem(position);
                     final DatabaseReference refClient = adapterDetail.getRef(position);
@@ -645,22 +647,25 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                     exportClickName = "ThisMonth";
                     choosenClientCode = clientCode;
 
-                    final AlertDialog.Builder builder = new AlertDialog.Builder(ClientListBySaleTeam.this);
-                    View dialogView = getLayoutInflater().inflate(R.layout.dialog_client_detail,null);
-                    builder.setView(dialogView);
+                    final Dialog dialogView = new Dialog(ClientListBySaleTeam.this, R.style.FullWidth_Dialog);
+                    dialogView.setContentView(R.layout.dialog_client_detail);
 
-                    final Dialog dialog = builder.create();
-                    dialog.show();
+                    Window window = dialogView.getWindow();
+                    window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+                            WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL);
 
-                    final BarChart barTime = (BarChart)dialogView.findViewById(R.id.bar_client_detail_sale);
+                    dialogView.show();
+
+                    ConstraintLayout csClientDetail = dialogView.findViewById(R.id.cs_dialog_client_detail);
+                    csClientDetail.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            dialogView.dismiss();
+                        }
+                    });
 
                     final TextView tvClientName = dialogView.findViewById(R.id.tv_client_detail_name);
                     final TextView tvClientAddress = dialogView.findViewById(R.id.tv_client_detail_address);
-
-                    final Button yearSale = dialogView.findViewById(R.id.btn_client_detail_yearsale);
-                    final Button monthSale = dialogView.findViewById(R.id.btn_client_detail_month_sale);
-                    final Button thisMonthSale = dialogView.findViewById(R.id.btn_client_detail_thismonth);
-                    Button btnExportExcel = dialogView.findViewById(R.id.btn_client_detail_exportExcel);
 
                     ImageView phone = dialogView.findViewById(R.id.btn_client_detail_phone);
                     ImageView grouping = dialogView.findViewById(R.id.btn_client_detail_grouping);
@@ -704,76 +709,10 @@ public class ClientListBySaleTeam extends AppCompatActivity {
 
                     //ivSaleRoute.setVisibility(View.GONE);
 
-                    yearSale.setBackground(getResources().getDrawable(R.drawable.border_drug_cat));
-                    monthSale.setBackground(getResources().getDrawable(R.drawable.border_drug_cat));
-                    thisMonthSale.setBackground(getResources().getDrawable(R.drawable.border_drug_cat_accent));
 
                     tvClientName.setText(client.getClientName());
                     tvClientAddress.setText(client.getClientStreet());
 
-                    DateTime dt = new DateTime();
-                    final String month = dt.getMonthOfYear()+"";
-                    final String year = dt.getYear()+"";
-
-                    final List<BarEntry> monthEntries = new ArrayList<>();
-
-                    refDatabase.child("TotalByClient").child(clientCode).addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            Iterable<DataSnapshot> snapTimeSale = dataSnapshot.getChildren();
-
-
-                            for(DataSnapshot itemTime:snapTimeSale){
-
-                                String timeKey = itemTime.getKey();
-
-                                String value = itemTime.getValue().toString();
-
-                                if(timeKey.length()>7 ){
-
-                                    if(timeKey.contains(year+"-"+month)){
-
-                                        monthEntries.add(new BarEntry(Integer.parseInt(timeKey.substring(timeKey.lastIndexOf("-")+1)), Float.parseFloat(value)));
-
-                                        BarDataSet set = new BarDataSet(monthEntries,"Doanh số theo tháng");
-
-                                        BarData data = new BarData(set);
-
-                                        Description description = new Description();
-                                        description.setText("");
-
-                                        barTime.getAxisRight().setDrawGridLines(false);
-                                        barTime.getAxisLeft().setDrawGridLines(false);
-                                        barTime.getXAxis().setDrawGridLines(false);
-                                        barTime.getXAxis().setGranularityEnabled(true);
-                                        //barTime.getXAxis().setDrawLabels(false);
-                                        barTime.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
-
-                                        //barTime.getXAxis().setValueFormatter(new IndexAxisValueFormatter(barEntryLabels));
-                                        barTime.setDescription(description);
-                                        barTime.getAxisRight().setEnabled(false);
-                                        barTime.setTouchEnabled(true);
-                                        //barTime.setMarker(mv);
-                                        barTime.setData(data);
-                                        barTime.animateXY(1000,2000);
-                                        barTime.setFitBars(true); // make the x-axis fit exactly all bars
-                                        barTime.invalidate(); // refresh
-
-                                    }
-                                    //barEntryLabels.add(timeKey.substring(5));
-
-                                }
-
-
-                            }
-
-                        }
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-
-                        }
-                    });
 
                     ivSaleRoute.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -781,111 +720,32 @@ public class ClientListBySaleTeam extends AppCompatActivity {
 
 
                             v.startAnimation(buttonClick);
-                            AlertDialog.Builder builder = new AlertDialog.Builder(ClientListBySaleTeam.this);
-                            View dialogView = getLayoutInflater().inflate(R.layout.dialog_sale_route_man,null);
-                            builder.setView(dialogView);
 
+                            showDialogSaleRoute();
+
+                        }
+
+                        private void showDialogSaleRoute() {
+
+                            AlertDialog.Builder builder = new AlertDialog.Builder(ClientListBySaleTeam.this);
+                            final View dialogView = getLayoutInflater().inflate(R.layout.dialog_sale_route_man,null);
+                            builder.setView(dialogView);
 
                             dialogSaleRoute = builder.create();
                             dialogSaleRoute.show();
+            
+                            employeeList(dialogSaleRoute);
+                            
+                            getAssignDay(dialogSaleRoute);
+               
+                            assignRoute(dialogSaleRoute);
+
+                           
+                        }
+
+                        private void getAssignDay(Dialog dialogView) {
 
                             final TextView tvManageBy = dialogView.findViewById(R.id.tv_dialog_route_man_manageBy);
-                            final TextView tvClientName = dialogView.findViewById(R.id.tv_sale_route_clientname);
-
-                            refDatabase.child("Client").child(choosenClientCode).addListenerForSingleValueEvent(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(DataSnapshot dataSnapshot) {
-                                    Client client = dataSnapshot.getValue(Client.class);
-                                    tvClientName.setText(client.getClientName());
-
-                                    if(dataSnapshot.hasChild("managedBy")){
-
-                                        refDatabase.child("Client").child(choosenClientCode).child("managedBy").addListenerForSingleValueEvent(new ValueEventListener() {
-                                            @Override
-                                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                                Employee employee = dataSnapshot.getValue(Employee.class);
-                                                //Toast.makeText(getApplicationContext(), employee.getEmployeeName(), Toast.LENGTH_LONG).show();
-                                                final String employeeEmail = employee.getEmployeeEmail();
-                                                tvManageBy.setText(employee.getEmployeeName());
-
-                                                refDatabase.child("SaleManBySup").child(userEmail).child("Tất cả").addListenerForSingleValueEvent(new ValueEventListener() {
-                                                    @Override
-                                                    public void onDataChange(DataSnapshot dataSnapshot) {
-                                                        Iterable<DataSnapshot> snapSale = dataSnapshot.getChildren();
-
-                                                        int i =0;
-                                                        for(DataSnapshot itemSale:snapSale){
-                                                            String itemEmail = itemSale.getKey();
-                                                            if(employeeEmail.equals(itemEmail)){
-                                                                choosenEmployee = i;
-                                                                adapterEmployee.notifyDataSetChanged();
-
-                                                            }
-
-                                                            i++;
-                                                        }
-                                                    }
-
-                                                    @Override
-                                                    public void onCancelled(DatabaseError databaseError) {
-
-                                                    }
-                                                });
-
-                                            }
-
-                                            @Override
-                                            public void onCancelled(DatabaseError databaseError) {
-
-                                            }
-                                        });
-
-
-                                    }
-
-                                }
-
-                                @Override
-                                public void onCancelled(DatabaseError databaseError) {
-
-                                }
-                            });
-
-                            rvListSale = dialogView.findViewById(R.id.rv_dialog_route_sale_list);
-                            rvListSale.setHasFixedSize(true);
-                            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(ClientListBySaleTeam.this,LinearLayoutManager.HORIZONTAL,false);
-                            rvListSale.setLayoutManager(linearLayoutManager);
-
-                            adapterEmployee = new FirebaseRecyclerAdapter<Employee, SaleViewHolder>(
-                                    Employee.class,
-                                    R.layout.item_saleman,
-                                    SaleViewHolder.class,
-                                    refDatabase.child("SaleManBySup").child(userEmail).child("Tất cả")
-                            ) {
-                                @Override
-                                public SaleViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-                                    View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_saleman, parent, false);
-                                    return new SaleViewHolder(v);
-                                }
-
-
-                                @Override
-                                protected void populateViewHolder(SaleViewHolder viewHolder, Employee model, int position) {
-                                    viewHolder.saleName.setText(model.getEmployeeName());
-                                    viewHolder.circleSale.setBorderColor((position==choosenEmployee)? getResources().getColor(android.R.color.holo_green_light):getResources().getColor(android.R.color.black));
-                                    viewHolder.circleSale.setBorderWidth((position==choosenEmployee)? 12:6);
-
-                                    //holder.circleClient.setBackground((position==choosenClient)? context.getResources().getDrawable(android.R.color.white):context.getResources().getDrawable(R.drawable.border_drug_cat_accent));
-                                    viewHolder.circleSale.setCircleBackgroundColor((position==choosenEmployee)? getResources().getColor(android.R.color.white):getResources().getColor(android.R.color.transparent));
-                                    viewHolder.circleSale.setImageDrawable(getResources().getDrawable(R.drawable.icon_saleman));
-
-                                }
-                            };
-
-                            rvListSale.setAdapter(adapterEmployee);
-                            adapterEmployee.notifyDataSetChanged();
-
-
 
                             final CheckBox chMon = dialogView.findViewById(R.id.check_dialog_route_monday);
                             final CheckBox chTue = dialogView.findViewById(R.id.check_dialog_route_tuesday);
@@ -948,29 +808,6 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                                                                     }
                                                                 }
                                                             }
-                                                 }
-                                                    }
-
-                                                    @Override
-                                                    public void onCancelled(DatabaseError databaseError) {
-
-                                                    }
-                                                });
-
-                                                refDatabase.child("SaleManBySup").child(userEmail).child("Tất cả").addListenerForSingleValueEvent(new ValueEventListener() {
-                                                    @Override
-                                                    public void onDataChange(DataSnapshot dataSnapshot) {
-                                                        Iterable<DataSnapshot> snapSaleMan = dataSnapshot.getChildren();
-                                                        int i = 0;
-                                                        for(DataSnapshot itemSale:snapSaleMan){
-                                                            String salemanEmail = itemSale.getKey();
-                                                            if(salemanEmail.equals(managedByEmail)){
-                                                                choosenEmployee = i;
-                                                            }else{
-                                                                choosenEmployee = 0;
-                                                            }
-                                                            i++;
-
                                                         }
                                                     }
 
@@ -979,7 +816,6 @@ public class ClientListBySaleTeam extends AppCompatActivity {
 
                                                     }
                                                 });
-
 
                                             }
 
@@ -1003,8 +839,126 @@ public class ClientListBySaleTeam extends AppCompatActivity {
 
                                 }
                             });
+                        }
+
+                        private void employeeList(final Dialog dialogView) {
+                            
+                            final TextView tvManageBy = dialogView.findViewById(R.id.tv_dialog_route_man_manageBy);
+                            final TextView tvClientName = dialogView.findViewById(R.id.tv_sale_route_clientname);
+                            
+                            refDatabase.child("Client").child(choosenClientCode).addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    Client client = dataSnapshot.getValue(Client.class);
+                                    tvClientName.setText(client.getClientName());
+
+                                    if(dataSnapshot.hasChild("managedBy")){
+
+                                        refDatabase.child("Client").child(choosenClientCode).child("managedBy").addListenerForSingleValueEvent(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                                Employee employee = dataSnapshot.getValue(Employee.class);
+                                                //Toast.makeText(getApplicationContext(), employee.getEmployeeName(), Toast.LENGTH_LONG).show();
+                                                final String employeeEmail = employee.getEmployeeEmail();
+                                                tvManageBy.setText(employee.getEmployeeName());
+
+                                                refDatabase.child("SaleManBySup").child(userEmail).child("Tất cả").addListenerForSingleValueEvent(new ValueEventListener() {
+                                                    @Override
+                                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                                        Iterable<DataSnapshot> snapSale = dataSnapshot.getChildren();
+
+                                                        int i =0;
+                                                        for(DataSnapshot itemSale:snapSale){
+                                                            String itemEmail = itemSale.getKey();
+                                                            if(employeeEmail.equals(itemEmail)){
+                                                                choosenEmployee = i;
+                                                                Toast.makeText(getApplicationContext(), choosenEmployee+"", Toast.LENGTH_LONG).show();
+
+                                                                getEmployeeList();
+                                                            }
+
+                                                            i++;
+                                                        }
+                                                    }
+
+                                                    @Override
+                                                    public void onCancelled(DatabaseError databaseError) {
+
+                                                    }
+                                                });
+
+                                            }
+
+                                            @Override
+                                            public void onCancelled(DatabaseError databaseError) {
+
+                                            }
+                                        });
+
+
+                                    }else{
+                                        getEmployeeList();
+
+                                    }
+
+                                }
+
+                                private void getEmployeeList() {
+
+                                    rvListSale = dialogView.findViewById(R.id.rv_dialog_route_sale_list);
+                                    rvListSale.setHasFixedSize(true);
+                                    LinearLayoutManager linearLayoutManager = new LinearLayoutManager(ClientListBySaleTeam.this,LinearLayoutManager.HORIZONTAL,false);
+                                    rvListSale.setLayoutManager(linearLayoutManager);
+
+                                    adapterEmployee = new FirebaseRecyclerAdapter<Employee, SaleViewHolder>(
+                                            Employee.class,
+                                            R.layout.item_saleman,
+                                            SaleViewHolder.class,
+                                            refDatabase.child("SaleManBySup").child(userEmail).child("Tất cả")
+                                    ) {
+                                        @Override
+                                        public SaleViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+                                            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_saleman, parent, false);
+                                            return new SaleViewHolder(v);
+                                        }
+
+
+                                        @Override
+                                        protected void populateViewHolder(SaleViewHolder viewHolder, Employee model, int position) {
+                                            viewHolder.saleName.setText(model.getEmployeeName());
+                                            viewHolder.circleSale.setBorderColor((position==choosenEmployee)? getResources().getColor(android.R.color.holo_green_light):getResources().getColor(android.R.color.black));
+                                            viewHolder.circleSale.setBorderWidth((position==choosenEmployee)? 12:6);
+
+                                            //holder.circleClient.setBackground((position==choosenClient)? context.getResources().getDrawable(android.R.color.white):context.getResources().getDrawable(R.drawable.border_drug_cat_accent));
+                                            viewHolder.circleSale.setCircleBackgroundColor((position==choosenEmployee)? getResources().getColor(android.R.color.white):getResources().getColor(android.R.color.transparent));
+                                            viewHolder.circleSale.setImageDrawable(getResources().getDrawable(R.drawable.icon_saleman));
+
+                                        }
+                                    };
+
+                                    rvListSale.setAdapter(adapterEmployee);
+                                    adapterEmployee.notifyDataSetChanged();
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+
+                                }
+                            });
+
+                        }
+
+                        private void assignRoute(Dialog dialogView) {
+
+                            final CheckBox chMon = dialogView.findViewById(R.id.check_dialog_route_monday);
+                            final CheckBox chTue = dialogView.findViewById(R.id.check_dialog_route_tuesday);
+                            final CheckBox chWed = dialogView.findViewById(R.id.check_dialog_route_wednesday);
+                            final CheckBox chThu = dialogView.findViewById(R.id.check_dialog_route_thu);
+                            final CheckBox chFri = dialogView.findViewById(R.id.check_dialog_route_fri);
+                            final CheckBox chSar = dialogView.findViewById(R.id.check_dialog_route_sar);
 
                             Button btnDone = dialogView.findViewById(R.id.btn_dialog_route_done);
+
                             btnDone.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
@@ -1013,59 +967,63 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                                     Employee manageByEmployee = new Employee(choosenEmployeeName,choosenEmployeeEmail);
 
                                     refDatabase.child("ClientManBySale").child(choosenEmployeeEmail).child("Tất cả").child(clientCode).setValue(client);
+                                    refDatabase.child("Client").child(choosenClientCode).child("managedBy").setValue(manageByEmployee);
 
-                                    if(chMon.isChecked()){
-                                        refDatabase.child("SaleRoute").child(choosenEmployeeEmail).child("a_Thứ hai").child(clientCode).setValue(client);
-                                        refDatabase.child("Client").child(choosenClientCode).child("managedBy").setValue(manageByEmployee);
-                                    }else{
-                                        refDatabase.child("SaleRoute").child(choosenEmployeeEmail).child("a_Thứ hai").child(clientCode).setValue(null);
-                                    }
+                                    if(!chMon.isChecked() && !chTue.isChecked() && !chWed.isChecked() && !chThu.isChecked() &&
+                                            !chFri.isChecked() && !chSar.isChecked()){
 
-                                    if(chTue.isChecked()){
-                                        refDatabase.child("SaleRoute").child(choosenEmployeeEmail).child("b_Thứ ba").child(clientCode).setValue(client);
-                                        refDatabase.child("Client").child(choosenClientCode).child("managedBy").setValue(manageByEmployee);
+                                        Toast.makeText(getApplicationContext(), "Vui lòng chọn ít nhất một ngày trong tuần!", Toast.LENGTH_LONG).show();
 
                                     }else{
-                                        refDatabase.child("SaleRoute").child(choosenEmployeeEmail).child("b_Thứ ba").child(clientCode).setValue(null);
+
+
+                                        if(chMon.isChecked()){
+                                            refDatabase.child("SaleRoute").child(choosenEmployeeEmail).child("a_Thứ hai").child(clientCode).setValue(client);
+                                        }else{
+                                            refDatabase.child("SaleRoute").child(choosenEmployeeEmail).child("a_Thứ hai").child(clientCode).setValue(null);
+                                        }
+
+                                        if(chTue.isChecked()){
+                                            refDatabase.child("SaleRoute").child(choosenEmployeeEmail).child("b_Thứ ba").child(clientCode).setValue(client);
+
+                                        }else{
+                                            refDatabase.child("SaleRoute").child(choosenEmployeeEmail).child("b_Thứ ba").child(clientCode).setValue(null);
+                                        }
+                                        if(chWed.isChecked()){
+                                            refDatabase.child("SaleRoute").child(choosenEmployeeEmail).child("c_Thứ tư").child(clientCode).setValue(client);
+
+                                        }else{
+                                            refDatabase.child("SaleRoute").child(choosenEmployeeEmail).child("c_Thứ tư").child(clientCode).setValue(null);
+                                        }
+
+                                        if(chThu.isChecked()){
+                                            refDatabase.child("SaleRoute").child(choosenEmployeeEmail).child("d_Thứ năm").child(clientCode).setValue(client);
+
+                                        }else{
+                                            refDatabase.child("SaleRoute").child(choosenEmployeeEmail).child("d_Thứ năm").child(clientCode).setValue(null);
+                                        }
+
+                                        if(chFri.isChecked()){
+                                            refDatabase.child("SaleRoute").child(choosenEmployeeEmail).child("e_Thứ sáu").child(clientCode).setValue(client);
+
+                                        }else{
+                                            refDatabase.child("SaleRoute").child(choosenEmployeeEmail).child("e_Thứ sáu").child(clientCode).setValue(null);
+                                        }
+
+                                        if(chSar.isChecked()){
+                                            refDatabase.child("SaleRoute").child(choosenEmployeeEmail).child("f_Thứ bảy").child(clientCode).setValue(client);
+
+                                        }else{
+                                            refDatabase.child("SaleRoute").child(choosenEmployeeEmail).child("f_Thứ bảy").child(clientCode).setValue(null);
+                                        }
+
+                                        dialogSaleRoute.dismiss();
+
+
                                     }
-                                    if(chWed.isChecked()){
-                                        refDatabase.child("SaleRoute").child(choosenEmployeeEmail).child("c_Thứ tư").child(clientCode).setValue(client);
-                                        refDatabase.child("Client").child(choosenClientCode).child("managedBy").setValue(manageByEmployee);
-
-                                    }else{
-                                        refDatabase.child("SaleRoute").child(choosenEmployeeEmail).child("c_Thứ tư").child(clientCode).setValue(null);
-                                    }
-
-                                    if(chThu.isChecked()){
-                                        refDatabase.child("SaleRoute").child(choosenEmployeeEmail).child("d_Thứ năm").child(clientCode).setValue(client);
-                                        refDatabase.child("Client").child(choosenClientCode).child("managedBy").setValue(manageByEmployee);
-
-                                    }else{
-                                        refDatabase.child("SaleRoute").child(choosenEmployeeEmail).child("d_Thứ năm").child(clientCode).setValue(null);
-                                    }
-
-                                    if(chFri.isChecked()){
-                                        refDatabase.child("SaleRoute").child(choosenEmployeeEmail).child("e_Thứ sáu").child(clientCode).setValue(client);
-                                        refDatabase.child("Client").child(choosenClientCode).child("managedBy").setValue(manageByEmployee);
-
-                                    }else{
-                                        refDatabase.child("SaleRoute").child(choosenEmployeeEmail).child("e_Thứ sáu").child(clientCode).setValue(null);
-                                    }
-
-                                    if(chSar.isChecked()){
-                                        refDatabase.child("SaleRoute").child(choosenEmployeeEmail).child("f_Thứ bảy").child(clientCode).setValue(client);
-                                        refDatabase.child("Client").child(choosenClientCode).child("managedBy").setValue(manageByEmployee);
-
-                                    }else{
-                                        refDatabase.child("SaleRoute").child(choosenEmployeeEmail).child("f_Thứ bảy").child(clientCode).setValue(null);
-                                    }
-
-                                    dialogSaleRoute.dismiss();
 
                                 }
                             });
-
-
                         }
                     });
 
@@ -1145,23 +1103,16 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                         public void onClick(View v) {
                             v.startAnimation(buttonClick);
 
+                            showGrouping();
+
+                        }
+
+                        private void showGrouping() {
+
                             final Dialog dialogView = new Dialog(ClientListBySaleTeam.this, R.style.FullWidth_Dialog);
                             dialogView.setContentView(R.layout.dialog_grouping);
                             dialogView.show();
 
-                            /*
-                            builder.setMessage("Đổi nhóm khách hàng?");
-
-                            final EditText input = new EditText(ClientListBySaleTeam.this);
-                            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                                    LinearLayout.LayoutParams.MATCH_PARENT,
-                                    LinearLayout.LayoutParams.MATCH_PARENT);
-                            input.setLayoutParams(lp);
-                            input.setInputType(InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
-                            input.setHint("Nhập tên nhóm");
-                            builder.setView(input);
-*/
-                            //Đổi nhóm khách hàng?
 
                             final Spinner spinGroup       = dialogView.findViewById(R.id.spin_grouping);
                             //final EditText edtGroupName = dialogView.findViewById(R.id.edt_grouping_input);
@@ -1266,9 +1217,90 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                                 }
                             });
 
+                        }
+                    });
+
+                    showYearMonthDaySale(clientCode,dialogView);
+
+
+                }
+
+                private void showYearMonthDaySale(final String clientCode,Dialog dialogView) {
+
+                    DateTime dt = new DateTime();
+                    final String month = dt.getMonthOfYear()+"";
+                    final String year = dt.getYear()+"";
+
+                    final List<BarEntry> monthEntries = new ArrayList<>();
+
+                    final BarChart barTime = (BarChart)dialogView.findViewById(R.id.bar_client_detail_sale);
+                    final Button yearSale = dialogView.findViewById(R.id.btn_client_detail_yearsale);
+                    final Button monthSale = dialogView.findViewById(R.id.btn_client_detail_month_sale);
+                    final Button thisMonthSale = dialogView.findViewById(R.id.btn_client_detail_thismonth);
+                    Button btnExportExcel = dialogView.findViewById(R.id.btn_client_detail_exportExcel);
+
+                    yearSale.setBackground(getResources().getDrawable(R.drawable.border_drug_cat));
+                    monthSale.setBackground(getResources().getDrawable(R.drawable.border_drug_cat));
+                    thisMonthSale.setBackground(getResources().getDrawable(R.drawable.border_drug_cat_accent));
+
+                    refDatabase.child("TotalByClient").child(clientCode).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            Iterable<DataSnapshot> snapTimeSale = dataSnapshot.getChildren();
+
+
+                            for(DataSnapshot itemTime:snapTimeSale){
+
+                                String timeKey = itemTime.getKey();
+
+                                String value = itemTime.getValue().toString();
+
+                                if(timeKey.length()>7 ){
+
+                                    if(timeKey.contains(year+"-"+month)){
+
+                                        monthEntries.add(new BarEntry(Integer.parseInt(timeKey.substring(timeKey.lastIndexOf("-")+1)), Float.parseFloat(value)));
+
+                                        BarDataSet set = new BarDataSet(monthEntries,"Doanh số theo tháng");
+
+                                        BarData data = new BarData(set);
+
+                                        Description description = new Description();
+                                        description.setText("");
+
+                                        barTime.getAxisRight().setDrawGridLines(false);
+                                        barTime.getAxisLeft().setDrawGridLines(false);
+                                        barTime.getXAxis().setDrawGridLines(false);
+                                        barTime.getXAxis().setGranularityEnabled(true);
+                                        //barTime.getXAxis().setDrawLabels(false);
+                                        barTime.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
+
+                                        //barTime.getXAxis().setValueFormatter(new IndexAxisValueFormatter(barEntryLabels));
+                                        barTime.setDescription(description);
+                                        barTime.getAxisRight().setEnabled(false);
+                                        barTime.setTouchEnabled(true);
+                                        //barTime.setMarker(mv);
+                                        barTime.setData(data);
+                                        barTime.animateXY(1000,2000);
+                                        barTime.setFitBars(true); // make the x-axis fit exactly all bars
+                                        barTime.invalidate(); // refresh
+
+                                    }
+                                    //barEntryLabels.add(timeKey.substring(5));
+
+                                }
+
+
+                            }
+
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
 
                         }
                     });
+
 
                     yearSale.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -1639,9 +1671,12 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                             btnOk.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
-                                    Toast.makeText(getApplicationContext(), "Scan QR", Toast.LENGTH_SHORT).show();
-                                    dialog.dismiss();
+                                    Intent it = new Intent(getApplicationContext(), ScanCodeActivity.class);
+                                    //it.putExtra("EmailLogin", emailLogin);
+                                    it.putExtra("ClientCode", clientCode);
+                                    it.putExtra("SaleMan",true);
 
+                                    startActivity(it);
                                 }
                             });
 
@@ -2398,9 +2433,8 @@ public class ClientListBySaleTeam extends AppCompatActivity {
                                             }).setPositiveButton("Có", new DialogInterface.OnClickListener() {
                                                 @Override
                                                 public void onClick(DialogInterface dialog, int which) {
-                                                    dialogSaleRoute.dismiss();
+                                                    //dialogSaleRoute.dismiss();
 
-                                                    //adapterEmployee.notifyDataSetChanged();
                                                     refDatabase.child("Client").child(choosenClientCode).child("managedBy").setValue(employee);
                                                     refDatabase.child("ClientManBySale").child(currentEmployee.getEmployeeEmail()).child("Tất cả").child(choosenClientCode).setValue(null);
 
