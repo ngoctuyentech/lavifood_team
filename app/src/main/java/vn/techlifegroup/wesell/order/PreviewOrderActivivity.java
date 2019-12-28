@@ -28,6 +28,7 @@ import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -35,9 +36,15 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import vn.techlifegroup.wesell.MainActivity;
 import vn.techlifegroup.wesell.R;
@@ -46,6 +53,7 @@ import vn.techlifegroup.wesell.model.Client;
 import vn.techlifegroup.wesell.model.Employee;
 import vn.techlifegroup.wesell.model.OrderDetail;
 import vn.techlifegroup.wesell.model.Product;
+import vn.techlifegroup.wesell.model.Program;
 import vn.techlifegroup.wesell.model.Promotion;
 import vn.techlifegroup.wesell.model.VatModel;
 import vn.techlifegroup.wesell.utils.Constants;
@@ -59,13 +67,19 @@ import static vn.techlifegroup.wesell.utils.Constants.refEmployee;
 
 public class PreviewOrderActivivity extends AppCompatActivity {
 
+    private boolean productDiscount = false, orderDiscount = false, bgm = false;
+    private float orderDisVal = 0;
+    private Map<String,Float> productDisVal = new HashMap<>();
+    private Map<String,Float> productDisValTotal = new HashMap<>();
+    //calc program
+
     private RecyclerView recyclerViewProduct, recyclerViewPromotion;
     private LinearLayoutManager linearLayoutManager;
     private FirebaseRecyclerAdapter<Product,ProductViewHolder> adapterFirebaseProduct,adapterFirebaseAddProduct;
     private FirebaseRecyclerAdapter<Product,EditProductViewHolder> adapterFirebaseEditProduct;
     private FirebaseRecyclerAdapter<Promotion,PromotionViewHolder> adapterFirebasePromotion;
 
-    private DatabaseReference refProduct, refPromotion,refOrderList,refStorage;
+    private DatabaseReference refProduct, refPromotion,refOrderList,refStorage, refOrderPushKey;
     private ImageButton ibInfo, ibProduct, ibPromotion;
     private boolean discountVAT,outRoute,viewOnly,saleMan;
 
@@ -106,6 +120,9 @@ public class PreviewOrderActivivity extends AppCompatActivity {
 
         viewOnly = intent.getBooleanExtra("ViewOnly",false);
 
+        refOrderPushKey = refDatabase.child("OrderList").child(orderPushKey);
+
+
         refOrderList = refDatabase.child("OrderList");
         refStorage = refDatabase.child("Storage");
         //refCompany = refDatabase.child(emailLogin);
@@ -125,9 +142,222 @@ public class PreviewOrderActivivity extends AppCompatActivity {
             }
         });
 
+        checkCurrentProgram();
+        calcDiscount();
         initializeScreen();
 
         //Toast.makeText(getApplicationContext(), discount, Toast.LENGTH_LONG).show();
+
+    }
+
+    private void checkCurrentProgram() {
+
+        Utils.showProgressDialog(PreviewOrderActivivity.this);
+
+        refDatabase.child("Program").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Iterable<DataSnapshot> snapProgram = dataSnapshot.getChildren();
+                long itemCount = dataSnapshot.getChildrenCount();
+
+                int i = 0;
+
+                for(DataSnapshot itemProgram:snapProgram){
+                    i++;
+                    Program program = itemProgram.getValue(Program.class);
+                    final String promotionKey = itemProgram.getKey();
+
+                    final DatabaseReference refProgram = itemProgram.getRef();
+
+                    refProgram.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            if(dataSnapshot.hasChild("ProductDiscount")){
+                                productDiscount = true;
+                                refProgram.child("ProductDiscount").addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        Iterable<DataSnapshot> snapProduct = dataSnapshot.getChildren();
+                                        for (DataSnapshot itemProduct:snapProduct){
+                                            Product p = itemProduct.getValue(Product.class);
+                                            productDisVal.put(p.getProductName(), Float.parseFloat(p.getProductDiscount()));
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+
+                                    }
+                                });
+                            }
+
+                            if(dataSnapshot.hasChild("orderDiscount")){
+                                orderDiscount = true;
+                                refProgram.child("orderDiscount").addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        String discountStr = dataSnapshot.getValue().toString();
+                                        orderDisVal += Float.parseFloat(discountStr);
+
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+
+                                    }
+                                });
+                            }
+
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+
+                    DateTimeFormatter fmt = DateTimeFormat.forPattern("dd-MM-yyyy");
+
+                    DateTime promotionEnd = fmt.parseDateTime(program.getEndDate());
+                    DateTime dt = new DateTime();
+
+                    if(dt.toDate().before( promotionEnd.toDate())){
+
+                        Program addPromotion = new Program(promotionKey,program.getProgramName());
+
+                        refOrderPushKey.child("Promotion").child(promotionKey).setValue(addPromotion);
+                    }
+
+                    if(i == itemCount){
+                        hideProgressDialog();
+                    }
+
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+//checkCurrentProgram
+
+    private void calcDiscount(){
+
+
+        refOrderPushKey.child("ProductList").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                String productNameDis;
+
+                Iterable<DataSnapshot> snapProduct = dataSnapshot.getChildren();
+
+                for (DataSnapshot itemSnap:snapProduct) {
+                    Product currentProgram = itemSnap.getValue(Product.class);
+
+                    productNameDis = currentProgram.getProductName();
+
+                    refDatabase.child("ProductList").child(productNameDis).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+/*
+                    if(productDiscount){
+                        float productDis = 0;
+                        float currentProductDisRate = (productDisVal.containsKey(productName)) ? productDisVal.get(productName) : 0;
+                        float currentProductDis = productTotal * currentProductDisRate/100;
+
+                        productDisValTotal.put(productName,currentProductDis);
+
+                        for(Map.Entry<String,Float> entry:productDisValTotal.entrySet()){
+                            productDis += entry.getValue();
+                        }
+
+                        Product updateP = new Product(productName, quantity, productPrice+"", productTotal+"");
+
+                        final float finalProductDis = productDis;
+                        refUserUid.child("OrderTemp").child(orderPushKey).child("ProductList").child(productKey).setValue(updateP).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                refUserUid.child("OrderTemp").child(orderPushKey).child("ProductList").addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        Iterable<DataSnapshot> snapP = dataSnapshot.getChildren();
+                                        float totalPayment = 0;
+
+                                        for (DataSnapshot itemSnap:snapP){
+                                            Product currentP = itemSnap.getValue(Product.class);
+                                            totalPayment += Float.parseFloat(currentP.getProductTotal());
+                                            float orderTotal = totalPayment - finalProductDis;
+
+                                            if(orderDiscount){
+
+                                                Toast.makeText(getApplicationContext(), orderTotal +"", Toast.LENGTH_LONG).show();
+
+                                                float orderDiscount = orderTotal * orderDisVal/100;
+                                                float totalDiscount =  finalProductDis + orderDiscount;
+                                                orderTotal = (totalPayment - totalDiscount);
+
+                                                finalPayment = totalPayment+"";
+                                                finalTotal = orderTotal+"";
+                                                finalDiscount = totalDiscount +"";
+
+                                                tvTotalPayment.setText(Utils.convertNumber(totalPayment+""));
+                                                tvOrderDiscount.setText(Utils.convertNumber(totalDiscount+""));
+                                                tvOrderTotal.setText(Utils.convertNumber(orderTotal+""));
+
+                                            }else{
+
+                                                finalPayment = totalPayment+"";
+                                                finalTotal = orderTotal+"";
+                                                finalDiscount = finalProductDis +"";
+
+                                                tvTotalPayment.setText(Utils.convertNumber(totalPayment+""));
+                                                tvOrderDiscount.setText(Utils.convertNumber(finalProductDis +""));
+                                                tvOrderTotal.setText(Utils.convertNumber(orderTotal+""));
+
+                                            }
+
+
+                                        }
+
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+
+                                    }
+                                });
+                            }
+                        });
+
+                    }
+
+ */
+//code we share
+
+
+
+                }
+
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
 
     }
 
@@ -323,7 +553,7 @@ public class PreviewOrderActivivity extends AppCompatActivity {
         linearLayoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerViewPromotion.setLayoutManager(linearLayoutManager);
 
-        refPromotion = refDatabase.child("OrderList").child(orderPushKey).child("Promotion");
+        refPromotion = refDatabase.child("Program");
 
         adapterFirebasePromotion = new FirebaseRecyclerAdapter<Promotion, PromotionViewHolder>(
                 Promotion.class,
@@ -340,7 +570,7 @@ public class PreviewOrderActivivity extends AppCompatActivity {
 
             @Override
             protected void populateViewHolder(PromotionViewHolder viewHolder, Promotion model, int position) {
-                viewHolder.mPromotionName.setText(model.getPromotionName());
+                viewHolder.mPromotionName.setText(model.getProgramName());
             }
         };
 
@@ -374,6 +604,8 @@ public class PreviewOrderActivivity extends AppCompatActivity {
                 viewHolder.productName.setText(model.getProductName());
                 viewHolder.productPrice.setText(Utils.convertNumber(model.getUnitPrice()));
                 viewHolder.productQuantity.setText(model.getUnitQuantity());
+                viewHolder.productTotal.setText(Utils.convertNumber(model.getFinalPayment()));
+
             }
         };
 
@@ -454,16 +686,15 @@ public class PreviewOrderActivivity extends AppCompatActivity {
         }
     }
     public class ProductViewHolder extends RecyclerView.ViewHolder {
-        TextView productName, productPrice, productQuantity;
+        TextView productName, productPrice, productQuantity, productTotal;
 
 
         public ProductViewHolder(View itemView) {
             super(itemView);
-            productName = (TextView)itemView.findViewById(R.id.tv_item_product_name);
-            productPrice = (TextView)itemView.findViewById(R.id.tv_item_product_price);
+            productName     = (TextView)itemView.findViewById(R.id.tv_item_product_name);
+            productPrice    = (TextView)itemView.findViewById(R.id.tv_item_product_price);
             productQuantity = (TextView) itemView.findViewById(R.id.tv_item_product_quantity);
-
-
+            productTotal = (TextView) itemView.findViewById(R.id.tv_item_product_total);
 
         }
     }
@@ -876,8 +1107,6 @@ public class PreviewOrderActivivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
-
-
 
     public void showProgressDialog() {
         if (mProgressDialog == null) {

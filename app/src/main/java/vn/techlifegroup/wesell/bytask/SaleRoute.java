@@ -92,7 +92,7 @@ public class SaleRoute extends AppCompatActivity implements OnMapReadyCallback {
     private static final String TAG = SaleRoute.class.getSimpleName();
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
     private boolean mLocationPermissionGranted = false;
-    public static String emailLogin, userEmail;
+    public static String userEmail;
     public static double latitude, longitude, clientOnMapLat, clientOnMapLong, currentDistance;
     private HashMap<String, Double> distanceMap = new HashMap<>();
     private Map sortTopProduct;
@@ -120,7 +120,7 @@ public class SaleRoute extends AppCompatActivity implements OnMapReadyCallback {
         mapFragment.getMapAsync(this);
 
         Intent it = this.getIntent();
-        emailLogin = it.getStringExtra("EmailLogin");
+        //emailLogin = it.getStringExtra("EmailLogin");
         supervisor = it.getBooleanExtra("Supervisor", false);
         saleEmail = it.getStringExtra("SaleEmail");
         saleMan = it.getBooleanExtra("SaleMan", false);
@@ -161,7 +161,7 @@ public class SaleRoute extends AppCompatActivity implements OnMapReadyCallback {
             getCurrentLatLong();
 
             Intent itService = new Intent(getApplicationContext(), EmployeeTracker.class);
-            itService.putExtra("EmailLogin", emailLogin);
+            //itService.putExtra("EmailLogin", emailLogin);
             itService.putExtra("SaleEmail", userEmail);
             startService(itService);
         }
@@ -273,7 +273,7 @@ public class SaleRoute extends AppCompatActivity implements OnMapReadyCallback {
                 Client.class,
                 R.layout.item_client_circle,
                 ClientViewHolder.class,
-                refDatabase.child(emailLogin).child("SaleRoute").child(userEmail).child(currentDay)
+                refDatabase.child("SaleRoute").child(userEmail).child(currentDay)
         ) {
             @Override
             public ClientViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -381,7 +381,7 @@ public class SaleRoute extends AppCompatActivity implements OnMapReadyCallback {
 
                 String timeStamp = Calendar.getInstance().getTime().getTime() + "";
                 Employee employeeVisit = new Employee(timeStamp, choosenClientCode, choosenClientName);
-                refDatabase.child(emailLogin).child("SaleVisit").child(userEmail).child(date).child(choosenClientCode).setValue(employeeVisit);
+                refDatabase.child("SaleVisit").child(userEmail).child(date).child(choosenClientCode).setValue(employeeVisit);
 
             }
 
@@ -397,11 +397,11 @@ public class SaleRoute extends AppCompatActivity implements OnMapReadyCallback {
                 Toast.makeText(getApplicationContext(), "Đã check !", Toast.LENGTH_LONG).show();
 
                 final String timeStamp = Calendar.getInstance().getTime().getTime() + "";
-                refDatabase.child(emailLogin).child("SaleVisit").child(userEmail).child(date).addListenerForSingleValueEvent(new ValueEventListener() {
+                refDatabase.child("SaleVisit").child(userEmail).child(date).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (dataSnapshot.hasChild(choosenClientCode)) {
-                            refDatabase.child(emailLogin).child("SaleVisit").child(userEmail).child(date).child(choosenClientCode).child("outTime").setValue(timeStamp);
+                            refDatabase.child("SaleVisit").child(userEmail).child(date).child(choosenClientCode).child("outTime").setValue(timeStamp);
                         } else {
                             Toast.makeText(getApplicationContext(), "Bạn chưa check in!", Toast.LENGTH_LONG).show();
                         }
@@ -413,7 +413,7 @@ public class SaleRoute extends AppCompatActivity implements OnMapReadyCallback {
                     }
                 });
 
-                refDatabase.child(emailLogin).child("SaleRoute").child(userEmail).child(currentDay).child(choosenClientCode).child("isMet").setValue(true).addOnCompleteListener(new OnCompleteListener<Void>() {
+                refDatabase.child("SaleRoute").child(userEmail).child(currentDay).child(choosenClientCode).child("isMet").setValue(true).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         listOfVisit(currentDay);
@@ -428,13 +428,13 @@ public class SaleRoute extends AppCompatActivity implements OnMapReadyCallback {
             public void onClick(View v) {
                 v.startAnimation(Constants.buttonClick);
 
-                refDatabase.child(emailLogin).child("SaleVisit").child(userEmail).child(date).addListenerForSingleValueEvent(new ValueEventListener() {
+                refDatabase.child("SaleVisit").child(userEmail).child(date).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (dataSnapshot.hasChild(choosenClientCode)) {
 
                             Intent it = new Intent(getApplicationContext(), UpdateOrderActivity.class);
-                            it.putExtra("EmailLogin", emailLogin);
+                            //it.putExtra("EmailLogin", emailLogin);
                             it.putExtra("ClientCode", choosenClientCode);
                             it.putExtra("SaleMan", true);
                             startActivity(it);

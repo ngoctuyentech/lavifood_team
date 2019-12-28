@@ -12,7 +12,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -68,13 +70,23 @@ import static vn.techlifegroup.wesell.utils.Constants.refUsers;
 
 public class UpdateOrderActivity extends AppCompatActivity {
 
+    private boolean quantityAccepted = false;
+    private List<String> addedProducts = new ArrayList<>();
+
+    //btn add product
+
     private Spinner spinSales, spinPayment, spinUnitName, spinGroup, spinProduct, spinVAT;
     private ImageButton addPromotion;
     private Bundle b = new Bundle();
-    private EditText edtproductQuantity, edtdeliveryDate, edtSpecialDiscount, edtDialogProductQuantity, edtOrderDiscount, edtOrderNote;
-    private TextView currentStorage, tvClientName, tvClientSale, clientDebt, tvEmployeeName, tvProductName, tvEmployeeMonthSale, tvPromotionName, tvProductPrice;
+    private EditText edtproductQuantity, edtdeliveryDate, edtSpecialDiscount, edtDialogProductQuantity,
+            edtOrderDiscount, edtOrderNote;
+
+    private TextView currentStorage, tvClientName, tvClientSale, clientDebt, tvEmployeeName, tvProductName,
+            tvEmployeeMonthSale, tvPromotionName, tvProductPrice;
+
     private String orderDiscount, orderPushKeyString, clientCode, paymentType, promotionName, productStock,
             clientType, employeeName, productName, choosenVAT, clientName, saleManEmail, productCode;
+
     private TextView edtproductPrice;
     private Switch switchPayment;
     private Button btnChooseEmployee, btnChooseProduct, btnChoosePromotion, btnPreview;
@@ -85,6 +97,8 @@ public class UpdateOrderActivity extends AppCompatActivity {
     private FirebaseRecyclerAdapter<Product, ProductOrderViewHolder> adapterProductOrder;
 
     private LinearLayoutManager linearLayoutManager;
+    private LinearLayoutManager linearLayoutManagerPromotion;
+
     private RecyclerView employeeList, programList, programListOrder, recyclerViewPromotion;
     private AlertDialog.Builder dialogBuilder;
     private View dialogView;
@@ -115,6 +129,8 @@ public class UpdateOrderActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        initializeRecyclerViewPromotion();
 
 
         // b.putString("OrderPushKey",orderPushKeyString);
@@ -174,7 +190,13 @@ public class UpdateOrderActivity extends AppCompatActivity {
             public void onClick(View v) {
                 v.startAnimation(Constants.buttonClick);
                 //productListDialog();
-                addProductToList();
+
+                if(addedProducts.contains(productChoose)){
+                    Toast.makeText(getApplicationContext(), "Sản phẩm đã được thêm vào đơn!", Toast.LENGTH_LONG).show();
+
+                }else {
+                    addProductToList();
+                }
 
             }
         });
@@ -204,12 +226,20 @@ public class UpdateOrderActivity extends AppCompatActivity {
             spinProduct.setSelection(0);
             edtproductQuantity.setText(null);
             currentStorage.setText(null);
+            tvProductPrice.setText(null);
 
             float finalProductPayment = Float.parseFloat(chosenProductPrice) * Float.parseFloat(productQuantity);
 
             final Product currentProduct = new Product(productChoose, chosenProductPrice, productQuantity, productCode, finalProductPayment + "");
 
-            refDatabase.child("OrderList").child(orderPushKeyString).child("ProductList").push().setValue(currentProduct);
+            refDatabase.child("OrderList").child(orderPushKeyString).child("ProductList").push().setValue(currentProduct).
+                    addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            addedProducts.add(productChoose);
+
+                        }
+                    });
 
         }
     }
@@ -412,7 +442,6 @@ public class UpdateOrderActivity extends AppCompatActivity {
             }
         });
 
-
         spinProduct.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -422,6 +451,40 @@ public class UpdateOrderActivity extends AppCompatActivity {
                 currentStorage.setText(null);
 
                 if (position != 0) {
+
+                    edtproductQuantity.addTextChangedListener(new TextWatcher() {
+                        @Override
+                        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                        }
+
+                        @Override
+                        public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                        }
+
+                        @Override
+                        public void afterTextChanged(Editable s) {
+                            String quantity = s.toString();
+
+                            if(!TextUtils.isEmpty(s)){
+                                if(quantity.equals("0")||quantity.equals("00")||quantity.equals("00")||quantity.equals("00")){
+                                    Toast.makeText(getApplicationContext(), "Vui lòng nhập số lượng khác 0!", Toast.LENGTH_LONG).show();
+                                    quantityAccepted = false;
+                                    edtproductQuantity.setText(null);
+
+                                }else{
+                                    quantityAccepted = true;
+
+                                }
+
+                            }else{
+                                quantityAccepted = false;
+
+                            }
+                        }
+                    });
+
                     productChoose = (String) parent.getItemAtPosition(position);
 
                     refDatabase.child("ProductListByGroup").child(groupChoose).child(productIndex.get(position - 1)).child("productPrice").addListenerForSingleValueEvent(new ValueEventListener() {
@@ -462,6 +525,7 @@ public class UpdateOrderActivity extends AppCompatActivity {
             }
         });
 
+
         rvProductList = findViewById(R.id.rv_order_list_product);
 
         rvProductList.setHasFixedSize(true);
@@ -487,9 +551,16 @@ public class UpdateOrderActivity extends AppCompatActivity {
 
             @Override
             protected void populateViewHolder(ProductOrderViewHolder viewHolder, Product model, int position) {
+
+                Float quantityFloat = Float.parseFloat(model.getUnitQuantity());
+                Float priceFloat    = Float.parseFloat(model.getUnitPrice());
+                Float totalFloat    = Float.parseFloat(model.getFinalPayment());
+
                 viewHolder.name.setText(model.getProductName());
-                viewHolder.price.setText(model.getUnitPrice());
-                viewHolder.quantity.setText(model.getUnitQuantity());
+                viewHolder.price.setText(Utils.convertNumber(priceFloat+""));
+                viewHolder.quantity.setText(Utils.convertNumber(quantityFloat+""));
+                viewHolder.total.setText(Utils.convertNumber(totalFloat+""));
+
             }
         };
 
@@ -600,17 +671,20 @@ public class UpdateOrderActivity extends AppCompatActivity {
     }
 
     private void initializeRecyclerViewPromotion() {
-        recyclerViewPromotion.setHasFixedSize(true);
-        linearLayoutManager = new LinearLayoutManager(getApplicationContext());
-        recyclerViewPromotion.setLayoutManager(linearLayoutManager);
 
-        refPromotion = refDatabase.child("Promotion");
+        recyclerViewPromotion = findViewById(R.id.rv_activity_order_promotion);
+
+        recyclerViewPromotion.setHasFixedSize(true);
+        linearLayoutManagerPromotion = new LinearLayoutManager(getApplicationContext());
+        recyclerViewPromotion.setLayoutManager(linearLayoutManagerPromotion);
+
+        //refPromotion = refDatabase.child("Promotion");
 
         adapterFirebasePromotion = new FirebaseRecyclerAdapter<Promotion, PromotionViewHolder>(
                 Promotion.class,
                 R.layout.item_promotion,
                 PromotionViewHolder.class,
-                refPromotion
+                refDatabase.child("Program")
         ) {
             @Override
             public PromotionViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -621,7 +695,7 @@ public class UpdateOrderActivity extends AppCompatActivity {
 
             @Override
             protected void populateViewHolder(PromotionViewHolder viewHolder, Promotion model, int position) {
-                viewHolder.promotionName.setText(model.getContent());
+                viewHolder.promotionName.setText(model.getProgramName());
             }
         };
 
@@ -710,8 +784,9 @@ public class UpdateOrderActivity extends AppCompatActivity {
         adapterFirebase.notifyDataSetChanged();
 
     }
-
+/*
     private void programListDialog() {
+
 
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_program_list, null);
@@ -720,6 +795,8 @@ public class UpdateOrderActivity extends AppCompatActivity {
 
         dialogProgramList = dialogBuilder.create();
         dialogProgramList.show();
+
+
 
         programList = (RecyclerView) dialogView.findViewById(R.id.rv_program_list);
         programList.setHasFixedSize(true);
@@ -750,6 +827,9 @@ public class UpdateOrderActivity extends AppCompatActivity {
         adapterFirebasePromotion.notifyDataSetChanged();
 
     }
+
+ */
+//programListDialog
 
     private void sendForPreview() {
 
@@ -937,20 +1017,20 @@ public class UpdateOrderActivity extends AppCompatActivity {
     }
 
     public class ProductOrderViewHolder extends RecyclerView.ViewHolder {
-        TextView name, price, quantity;
+        TextView name, price, quantity, total;
 
         public ProductOrderViewHolder(View itemView) {
             super(itemView);
-            name = (TextView) itemView.findViewById(R.id.tv_item_product_name);
-            price = itemView.findViewById(R.id.tv_item_product_price);
+            name     = (TextView) itemView.findViewById(R.id.tv_item_product_name);
+            price    = itemView.findViewById(R.id.tv_item_product_price);
             quantity = itemView.findViewById(R.id.tv_item_product_quantity);
-
+            total    = itemView.findViewById(R.id.tv_item_product_total);
 
         }
     }
 
     public class ProductViewHolder extends RecyclerView.ViewHolder {
-        TextView name, price, quantity;
+        TextView name, price, quantity, total;
 
         public ProductViewHolder(View itemView) {
             super(itemView);
